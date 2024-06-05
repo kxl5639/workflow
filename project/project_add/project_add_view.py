@@ -3,7 +3,7 @@ from tkinter import ttk, messagebox
 from utils import center_window
 from project.project_controller import add_project
 from project.project_utils import populate_treeview_with_projects
-from project.project_model import Project, field_metadata
+from project.project_model import field_metadata
 
 def refresh_project_table(tree):
     for item in tree.get_children():
@@ -34,6 +34,7 @@ def open_add_project_window(tree):
 
     # Place fields in the specified frame
     row_counters = {i: 0 for i in range(1, 5)}
+    first_entry = None  # Variable to store the first entry widget
     for field in fields:
         frame_index = field_to_frame[field]
         frame = frames[frame_index]
@@ -43,6 +44,8 @@ def open_add_project_window(tree):
         entry.insert(0, default_values[field])  # Pre-fill with specific default value
         entry.grid(row=row_counters[frame_index], column=1, padx=10, pady=5)
         entries[field] = entry
+        if first_entry is None:
+            first_entry = entry  # Store the first entry widget
         row_counters[frame_index] += 1
 
     def add_project_wrapper():
@@ -60,3 +63,6 @@ def open_add_project_window(tree):
     add_button.grid(row=1, column=0, columnspan=4, pady=10)
 
     center_window(add_window)
+
+    if first_entry is not None:
+        first_entry.focus_set()  # Set focus to the first entry widget
