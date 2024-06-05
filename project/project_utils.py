@@ -1,12 +1,8 @@
-from project.project_model import session, Project
+from project.project_model import session, Project, field_metadata
 
-
-def project_columns_to_display(): #THIS INDICATES WHAT COLUMNS I WANT TO SHOW IN THE PROJECTS WINDOW
-    return (
-        "project_number", "client", "scope", "address",
-        "project_manager", "design_engineer", "sales_engineer", "submittal_date",
-        "mechanical_engineer", "mechanical_contractor"
-    )
+def project_columns_to_display():
+    # Extract columns with display value set to 1
+    return [field for field, meta in field_metadata.items() if meta['display'] == 1]
 
 def fetch_projects():
     return session.query(Project).all()
@@ -26,7 +22,3 @@ def populate_treeview_with_projects(tree):
     for project in projects:
         values = tuple(getattr(project, col) for col in columns)
         tree.insert('', 'end', values=values)
-
-
-
-
