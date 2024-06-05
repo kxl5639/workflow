@@ -56,6 +56,21 @@ def open_add_project_window(tree):
         row_counters[frame_index] += 1
 
     def add_project_wrapper():
+        # Check if any entry is empty
+        empty_fields = []
+        first_empty_entry = None
+        for field, entry in entries.items():
+            if not entry.get().strip():
+                empty_fields.append(field.replace("_", " ").title())
+                if first_empty_entry is None:
+                    first_empty_entry = entry
+
+        if empty_fields:
+            messagebox.showerror("Error", f"The following fields cannot be empty:\n" + "\n" + "\n".join(empty_fields))
+            if first_empty_entry:
+                first_empty_entry.focus_set()  # Set focus to the first empty entry widget
+            return
+        
         # Convert entries keys to the expected format with underscores
         formatted_entries = {field.replace(" ", "_").lower(): entry for field, entry in entries.items()}
         
