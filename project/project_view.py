@@ -1,0 +1,45 @@
+import tkinter as tk
+from tkinter import ttk
+from utils import center_window
+from components.buttons import create_addmodifydelete_buttons
+from project.project_add.project_add_view import open_add_project_window  
+from project.project_utils import populate_treeview_with_projects, project_columns_to_display
+
+def refresh_project_table(tree):
+    for item in tree.get_children():
+        tree.delete(item)
+
+    populate_treeview_with_projects(tree)
+
+def create_project_window():
+    window = tk.Toplevel()
+    window.title("Projects")
+
+    #label = ttk.Label(window, text="Projects")
+    #label.pack(pady=10)
+
+    # Create the treeview
+    columns = project_columns_to_display() #Determind from project_utils.py
+    tree = ttk.Treeview(window, columns=columns, show='headings')
+
+    # Define the column headings and set a minimum width
+    for col in columns:
+        tree.heading(col, text=col.replace("_", " ").title())
+        tree.column(col, width=max(10, len(col.replace("_", " ").title()) * 10), anchor='center')
+
+    # Fetch the project data and insert it into the treeview
+    populate_treeview_with_projects(tree)
+
+    tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+    # Create and add the action buttons
+    button_frame = create_addmodifydelete_buttons(window, add_command=lambda: open_add_project_window(tree))
+    button_frame.pack(pady=10)
+
+    # Center the window after adding widgets
+    center_window(window)
+
+    # Bring the window to the front and set focus
+    window.focus_force()
+
+    window.mainloop()
