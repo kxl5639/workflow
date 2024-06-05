@@ -3,13 +3,9 @@ from tkinter import ttk
 from utils import center_window
 from components.buttons import create_addmodifydelete_buttons
 from project.project_add.project_add_view import open_add_project_window  
+#from project.project_modify.project_modify_view import open_modify_project_window
+from project.project_modify.project_modify_controller import modify_project
 from project.project_utils import populate_treeview_with_projects, project_columns_to_display
-
-def refresh_project_table(tree):
-    for item in tree.get_children():
-        tree.delete(item)
-
-    populate_treeview_with_projects(tree)
 
 def create_project_window():
     window = tk.Toplevel()
@@ -33,9 +29,14 @@ def create_project_window():
     tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
     # Create and add the action buttons
-    button_frame = create_addmodifydelete_buttons(window, add_command=lambda: open_add_project_window(tree))
+    #button_frame = create_addmodifydelete_buttons(window, add_command=lambda: open_add_project_window(tree))
+    button_frame = create_addmodifydelete_buttons(
+        window,
+        add_command=lambda: open_add_project_window(tree),
+        modify_command=lambda: modify_project(tree)  # Modify button command
+    )
     button_frame.pack(pady=10)
-
+  
     # Center the window after adding widgets
     center_window(window)
 

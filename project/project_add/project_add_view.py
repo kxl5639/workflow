@@ -2,15 +2,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from utils import center_window
 from project.project_controller import add_project
-from project.project_utils import populate_treeview_with_projects
+from project.project_utils import populate_treeview_with_projects, refresh_project_table
 from project.project_model import field_metadata
 from app import testing  # Import the testing variable
-
-def refresh_project_table(tree):
-    for item in tree.get_children():
-        tree.delete(item)
-
-    populate_treeview_with_projects(tree)
 
 def open_add_project_window(tree):
     add_window = tk.Toplevel()

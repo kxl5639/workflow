@@ -21,4 +21,9 @@ def populate_treeview_with_projects(tree):
     # Insert projects into the treeview
     for project in projects:
         values = tuple(getattr(project, col) for col in columns)
-        tree.insert('', 'end', values=values)
+        tree.insert('', 'end', values=values, iid=project.id)  # Use project.id as the item identifier (iid)
+
+def refresh_project_table(tree):
+    for item in tree.get_children():
+        tree.delete(item)
+    populate_treeview_with_projects(tree)
