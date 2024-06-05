@@ -4,6 +4,7 @@ from utils import center_window
 from project.project_controller import add_project
 from project.project_utils import populate_treeview_with_projects
 from project.project_model import field_metadata
+from app import testing  # Import the testing variable
 
 def refresh_project_table(tree):
     for item in tree.get_children():
@@ -40,8 +41,14 @@ def open_add_project_window(tree):
         frame = frames[frame_index]
         label = ttk.Label(frame, text=field.replace("_", " ").title())
         label.grid(row=row_counters[frame_index], column=0, padx=10, pady=5, sticky=tk.W)
-        entry = ttk.Entry(frame)
-        entry.insert(0, default_values[field])  # Pre-fill with specific default value
+        entry = ttk.Entry(frame)      
+        if testing:  # Pre-fill values depending on testing mode or not
+            if field == "submittal_date":
+                entry.insert(0, "XX/XX/XX")
+            else:
+                entry.insert(0, "TESTING")
+        else:  # Pre-fill values with specific default value in production mode
+            entry.insert(0, default_values[field])   
         entry.grid(row=row_counters[frame_index], column=1, padx=10, pady=5)
         entries[field] = entry
         if first_entry is None:
