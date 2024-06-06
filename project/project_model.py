@@ -29,6 +29,7 @@ field_metadata = {
     "mc_zip_code": {"type": Column(String(20)), "default": "10000", "frame": 4, "display": 0},
     "design_engineer": {"type": Column(String(100)), "default": "Kevin Lee", "frame": 1, "display": 1},
     "sales_engineer": {"type": Column(String(100)), "default": "", "frame": 1, "display": 1}
+    
 }
 
 # Dynamically create the Project class

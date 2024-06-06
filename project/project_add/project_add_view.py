@@ -36,7 +36,7 @@ def open_add_project_window(tree):
         label = ttk.Label(frame, text=field.replace("_", " ").title())
         label.grid(row=row_counters[frame_index], column=0, padx=10, pady=5, sticky=tk.W)
         entry = ttk.Entry(frame)      
-        if testing:  # Pre-fill values depending on testing mode or not
+        if testing:  # Set entries to "TESTING" in testing mode
             if field == "submittal_date":
                 entry.insert(0, "XX/XX/XX")
             else:
@@ -60,10 +60,21 @@ def open_add_project_window(tree):
                     first_empty_entry = entry
 
         if empty_fields:
-            messagebox.showerror("Error", f"The following fields cannot be empty:\n" + "\n" + "\n".join(empty_fields))
+            error_message_window = tk.Toplevel()
+            error_message_window.transient(add_window)
+            error_message_window.title("Error")
+            ttk.Label(error_message_window, text=f"The following fields cannot be empty:\n" + "\n" + "\n".join(empty_fields)).pack(padx=10, pady=10)
+            ttk.Button(error_message_window, text="OK", command=error_message_window.destroy).pack(pady=5)
+            center_window(error_message_window)
+
+            error_message_window.grab_set()  # Make the window modal
+            error_message_window.focus_force()  # Focus on the error message window
+            add_window.wait_window(error_message_window)  # Wait until the error message window is closed
+
             if first_empty_entry:
                 first_empty_entry.focus_set()  # Set focus to the first empty entry widget
             return
+            
         
         # Convert entries keys to the expected format with underscores
         formatted_entries = {field.replace(" ", "_").lower(): entry for field, entry in entries.items()}
