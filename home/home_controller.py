@@ -1,6 +1,6 @@
 from home.home_view import create_home_window
 from project.project_view import create_project_window
-from project.design_eng_view import create_design_eng_window
+from design_eng.design_eng_view import create_design_eng_window
 
 def projects_button_clicked():    
     create_project_window()
