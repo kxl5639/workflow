@@ -1,4 +1,4 @@
-from datetime import datetime
+#from datetime import datetime   #THIS IS COMMENTED OUT TO SEE IF I RUN INTO AN ERROR WHEN ADD_PROJECT FUNCTION IS CALLED BECAUSE I AM NOT SURE IF ANYTHING IS CALLING THIS FUNCTION NOW THAT WE ARE CHECKING THE DATE FORMAT IN PROJECT_ADD_CONTROLLER
 from project.project_model import session, Project, field_metadata
 from project.project_utils import fetch_projects
 

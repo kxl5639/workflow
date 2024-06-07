@@ -2,7 +2,8 @@
 from tkinter import messagebox, Toplevel, ttk
 from project.project_model import session, Project
 from project.project_utils import refresh_project_table
-from utils import center_window
+from utils import show_custom_error_message
+from datetime import datetime
 
 def add_project(formatted_entries):
     try:
@@ -23,27 +24,29 @@ def add_project_wrapper(entries, tree, add_window):
                 first_empty_entry = entry
 
     if empty_fields:
-        show_error_message(add_window, empty_fields)
+        show_custom_error_message(add_window, "Error", f"The following fields cannot be empty:\n" + "\n" + "\n".join(empty_fields))
         if first_empty_entry:
             first_empty_entry.focus_set()
         return
-    
+
     formatted_entries = {field: entry.get() for field, entry in entries.items()}
+    
+    submittal_date_str = formatted_entries.get("submittal_date")
+ 
+    # Try to parse the date if it is not a placeholder
+    if submittal_date_str != "XX/XX/XX":
+        try:
+            submittal_date = datetime.strptime(submittal_date_str, '%m/%d/%y').date()
+            #submittal_date_str = submittal_date.isoformat()
+            formatted_entries["submittal_date"] = submittal_date.strftime('%m/%d/%y')
+
+        except ValueError:
+            show_custom_error_message(add_window, "Error", "Invalid Date Format. Please enter the date in MM/DD/YY format.")
+            return
+
     error_message = add_project(formatted_entries)
     if error_message:
         messagebox.showerror("Error", error_message)
     else:
         refresh_project_table(tree)
         add_window.destroy()
-
-def show_error_message(parent_window, empty_fields):
-    error_message_window = Toplevel()
-    error_message_window.transient(parent_window)
-    error_message_window.title("Error")
-    ttk.Label(error_message_window, text=f"The following fields cannot be empty:\n" + "\n" + "\n".join(empty_fields)).pack(padx=10, pady=10)
-    ttk.Button(error_message_window, text="OK", command=error_message_window.destroy).pack(pady=5)
-    center_window(error_message_window)
-
-    error_message_window.grab_set()  # Make the window modal
-    error_message_window.focus_force()  # Focus on the error message window
-    parent_window.wait_window(error_message_window)  # Wait until the error message window is closed
