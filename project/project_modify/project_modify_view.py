@@ -3,9 +3,14 @@ import tkinter as tk
 from tkinter import ttk
 from utils import center_window
 from project.project_model import field_metadata
-from project.project_modify.project_modify_controller import modify_project_wrapper
+from project.project_modify.project_modify_controller import modify_project_properly_selected, modify_project_wrapper
 
-def open_modify_project_window(project, tree):#, update_command):
+def open_modify_project_window(tree):
+    if modify_project_properly_selected(tree) == None:
+        return
+    else:
+        project = modify_project_properly_selected(tree)
+
     modify_window = tk.Toplevel()
     modify_window.title("Modify Project")
 

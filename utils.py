@@ -21,3 +21,10 @@ def show_custom_error_message(parent_window, title, message):
     error_message_window.grab_set()  # Make the window modal
     error_message_window.focus_force()  # Focus on the error message window
     parent_window.wait_window(error_message_window)  # Wait until the error message window is closed
+
+def only_one_project_selected(tree):
+    selected_items = tree.selection()    
+    if len(selected_items) > 1:
+        return False
+    else:
+        return True

@@ -1,23 +1,20 @@
 from tkinter import messagebox
 from project.project_model import session, Project
 from project.project_utils import refresh_project_table, validate_date_format
-from utils import show_custom_error_message
+from utils import show_custom_error_message, only_one_project_selected
 
-def get_selected_project(tree):
+def modify_project_properly_selected(tree):
     selected_item = tree.selection()
-    if not selected_item:
-        return None
-    project_id = selected_item[0]  # The item identifier (iid) is the project ID
-    project = session.query(Project).get(project_id)
-    return project
-
-def modify_project_selected(tree):
-    project = get_selected_project(tree)
-    if project is None:
+    if not selected_item:    
         show_custom_error_message(tree, "Error", "Please select a project to modify.")
         return
-    from project.project_modify.project_modify_view import open_modify_project_window
-    open_modify_project_window(project, tree)
+    if only_one_project_selected(tree) is True:
+        project_id = selected_item[0]  # The item identifier (iid) is the project ID
+        project = session.query(Project).get(project_id)
+        return project
+    else:
+        show_custom_error_message(tree, "Error", "Only one project can be selected to modify.")
+        return     
 
 def modify_project_wrapper(entries, project, modify_window, tree):
     # Check if any entry is empty
