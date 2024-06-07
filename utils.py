@@ -28,3 +28,31 @@ def only_one_project_selected(tree):
         return False
     else:
         return True
+
+def show_custom_confirmation_message(parent_window, title, message):
+    confirmation_window = Toplevel()
+    confirmation_window.transient(parent_window)
+    confirmation_window.title(title)
+    confirmation_window.resizable(False, False)
+    result = {'value': None}
+
+    def on_yes():
+        result['value'] = True
+        confirmation_window.destroy()
+
+    def on_no():
+        result['value'] = False
+        confirmation_window.destroy()
+
+    ttk.Label(confirmation_window, text=message).pack(padx=10, pady=10)
+    button_frame = ttk.Frame(confirmation_window)
+    button_frame.pack(pady=5)
+    ttk.Button(button_frame, text="Yes", command=on_yes).pack(side=tk.LEFT, padx=5)
+    ttk.Button(button_frame, text="No", command=on_no).pack(side=tk.RIGHT, padx=5)
+
+    center_window(confirmation_window)
+    confirmation_window.grab_set()
+    confirmation_window.focus_force()
+    parent_window.wait_window(confirmation_window)
+
+    return result['value']

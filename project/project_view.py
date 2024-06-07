@@ -5,6 +5,8 @@ from components.buttons import create_addmodifydelete_buttons
 from project.project_add.project_add_view import open_add_project_window  
 from project.project_modify.project_modify_view import open_modify_project_window
 from project.project_utils import populate_treeview_with_projects, project_columns_to_display
+from project.project_delete.project_delete_controller import delete_selected_projects
+
 
 def create_project_window():
     window = tk.Toplevel()
@@ -32,7 +34,8 @@ def create_project_window():
     button_frame = create_addmodifydelete_buttons(
         window,
         add_command=lambda: open_add_project_window(tree),
-        modify_command=lambda: open_modify_project_window(tree)
+        modify_command=lambda: open_modify_project_window(tree),
+        delete_command=lambda: delete_selected_projects(tree)
     )
     button_frame.pack(pady=10)
   
