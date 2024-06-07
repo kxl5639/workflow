@@ -1,9 +1,9 @@
 # project_add_controller.py
 from tkinter import messagebox, Toplevel, ttk
-from project.project_model import session, Project
-from project.project_utils import refresh_project_table
-from utils import show_custom_error_message
 from datetime import datetime
+from project.project_model import session, Project
+from project.project_utils import refresh_project_table, validate_date_format
+from utils import show_custom_error_message
 
 def add_project(formatted_entries):
     try:
@@ -33,16 +33,12 @@ def add_project_wrapper(entries, tree, add_window):
     
     submittal_date_str = formatted_entries.get("submittal_date")
  
-    # Try to parse the date if it is not a placeholder
-    if submittal_date_str != "XX/XX/XX":
-        try:
-            submittal_date = datetime.strptime(submittal_date_str, '%m/%d/%y').date()
-            #submittal_date_str = submittal_date.isoformat()
-            formatted_entries["submittal_date"] = submittal_date.strftime('%m/%d/%y')
+    # Validate the date format
+    formatted_date, error_message = validate_date_format(submittal_date_str, add_window)
+    if error_message:
+        return
 
-        except ValueError:
-            show_custom_error_message(add_window, "Error", "Invalid Date Format. Please enter the date in MM/DD/YY format.")
-            return
+    formatted_entries["submittal_date"] = formatted_date
 
     error_message = add_project(formatted_entries)
     if error_message:

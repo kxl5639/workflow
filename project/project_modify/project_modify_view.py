@@ -1,10 +1,11 @@
 # project_modify_view.py
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 from utils import center_window
 from project.project_model import field_metadata
+from project.project_modify.project_modify_controller import modify_project_wrapper
 
-def open_modify_project_window(project, update_command):
+def open_modify_project_window(project, tree):#, update_command):
     modify_window = tk.Toplevel()
     modify_window.title("Modify Project")
 
@@ -35,29 +36,7 @@ def open_modify_project_window(project, update_command):
         entries[field] = entry
         row_counters[frame_index] += 1
 
-    def update_project_wrapper():
-        # Check if any entry is empty
-        empty_fields = []
-        first_empty_entry = None
-        for field, entry in entries.items():
-            if not entry.get().strip():
-                empty_fields.append(field.replace("_", " ").title())
-                if first_empty_entry is None:
-                    first_empty_entry = entry
-
-        if empty_fields:
-            messagebox.showerror("Error", f"The following fields cannot be empty:\n" + "\n".join(empty_fields))
-            if first_empty_entry:
-                first_empty_entry.focus_set()  # Set focus to the first empty entry widget
-            return
-
-        # Convert entries keys to the expected format with underscores
-        formatted_entries = {field: entry.get() for field, entry in entries.items()}
-
-        update_command(project, formatted_entries)
-        modify_window.destroy()
-
-    update_button = ttk.Button(modify_window, text="Update Project", command=update_project_wrapper)
+    update_button = ttk.Button(modify_window, text="Update Project", command=lambda: modify_project_wrapper(entries, project, modify_window, tree))#, update_command))
     update_button.grid(row=1, column=0, columnspan=4, pady=10)
 
     center_window(modify_window)

@@ -3,8 +3,7 @@ from tkinter import ttk
 from utils import center_window
 from components.buttons import create_addmodifydelete_buttons
 from project.project_add.project_add_view import open_add_project_window  
-#from project.project_modify.project_modify_view import open_modify_project_window
-from project.project_modify.project_modify_controller import modify_project
+from project.project_modify.project_modify_controller import modify_project_selected
 from project.project_utils import populate_treeview_with_projects, project_columns_to_display
 
 def create_project_window():
@@ -33,7 +32,7 @@ def create_project_window():
     button_frame = create_addmodifydelete_buttons(
         window,
         add_command=lambda: open_add_project_window(tree),
-        modify_command=lambda: modify_project(tree)  # Modify button command
+        modify_command=lambda: modify_project_selected(tree)
     )
     button_frame.pack(pady=10)
   

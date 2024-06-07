@@ -1,4 +1,7 @@
+from datetime import datetime
+from tkinter import messagebox, Toplevel, ttk
 from project.project_model import session, Project, field_metadata
+from utils import show_custom_error_message
 
 def project_columns_to_display():
     # Extract columns with display value set to 1
@@ -27,3 +30,13 @@ def refresh_project_table(tree):
     for item in tree.get_children():
         tree.delete(item)
     populate_treeview_with_projects(tree)
+
+def validate_date_format(date_str, parent_window):
+    if date_str != "XX/XX/XX":
+        try:
+            date_obj = datetime.strptime(date_str, '%m/%d/%y').date()
+            return date_obj.strftime('%m/%d/%y'), None  # Return formatted date and no error
+        except ValueError:
+            show_custom_error_message(parent_window, "Error", "Invalid Date Format. Please enter the date in MM/DD/YY format.")
+            return None, "Invalid Date Format"
+    return date_str, None  # Return the original placeholder and no error
