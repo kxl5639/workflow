@@ -1,13 +1,12 @@
 from home.home_view import create_home_window
 from project.project_view import create_project_window
+from project.design_eng_view import create_design_eng_window
 
-def projects_button_clicked():
-    # This function will be executed when the "Projects" button is clicked
+def projects_button_clicked():    
     create_project_window()
 
 def design_engineers_button_clicked():
-    # This function will be executed when the "Design Engineers" button is clicked
-    messagebox.showinfo("Design Engineers Button", "Design Engineers button clicked!")
+    create_design_eng_window()
 
 def main():
     create_home_window(controller={

@@ -12,11 +12,8 @@ def create_project_window():
     window = tk.Toplevel()
     window.title("Projects")
 
-    #label = ttk.Label(window, text="Projects")
-    #label.pack(pady=10)
-
     # Create the treeview
-    columns = project_columns_to_display() #Determind from project_utils.py
+    columns = project_columns_to_display()
     tree = ttk.Treeview(window, columns=columns, show='headings')
 
     # Define the column headings and set a minimum width
