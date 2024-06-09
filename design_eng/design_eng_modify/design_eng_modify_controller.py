@@ -1,22 +1,22 @@
 from tkinter import messagebox
-from project.project_model import session, Project
-from project.project_utils import refresh_project_table, validate_date_format
+from design_eng.design_eng_model import session, DesignEng
+from design_eng.design_eng_utils import refresh_design_eng_table
 from utils import show_custom_error_message, only_one_record_selected
 
-def modify_project_properly_selected(tree):
+def modify_design_eng_properly_selected(tree):
     selected_item = tree.selection()
     if not selected_item:    
-        show_custom_error_message(tree, "Error", "Please select a project to modify.")
+        show_custom_error_message(tree, "Error", "Please select a design engineer to modify.")
         return
     if only_one_record_selected(tree) is True:
-        project_id = selected_item[0]  # The item identifier (iid) is the project ID
-        project = session.query(Project).get(project_id)
-        return project
+        design_eng_id = selected_item[0]  # The item identifier (iid) is the design_eng ID
+        design_eng = session.query(DesignEng).get(design_eng_id)
+        return design_eng
     else:
-        show_custom_error_message(tree, "Error", "Only one project can be selected to modify.")
+        show_custom_error_message(tree, "Error", "Only one design engineer can be selected to modify.")
         return     
 
-def modify_project_wrapper(entries, project, modify_window, tree):
+def modify_design_eng_wrapper(entries, design_eng, modify_window, tree):
     # Check if any entry is empty
     empty_fields = []
     first_empty_entry = None
@@ -34,18 +34,11 @@ def modify_project_wrapper(entries, project, modify_window, tree):
 
     # Convert entries keys to the expected format with underscores
     formatted_entries = {field: entry.get() for field, entry in entries.items()}
-
-    submittal_date_str = formatted_entries.get("submittal_date")
-    # Validate the date format
-    formatted_date, error_message = validate_date_format(submittal_date_str, modify_window)
-    if error_message:
-        return
-    formatted_entries["submittal_date"] = formatted_date
-
+    
     for field, value in formatted_entries.items():
-        setattr(project, field, value)
+        setattr(design_eng, field, value)
 
     session.commit()
-    refresh_project_table(tree)
+    refresh_design_eng_table(tree)
     
     modify_window.destroy()

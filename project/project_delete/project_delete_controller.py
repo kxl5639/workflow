@@ -2,7 +2,7 @@
 from tkinter import messagebox
 from project.project_model import session, Project
 from project.project_utils import refresh_project_table
-from utils import show_custom_error_message, show_custom_confirmation_message, only_one_project_selected
+from utils import show_custom_error_message, show_custom_confirmation_message, only_one_record_selected
 
 def delete_project(project):
     try:
@@ -33,7 +33,7 @@ def delete_selected_projects(tree):
                 refresh_project_table(tree)
     else:
         if show_custom_confirmation_message(tree, "Confirm Deletion", f"Confirm you want to delete projects:\n\n{project_numbers_str}"):
-            if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning!\n\nPlease confirm you want to delete projects:\n\n{project_numbers_str}"):
+            if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning! This cannot be undone.\n\nPlease confirm you want to delete projects:\n\n{project_numbers_str}"):
                 for project_id in selected_items:
                     project = session.query(Project).get(project_id)
                     error_message = delete_project(project)

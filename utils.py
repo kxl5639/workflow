@@ -22,7 +22,7 @@ def show_custom_error_message(parent_window, title, message):
     error_message_window.focus_force()  # Focus on the error message window
     parent_window.wait_window(error_message_window)  # Wait until the error message window is closed
 
-def only_one_project_selected(tree):
+def only_one_record_selected(tree): #record refers to a record in a table.
     selected_items = tree.selection()    
     if len(selected_items) > 1:
         return False

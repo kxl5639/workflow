@@ -4,8 +4,8 @@ from utils import center_window
 from components.buttons import create_addmodifydelete_buttons
 from design_eng.design_eng_utils import populate_treeview_with_design_engs, design_eng_columns_to_display
 from design_eng.design_eng_add.design_eng_add_view import open_add_design_eng_window  
-#from design_eng.design_eng_modify.design_eng_modify_view import open_modify_design_eng_window
-#from design_eng.design_eng_delete.design_eng_delete_controller import delete_selected_design_engs
+from design_eng.design_eng_modify.design_eng_modify_view import open_modify_design_eng_window
+from design_eng.design_eng_delete.design_eng_delete_controller import delete_selected_design_engs
 
 
 def create_design_eng_window():
