@@ -4,11 +4,11 @@ from tkinter import messagebox, Toplevel, ttk
 from design_eng.design_eng_model import session, DesignEng, field_metadata
 from utils import center_window
 
-def design_eng_columns_to_display():
+def design_eng_columns_to_display(): #
     # Extract columns with display value set to 1
     return [field for field, meta in field_metadata.items() if meta['display'] == 1]    
 
-def populate_treeview_with_design_engs(tree):
+def populate_treeview_with_design_engs(tree): #
     # Define the columns
     columns = design_eng_columns_to_display()
 
@@ -24,10 +24,10 @@ def populate_treeview_with_design_engs(tree):
         values = tuple(getattr(design_eng, col) for col in columns)
         tree.insert('', 'end', values=values, iid=design_eng.id)  # Use design_eng.id as the item identifier (iid)
 
-def fetch_design_eng():
+def fetch_design_eng(): #
     return session.query(DesignEng).all()
 
-def refresh_design_eng_table(tree):
+def refresh_design_eng_table(tree): #
     for item in tree.get_children():
         tree.delete(item)
     populate_treeview_with_design_engs(tree)

@@ -1,19 +1,18 @@
 import tkinter as tk
 from tkinter import ttk
-from utils import center_window
-from components.buttons import create_addmodifydelete_buttons
-from design_eng.design_eng_utils import populate_treeview_with_design_engs, design_eng_columns_to_display
-from design_eng.design_eng_add.design_eng_add_view import open_add_design_eng_window  
-from design_eng.design_eng_modify.design_eng_modify_view import open_modify_design_eng_window
-from design_eng.design_eng_delete.design_eng_delete_controller import delete_selected_design_engs
-
+from components.buttons import create_addmodifydelete_buttons # type: ignore
+from utils import populate_treeview, columns_to_display , center_window # type: ignore
+from design_eng.design_eng_add.design_eng_add_view import open_add_design_eng_window   # type: ignore
+from design_eng.design_eng_modify.design_eng_modify_view import open_modify_design_eng_window # type: ignore 
+from design_eng.design_eng_delete.design_eng_delete_controller import delete_selected_design_engs # type: ignore
+from design_eng.design_eng_model import DesignEng, field_metadata, session # type: ignore
 
 def create_design_eng_window():
     window = tk.Toplevel()
     window.title("Design Engineers")
 
     # Create the treeview
-    columns = design_eng_columns_to_display()
+    columns = columns_to_display(field_metadata)
     tree = ttk.Treeview(window, columns=columns, show='headings')
 
     # Define the column headings and set a minimum width
@@ -22,7 +21,7 @@ def create_design_eng_window():
         tree.column(col, width=max(10, len(col.replace("_", " ").title()) * 10), anchor='center')
 
     # Fetch the design_eng data and insert it into the treeview
-    populate_treeview_with_design_engs(tree)
+    populate_treeview(tree, DesignEng, session, field_metadata)
 
     tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 

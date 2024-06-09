@@ -56,3 +56,80 @@ def show_custom_confirmation_message(parent_window, title, message):
     parent_window.wait_window(confirmation_window)
 
     return result['value']
+
+def columns_to_display(metadata):
+    # Extract columns with display value set to 1
+    return [field for field, meta in metadata.items() if meta['display'] == 1]    
+
+def populate_treeview(tree, table, session, metadata): 
+    #Populates views with columns that have the display metadata = 1
+    columns = columns_to_display(metadata) 
+
+    # Clear existing items in tree
+    for item in tree.get_children():
+        tree.delete(item)
+
+    # Fetch design engineers
+    design_eng = session.query(table).all()
+    
+    # Insert design engineers into the treeview
+    for design_eng in design_eng:
+        values = tuple(getattr(design_eng, col) for col in columns)
+        tree.insert('', 'end', values=values, iid=design_eng.id)  # Use design_eng.id as the item identifier (iid)
+
+def refresh_table(tree, table, session, metadata): #
+    for item in tree.get_children():
+        tree.delete(item)
+    populate_treeview(tree, table, session, metadata)
+
+def create_add_or_modify_window(window, metadata, prefilled_data, button_text, submit_callback):
+    fields = metadata.keys()
+    field_to_frame = {field: metadata[field]["frame"] for field in fields}
+
+    entries = {}
+
+    frames = {i: ttk.Frame(window, padding="10 10 10 10") for i in range(1, 5)}
+    for i, frame in frames.items():
+        frame.grid(row=0, column=(i-1)*2, padx=10, pady=10, sticky="n")
+
+    # Add vertical separators between frames
+    for i in range(1, 4):
+        separator = ttk.Separator(window, orient='vertical')
+        separator.grid(row=0, column=(i*2)-1, padx=(0, 10), pady=10, sticky='ns')
+
+    window.grid_rowconfigure(0, weight=1)
+    for i in range(4):
+        window.grid_columnconfigure(i*2, weight=1)
+
+    row_counters = {i: 0 for i in range(1, 5)}
+    first_entry = None
+    for field in fields:
+        frame_index = field_to_frame[field]
+        frame = frames[frame_index]
+        label = ttk.Label(frame, text=field.replace("_", " ").title())
+        label.grid(row=row_counters[frame_index], column=0, padx=10, pady=5, sticky=tk.W)
+        entry = ttk.Entry(frame)
+        
+        entry.insert(0, prefilled_data.get(field, ""))
+            
+        entry.grid(row=row_counters[frame_index], column=1, padx=10, pady=5)
+        entries[field] = entry
+        if first_entry is None:
+            first_entry = entry
+        row_counters[frame_index] += 1
+
+    button_frame = ttk.Frame(window)
+    button_frame.grid(row=1, column=0, columnspan=7, pady=10)
+
+    submit_button = ttk.Button(button_frame, text=button_text, command=lambda: submit_callback(entries))
+    submit_button.grid(row=0, column=0, padx=10)
+
+    cancel_button = ttk.Button(button_frame, text="Cancel", command=window.destroy)
+    cancel_button.grid(row=0, column=1, padx=10)
+
+    center_window(window)
+
+    if first_entry is not None:
+        first_entry.focus_set()
+
+    return entries

@@ -1,8 +1,7 @@
 # project_delete_controller.py
 from tkinter import messagebox
-from project.project_model import session, Project
-from project.project_utils import refresh_project_table
-from utils import show_custom_error_message, show_custom_confirmation_message, only_one_record_selected
+from project.project_model import session, Project, field_metadata #type:ignore
+from utils import show_custom_error_message, show_custom_confirmation_message, refresh_table #type:ignore
 
 def delete_project(project):
     try:
@@ -30,7 +29,7 @@ def delete_selected_projects(tree):
             if error_message:
                 show_custom_error_message(tree, "Error", error_message)
             else:
-                refresh_project_table(tree)
+                refresh_table(tree, Project, session, field_metadata)
     else:
         if show_custom_confirmation_message(tree, "Confirm Deletion", f"Confirm you want to delete projects:\n\n{project_numbers_str}"):
             if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning! This cannot be undone.\n\nPlease confirm you want to delete projects:\n\n{project_numbers_str}"):
@@ -40,4 +39,4 @@ def delete_selected_projects(tree):
                     if error_message:
                         show_custom_error_message(tree, "Error", error_message)
                         break
-                refresh_project_table(tree)
+                refresh_table(tree, Project, session, field_metadata)

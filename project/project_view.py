@@ -1,19 +1,18 @@
 import tkinter as tk
 from tkinter import ttk
-from utils import center_window
-from components.buttons import create_addmodifydelete_buttons
-from project.project_add.project_add_view import open_add_project_window  
-from project.project_modify.project_modify_view import open_modify_project_window
-from project.project_utils import populate_treeview_with_projects, project_columns_to_display
-from project.project_delete.project_delete_controller import delete_selected_projects
-
+from utils import center_window, populate_treeview, columns_to_display  #type:ignore 
+from components.buttons import create_addmodifydelete_buttons #type:ignore 
+from project.project_add.project_add_view import open_add_project_window #type:ignore 
+from project.project_modify.project_modify_view import open_modify_project_window #type:ignore 
+from project.project_delete.project_delete_controller import delete_selected_projects #type:ignore 
+from project.project_model import Project, field_metadata, session # type: ignore
 
 def create_project_window():
     window = tk.Toplevel()
     window.title("Projects")
 
     # Create the treeview
-    columns = project_columns_to_display()
+    columns = columns_to_display(field_metadata)
     tree = ttk.Treeview(window, columns=columns, show='headings')
 
     # Define the column headings and set a minimum width
@@ -22,7 +21,7 @@ def create_project_window():
         tree.column(col, width=max(10, len(col.replace("_", " ").title()) * 10), anchor='center')
 
     # Fetch the project data and insert it into the treeview
-    populate_treeview_with_projects(tree)
+    populate_treeview(tree, Project, session, field_metadata)
 
     tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
