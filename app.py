@@ -1,8 +1,6 @@
 import subprocess
 import sys
-
-# Define the testing variable
-testing = 1  # Set to 0 for production, 1 for testing
+from configs import testing #type:ignore
 
 def install_requirements():
     try:
