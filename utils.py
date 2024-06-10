@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import Toplevel, ttk
 from components.buttons import create_addmodifydelete_buttons #type:ignore 
 from design_eng.design_eng_model import session, DesignEng # type: ignore
+from sales_eng.sales_eng_model import session, SalesEng # type: ignore
+from project_manager.project_manager_model import session, ProjectManager # type: ignore
 
 def center_window(window):
     window.update_idletasks()
@@ -171,6 +173,16 @@ def create_add_or_modify_window( #creates view for adding/modifying tables
             design_engs = session.query(DesignEng).all()
             design_eng_names = [f"{de.first_name} {de.last_name}" for de in design_engs]
             entry = ttk.Combobox(frame, values=design_eng_names, state="readonly", width = field_width)
+            entry.set(prefilled_data.get(field, ""))
+        elif field == "sales_engineer":
+            sales_engs = session.query(SalesEng).all()
+            sales_eng_names = [f"{de.first_name} {de.last_name}" for de in sales_engs]
+            entry = ttk.Combobox(frame, values=sales_eng_names, state="readonly", width = field_width)
+            entry.set(prefilled_data.get(field, ""))
+        elif field == "project_manager":
+            project_managers = session.query(ProjectManager).all()
+            project_manager_names = [f"{de.first_name} {de.last_name}" for de in project_managers]
+            entry = ttk.Combobox(frame, values=project_manager_names, state="readonly", width = field_width)
             entry.set(prefilled_data.get(field, ""))
         else:
             entry = ttk.Entry(frame, width = field_width)
