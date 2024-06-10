@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import Toplevel, ttk
 from components.buttons import create_addmodifydelete_buttons #type:ignore 
-
+from design_eng.design_eng_model import session, DesignEng # type: ignore
 
 def center_window(window):
     window.update_idletasks()
@@ -131,7 +131,8 @@ def create_add_or_modify_window( #creates view for adding/modifying tables
         window_title: str,
         prefilled_data,
         button_text,
-        submit_callback):
+        submit_callback
+        ):
     
     window.title(window_title)
 
@@ -143,7 +144,7 @@ def create_add_or_modify_window( #creates view for adding/modifying tables
     #Calculate the max number of frames from the metadata
     max_frames = max([value["frame"] for value in metadata.values()])
 
-    frames = {i: ttk.Frame(window, padding="10 10 10 10") for i in range(1, max_frames+1)}
+    frames = {i: ttk.Frame(window, padding="5 5 5 5") for i in range(1, max_frames+1)}
     for i, frame in frames.items():
         frame.grid(row=0, column=(i-1)*2, padx=10, pady=10, sticky="n")
 
@@ -158,16 +159,24 @@ def create_add_or_modify_window( #creates view for adding/modifying tables
 
     row_counters = {i: 0 for i in range(1, max_frames+1)}
     first_entry = None
+
     for field in fields:
         frame_index = field_to_frame[field]
         frame = frames[frame_index]
         label = ttk.Label(frame, text=field.replace("_", " ").title())
         label.grid(row=row_counters[frame_index], column=0, padx=10, pady=5, sticky=tk.W)
-        entry = ttk.Entry(frame)
-        
-        entry.insert(0, prefilled_data.get(field, ""))
-            
-        entry.grid(row=row_counters[frame_index], column=1, padx=10, pady=5)
+
+        field_width = 15
+        if field == "design_engineer":
+            design_engs = session.query(DesignEng).all()
+            design_eng_names = [f"{de.first_name} {de.last_name}" for de in design_engs]
+            entry = ttk.Combobox(frame, values=design_eng_names, state="readonly", width = field_width)
+            entry.set(prefilled_data.get(field, ""))
+        else:
+            entry = ttk.Entry(frame, width = field_width)
+            entry.insert(0, prefilled_data.get(field, ""))
+
+        entry.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
         entries[field] = entry
         if first_entry is None:
             first_entry = entry

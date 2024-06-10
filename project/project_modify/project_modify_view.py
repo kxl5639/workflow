@@ -20,5 +20,5 @@ def open_modify_project_window(tree):
         window_title="Modify Project",
         prefilled_data=prefilled_data,
         button_text="Update Project",
-        submit_callback=lambda entries: modify_project_wrapper(entries, project, modify_window, tree)
+        submit_callback=lambda entries: modify_project_wrapper(entries, project, modify_window, tree)        
     )
