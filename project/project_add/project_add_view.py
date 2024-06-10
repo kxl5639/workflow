@@ -6,8 +6,7 @@ from configs import testing #type:ignore
 from utils import create_add_or_modify_window #type:ignore
 
 def open_add_project_window(tree):
-    add_window = tk.Toplevel()
-    add_window.title("Add Project")
+    add_window = tk.Toplevel()    
 
     prefilled_data = {}
     if testing:
@@ -21,8 +20,9 @@ def open_add_project_window(tree):
             prefilled_data[field] = field_metadata[field]["default"]
 
     create_add_or_modify_window(
-        add_window,
+        add_window,        
         field_metadata,
+        window_title="Add Project",
         prefilled_data=prefilled_data,
         button_text="Add Project",
         submit_callback=lambda entries: add_project_wrapper(entries, tree, add_window)

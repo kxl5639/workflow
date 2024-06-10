@@ -128,10 +128,13 @@ def create_table_window( #creates the main view to show table data
 def create_add_or_modify_window( #creates view for adding/modifying tables
         window,
         metadata,
+        window_title: str,
         prefilled_data,
         button_text,
         submit_callback):
     
+    window.title(window_title)
+
     fields = metadata.keys()
     field_to_frame = {field: metadata[field]["frame"] for field in fields}
 

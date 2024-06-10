@@ -10,14 +10,14 @@ def open_modify_project_window(tree):
     if project is None:
         return
 
-    modify_window = tk.Toplevel()
-    modify_window.title("Modify Project")
+    modify_window = tk.Toplevel()    
 
     prefilled_data = {field: getattr(project, field) for field in project.__table__.columns.keys()}
 
     create_add_or_modify_window(
         modify_window,
         field_metadata,
+        window_title="Modify Project",
         prefilled_data=prefilled_data,
         button_text="Update Project",
         submit_callback=lambda entries: modify_project_wrapper(entries, project, modify_window, tree)
