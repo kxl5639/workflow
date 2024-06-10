@@ -25,8 +25,7 @@ def create_project_window():
 
     tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-    # Create and add the action buttons
-    #button_frame = create_addmodifydelete_buttons(window, add_command=lambda: open_add_project_window(tree))
+    # Create and add the action buttons    
     button_frame = create_addmodifydelete_buttons(
         window,
         add_command=lambda: open_add_project_window(tree),

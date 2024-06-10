@@ -7,8 +7,7 @@ Base = declarative_base()
 # Define the field metadata
 field_metadata = {
     "first_name": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
-    "last_name": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1}    
-    
+    "last_name": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1}
 }
 
 # Dynamically create the DesignEng class

@@ -88,20 +88,23 @@ def create_add_or_modify_window(window, metadata, prefilled_data, button_text, s
 
     entries = {}
 
-    frames = {i: ttk.Frame(window, padding="10 10 10 10") for i in range(1, 5)}
+    #Calculate the max number of frames from the metadata
+    max_frames = max([value["frame"] for value in metadata.values()])
+
+    frames = {i: ttk.Frame(window, padding="10 10 10 10") for i in range(1, max_frames+1)}
     for i, frame in frames.items():
         frame.grid(row=0, column=(i-1)*2, padx=10, pady=10, sticky="n")
 
     # Add vertical separators between frames
-    for i in range(1, 4):
+    for i in range(1, max_frames):
         separator = ttk.Separator(window, orient='vertical')
         separator.grid(row=0, column=(i*2)-1, padx=(0, 10), pady=10, sticky='ns')
 
     window.grid_rowconfigure(0, weight=1)
-    for i in range(4):
+    for i in range(max_frames):
         window.grid_columnconfigure(i*2, weight=1)
 
-    row_counters = {i: 0 for i in range(1, 5)}
+    row_counters = {i: 0 for i in range(1, max_frames+1)}
     first_entry = None
     for field in fields:
         frame_index = field_to_frame[field]
