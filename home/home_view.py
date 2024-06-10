@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from utils import center_window
+from utils import center_window #type:ignore
 
 def create_home_window(controller):
     window = tk.Tk()
@@ -21,6 +21,12 @@ def create_home_window(controller):
 
     project_managers_button = ttk.Button(frame, text="Project Managers", command=controller['project_managers_button_clicked'])
     project_managers_button.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
+
+    mechanical_engineers_button = ttk.Button(frame, text="Mechanical Engineers", command=controller['mechanical_engineers_button_clicked'])
+    mechanical_engineers_button.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+    
+    mechanical_contractors_button = ttk.Button(frame, text="Mechanical Contractors", command=controller['mechanical_contractors_button_clicked'])
+    mechanical_contractors_button.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
 
     # Make the buttons expand to fill the available space
     frame.grid_columnconfigure(0, weight=1)

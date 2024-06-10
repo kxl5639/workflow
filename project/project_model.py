@@ -27,6 +27,7 @@ field_metadata = {
     "mc_city": {"type": Column(String(100)), "default": "New York", "frame": 4, "display": 0},
     "mc_state": {"type": Column(String(50)), "default": "NY", "frame": 4, "display": 0},
     "mc_zip_code": {"type": Column(String(20)), "default": "10000", "frame": 4, "display": 0},
+    "mc_phone_number": {"type": Column(String(20)), "default": "10000", "frame": 4, "display": 0},
     "design_engineer": {"type": Column(String(100)), "default": "Kevin Lee", "frame": 1, "display": 1},
     "sales_engineer": {"type": Column(String(100)), "default": "", "frame": 1, "display": 1}
     
