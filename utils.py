@@ -4,6 +4,8 @@ from components.buttons import create_addmodifydelete_buttons #type:ignore
 from design_eng.design_eng_model import session, DesignEng # type: ignore
 from sales_eng.sales_eng_model import session, SalesEng # type: ignore
 from project_manager.project_manager_model import session, ProjectManager # type: ignore
+from mech_eng.mech_eng_model import session, MechEng # type: ignore
+from mech_con.mech_con_model import session, MechCon # type: ignore
 
 def center_window(window):
     window.update_idletasks()
@@ -171,18 +173,28 @@ def create_add_or_modify_window( #creates view for adding/modifying tables
         field_width = 15
         if field == "design_engineer":
             design_engs = session.query(DesignEng).all()
-            design_eng_names = [f"{de.first_name} {de.last_name}" for de in design_engs]
+            design_eng_names = sorted([f"{de.first_name} {de.last_name}" for de in design_engs])
             entry = ttk.Combobox(frame, values=design_eng_names, state="readonly", width = field_width)
             entry.set(prefilled_data.get(field, ""))
         elif field == "sales_engineer":
             sales_engs = session.query(SalesEng).all()
-            sales_eng_names = [f"{de.first_name} {de.last_name}" for de in sales_engs]
+            sales_eng_names = sorted([f"{de.first_name} {de.last_name}" for de in sales_engs])
             entry = ttk.Combobox(frame, values=sales_eng_names, state="readonly", width = field_width)
             entry.set(prefilled_data.get(field, ""))
         elif field == "project_manager":
             project_managers = session.query(ProjectManager).all()
-            project_manager_names = [f"{de.first_name} {de.last_name}" for de in project_managers]
+            project_manager_names = sorted([f"{de.first_name} {de.last_name}" for de in project_managers])
             entry = ttk.Combobox(frame, values=project_manager_names, state="readonly", width = field_width)
+            entry.set(prefilled_data.get(field, ""))
+        elif field == "mechanical_engineer":
+            mechanical_engineers = session.query(MechEng).all()
+            mechanical_engineers_names = sorted([f"{de.mechanical_engineer}" for de in mechanical_engineers])
+            entry = ttk.Combobox(frame, values=mechanical_engineers_names, state="normal", width = field_width)
+            entry.set(prefilled_data.get(field, ""))
+        elif field == "mechanical_contractor":
+            mechanical_contractors = session.query(MechCon).all()
+            mechanical_contractors_names = sorted([f"{de.mechanical_contractor}" for de in mechanical_contractors])
+            entry = ttk.Combobox(frame, values=mechanical_contractors_names, state="normal", width = field_width)
             entry.set(prefilled_data.get(field, ""))
         else:
             entry = ttk.Entry(frame, width = field_width)

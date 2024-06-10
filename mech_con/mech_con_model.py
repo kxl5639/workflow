@@ -6,7 +6,7 @@ Base = declarative_base()
 
 # Define the field metadata
 field_metadata = {
-    "mechanical_Contractor": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
+    "mechanical_contractor": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
     "address": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
     "city": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
     "state": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
