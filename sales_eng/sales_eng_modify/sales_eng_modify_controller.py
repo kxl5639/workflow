@@ -1,22 +1,21 @@
 from tkinter import messagebox
-from design_eng.design_eng_model import session, DesignEng
-from design_eng.design_eng_utils import refresh_design_eng_table
-from utils import show_custom_error_message, only_one_record_selected
+from sales_eng.sales_eng_model import session, SalesEng, field_metadata #type:ignore
+from utils import show_custom_error_message, only_one_record_selected, refresh_table #type:ignore
 
-def modify_design_eng_properly_selected(tree):
+def modify_sales_eng_properly_selected(tree):
     selected_item = tree.selection()
     if not selected_item:    
-        show_custom_error_message(tree, "Error", "Please select a design engineer to modify.")
+        show_custom_error_message(tree, "Error", "Please select a Sales engineer to modify.")
         return
     if only_one_record_selected(tree) is True:
-        design_eng_id = selected_item[0]  # The item identifier (iid) is the design_eng ID
-        design_eng = session.query(DesignEng).get(design_eng_id)
-        return design_eng
+        sales_eng_id = selected_item[0]  # The item identifier (iid) is the sales_eng ID
+        sales_eng = session.query(SalesEng).get(sales_eng_id)
+        return sales_eng
     else:
-        show_custom_error_message(tree, "Error", "Only one design engineer can be selected to modify.")
+        show_custom_error_message(tree, "Error", "Only one Sales engineer can be selected to modify.")
         return     
 
-def modify_design_eng_wrapper(entries, design_eng, modify_window, tree):
+def modify_sales_eng_wrapper(entries, sales_eng, modify_window, tree):
     # Check if any entry is empty
     empty_fields = []
     first_empty_entry = None
@@ -36,9 +35,9 @@ def modify_design_eng_wrapper(entries, design_eng, modify_window, tree):
     formatted_entries = {field: entry.get() for field, entry in entries.items()}
     
     for field, value in formatted_entries.items():
-        setattr(design_eng, field, value)
+        setattr(sales_eng, field, value)
 
     session.commit()
-    refresh_design_eng_table(tree)
+    refresh_table(tree, SalesEng, session, field_metadata)
     
     modify_window.destroy()

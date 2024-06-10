@@ -1,7 +1,6 @@
 from tkinter import messagebox
-from design_eng.design_eng_model import session, DesignEng
-from design_eng.design_eng_utils import refresh_design_eng_table
-from utils import show_custom_error_message, only_one_record_selected
+from design_eng.design_eng_model import session, DesignEng, field_metadata #type:ignore
+from utils import show_custom_error_message, only_one_record_selected, refresh_table #type:ignore
 
 def modify_design_eng_properly_selected(tree):
     selected_item = tree.selection()
@@ -39,6 +38,6 @@ def modify_design_eng_wrapper(entries, design_eng, modify_window, tree):
         setattr(design_eng, field, value)
 
     session.commit()
-    refresh_design_eng_table(tree)
+    refresh_table(tree, DesignEng, session, field_metadata)
     
     modify_window.destroy()

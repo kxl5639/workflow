@@ -19,6 +19,7 @@ def open_modify_design_eng_window(tree):
     create_add_or_modify_window(
         modify_window,
         field_metadata,
+        window_title="Modify Design Engineer",
         prefilled_data=prefilled_data,
         button_text="Update Design Engineer",
         submit_callback=lambda entries: modify_design_eng_wrapper(entries, design_eng, modify_window, tree)

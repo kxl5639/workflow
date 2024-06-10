@@ -20,6 +20,7 @@ def open_add_design_eng_window(tree):
     create_add_or_modify_window(
         add_window,
         field_metadata,
+        window_title="Add Design Engineer",
         prefilled_data=prefilled_data,
         button_text="Add Design Engineer",
         submit_callback=lambda entries: add_design_eng_wrapper(entries, tree, add_window)

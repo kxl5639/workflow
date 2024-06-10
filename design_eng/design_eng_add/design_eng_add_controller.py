@@ -1,9 +1,8 @@
 # design_eng_add_controller.py
 from tkinter import messagebox, Toplevel, ttk
 from datetime import datetime
-from design_eng.design_eng_model import session, DesignEng
-from design_eng.design_eng_utils import refresh_design_eng_table 
-from utils import show_custom_error_message
+from design_eng.design_eng_model import session, DesignEng, field_metadata #type:ignore
+from utils import show_custom_error_message, refresh_table #type:ignore
 
 def add_design_eng(formatted_entries):
     try:
@@ -35,5 +34,5 @@ def add_design_eng_wrapper(entries, tree, add_window):
     if error_message:
         messagebox.showerror("Error", error_message)
     else:
-        refresh_design_eng_table(tree)
+        refresh_table(tree, DesignEng, session, field_metadata)
         add_window.destroy()

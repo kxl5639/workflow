@@ -16,6 +16,9 @@ def create_home_window(controller):
     design_engineers_button = ttk.Button(frame, text="Design Engineers", command=controller['design_engineers_button_clicked'])
     design_engineers_button.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 
+    sales_engineers_button = ttk.Button(frame, text="Sales Engineers", command=controller['sales_engineers_button_clicked'])
+    sales_engineers_button.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+
     # Make the buttons expand to fill the available space
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_rowconfigure(0, weight=1)

@@ -3,7 +3,7 @@ from tkinter import messagebox, Toplevel, ttk
 from datetime import datetime
 from project.project_model import session, Project, field_metadata #type:ignore
 from project.project_utils import validate_date_format #type:ignore
-from utils import show_custom_error_message, refresh_table
+from utils import show_custom_error_message, refresh_table #type:ignore
 
 def add_project(formatted_entries):
     try:

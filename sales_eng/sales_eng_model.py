@@ -10,9 +10,9 @@ field_metadata = {
     "last_name": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1}
 }
 
-# Dynamically create the DesignEng class
-class DesignEng(Base):
-    __tablename__ = 'tblDesignEng'
+# Dynamically create the SalesEng class
+class SalesEng(Base):
+    __tablename__ = 'tblSalesEng'
     id = Column(Integer, primary_key=True, autoincrement=True)
     for field, meta in field_metadata.items():
         vars()[field] = meta["type"]

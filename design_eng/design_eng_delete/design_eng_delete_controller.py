@@ -1,8 +1,7 @@
 # design_eng_delete_controller.py
 from tkinter import messagebox
-from design_eng.design_eng_model import session, DesignEng
-from design_eng.design_eng_utils import refresh_design_eng_table
-from utils import show_custom_error_message, show_custom_confirmation_message, only_one_record_selected
+from design_eng.design_eng_model import session, DesignEng, field_metadata #type:ignore
+from utils import show_custom_error_message, show_custom_confirmation_message, refresh_table #type:ignore
 
 def delete_design_eng(design_eng):
     try:
@@ -30,7 +29,7 @@ def delete_selected_design_engs(tree):
             if error_message:
                 show_custom_error_message(tree, "Error", f"Error deleting design engineer {design_eng_names[0]}: {error_message}")
             else:
-                refresh_design_eng_table(tree)
+                refresh_table(tree, DesignEng, session, field_metadata)
     else:
         if show_custom_confirmation_message(tree, "Confirm Deletion", f"Confirm you want to delete design engineers:\n\n{design_eng_names_str}"):
             if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning! This cannot be undone.\n\nPlease confirm you want to delete design engineers:\n\n{design_eng_names_str}"):
@@ -40,7 +39,7 @@ def delete_selected_design_engs(tree):
                     if error_message:
                         show_custom_error_message(tree, "Error", f"Error deleting design engineer {design_eng_names[design_eng_names.index(f'{design_eng.first_name} {design_eng.last_name}')]}: {error_message}")
                         break
-                refresh_design_eng_table(tree)
+                refresh_table(tree, DesignEng, session, field_metadata)
 
 
 
