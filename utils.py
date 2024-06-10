@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import Toplevel, ttk
+from components.buttons import create_addmodifydelete_buttons #type:ignore 
+
 
 def center_window(window):
     window.update_idletasks()
@@ -82,7 +84,54 @@ def refresh_table(tree, table, session, metadata): #
         tree.delete(item)
     populate_treeview(tree, table, session, metadata)
 
-def create_add_or_modify_window(window, metadata, prefilled_data, button_text, submit_callback):
+def create_table_window( #creates the main view to show table data
+        window_title: str,
+        table,
+        field_metadata: dict,
+        session,
+        add_command,
+        modify_command,
+        delete_command):
+    
+    window = tk.Toplevel()
+    window.title(window_title)
+
+    # Create the treeview
+    columns = columns_to_display(field_metadata)
+    tree = ttk.Treeview(window, columns=columns, show='headings')
+
+    # Define the column headings and set a minimum width
+    for col in columns:
+        tree.heading(col, text=col.replace("_", " ").title())
+        tree.column(col, width=max(10, len(col.replace("_", " ").title()) * 10), anchor='center')
+
+    # Fetch the entity data and insert it into the treeview
+    populate_treeview(tree, table, session, field_metadata)
+
+    tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+    # Create and add the action buttons    
+    button_frame = create_addmodifydelete_buttons(
+        window,
+        add_command=lambda: add_command(tree),
+        modify_command=lambda: modify_command(tree),
+        delete_command=lambda: delete_command(tree)
+    )
+    button_frame.pack(pady=10)
+  
+    # Center the window after adding widgets
+    center_window(window)
+
+    # Bring the window to the front and set focus
+    window.focus_force()
+
+def create_add_or_modify_window( #creates view for adding/modifying tables
+        window,
+        metadata,
+        prefilled_data,
+        button_text,
+        submit_callback):
+    
     fields = metadata.keys()
     field_to_frame = {field: metadata[field]["frame"] for field in fields}
 
