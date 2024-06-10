@@ -13,6 +13,6 @@ if __name__ == '__main__':
     # Install requirements if in production mode
     if testing == 0:
         install_requirements()
-
+    
     from home.home_controller import main  # Import after installation
     main()
