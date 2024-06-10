@@ -9,7 +9,7 @@ from design_eng.design_eng_model import DesignEng, field_metadata, session # typ
 
 def create_design_eng_window():    
     create_table_window(
-        window_title="Projects",
+        window_title="Design Engineers",
         table=DesignEng,
         field_metadata=field_metadata,
         session=session,
