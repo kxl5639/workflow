@@ -2,14 +2,14 @@ import tkinter as tk
 from tkinter import Toplevel, ttk
 from sqlalchemy.inspection import inspect
 from components.buttons import create_addmodifydelete_buttons #type:ignore 
-# from design_eng.design_eng_model import session, DesignEng # type: ignore
-# from sales_eng.sales_eng_model import session, SalesEng # type: ignore
-# from project_manager.project_manager_model import session, ProjectManager # type: ignore
-# from mech_eng.mech_eng_model import session, MechEng # type: ignore
-# from mech_con.mech_con_model import session, MechCon # type: ignore
+from design_eng.design_eng_model import session, DesignEng # type: ignore
+from sales_eng.sales_eng_model import session, SalesEng # type: ignore
+from project_manager.project_manager_model import session, ProjectManager # type: ignore
+from mech_eng.mech_eng_model import session, MechEng # type: ignore
+from mech_con.mech_con_model import session, MechCon # type: ignore
 
 
-def center_window(window):
+def center_window(window):        
     window.update_idletasks()
     width = window.winfo_width()
     height = window.winfo_height()
@@ -135,8 +135,9 @@ def create_entry_widget( #creates the entry box for add/modify. Determines if th
         frame, field, metadata, prefilled_data, session, field_width=15
         ):
         
-    entry_method = metadata[field].get("entry_method", "manual")
-    table_ref = metadata[field].get("table_ref")    
+    entry_method = metadata[field].get("entry_method", "manual")    
+    table_ref = metadata[field].get("table_ref")   
+    
     entry = None
 
     if entry_method == "manual":
@@ -145,7 +146,7 @@ def create_entry_widget( #creates the entry box for add/modify. Determines if th
     elif entry_method == "dropdown":
         if table_ref:
             # Dynamically get the model class based on table_ref
-            model = globals().get(table_ref)            
+            model = globals().get(table_ref)                        
             output = []            
             if model:
                 results = session.query(model).all()                
@@ -171,7 +172,7 @@ def create_entry_widget( #creates the entry box for add/modify. Determines if th
         # Default to manual if entry_method is not recognized
         entry = ttk.Entry(frame, width=field_width)
         entry.insert(0, prefilled_data.get(field, ""))
-
+    
     return entry
 
 def create_add_or_modify_window( #creates view for adding/modifying table entries
@@ -182,14 +183,15 @@ def create_add_or_modify_window( #creates view for adding/modifying table entrie
         prefilled_data,
         button_text,
         submit_callback,        
-        field_width=20
+        field_width=20,
+        placeholders=None
         ):
     
     window.title(window_title)
 
     fields = metadata.keys()
     field_to_frame = {field: metadata[field]["frame"] for field in fields}
-
+    
     entries = {}
 
     #Calculate the max number of frames from the metadata
