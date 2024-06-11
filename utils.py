@@ -1,11 +1,13 @@
 import tkinter as tk
 from tkinter import Toplevel, ttk
+from sqlalchemy.inspection import inspect
 from components.buttons import create_addmodifydelete_buttons #type:ignore 
-from design_eng.design_eng_model import session, DesignEng # type: ignore
-from sales_eng.sales_eng_model import session, SalesEng # type: ignore
-from project_manager.project_manager_model import session, ProjectManager # type: ignore
-from mech_eng.mech_eng_model import session, MechEng # type: ignore
-from mech_con.mech_con_model import session, MechCon # type: ignore
+# from design_eng.design_eng_model import session, DesignEng # type: ignore
+# from sales_eng.sales_eng_model import session, SalesEng # type: ignore
+# from project_manager.project_manager_model import session, ProjectManager # type: ignore
+# from mech_eng.mech_eng_model import session, MechEng # type: ignore
+# from mech_con.mech_con_model import session, MechCon # type: ignore
+
 
 def center_window(window):
     window.update_idletasks()
@@ -129,13 +131,58 @@ def create_table_window( #creates the main view to show table data
     # Bring the window to the front and set focus
     window.focus_force()
 
-def create_add_or_modify_window( #creates view for adding/modifying tables
+def create_entry_widget( #creates the entry box for add/modify. Determines if the entry box is a textbox, dropdown, etc....)
+        frame, field, metadata, prefilled_data, session, field_width=15
+        ):
+        
+    entry_method = metadata[field].get("entry_method", "manual")
+    table_ref = metadata[field].get("table_ref")    
+    entry = None
+
+    if entry_method == "manual":
+        entry = ttk.Entry(frame, width=field_width)
+        entry.insert(0, prefilled_data.get(field, ""))
+    elif entry_method == "dropdown":
+        if table_ref:
+            # Dynamically get the model class based on table_ref
+            model = globals().get(table_ref)            
+            output = []            
+            if model:
+                results = session.query(model).all()                
+                # Get all attributes of the model for the dropdown                
+                values = [column.key for column in inspect(model).mapper.column_attrs if column.key != 'id']                
+                for row in results:
+                    row_data = " ".join(str(getattr(row, column)) for column in values)                    
+                    output.append(row_data)                        
+                output.sort(key=lambda x: x.split()[0])
+                entry = ttk.Combobox(frame, values=output, state="readonly", width=field_width)
+                entry.set(prefilled_data.get(field, ""))
+            else:
+                entry = ttk.Combobox(frame, values=[], state="readonly", width=field_width)
+                entry.set(prefilled_data.get(field, ""))
+        else:
+            entry = ttk.Combobox(frame, values=[], state="readonly", width=field_width)
+            entry.set(prefilled_data.get(field, ""))
+    elif entry_method == "search":
+        # Placeholder for future search method implementation
+        entry = ttk.Combobox(frame, values=[], state="normal", width=field_width)
+        entry.set(prefilled_data.get(field, ""))
+    else:
+        # Default to manual if entry_method is not recognized
+        entry = ttk.Entry(frame, width=field_width)
+        entry.insert(0, prefilled_data.get(field, ""))
+
+    return entry
+
+def create_add_or_modify_window( #creates view for adding/modifying table entries
         window,
         metadata,
+        session,
         window_title: str,
         prefilled_data,
         button_text,
-        submit_callback
+        submit_callback,        
+        field_width=20
         ):
     
     window.title(window_title)
@@ -170,38 +217,10 @@ def create_add_or_modify_window( #creates view for adding/modifying tables
         label = ttk.Label(frame, text=field.replace("_", " ").title())
         label.grid(row=row_counters[frame_index], column=0, padx=10, pady=5, sticky=tk.W)
 
-        field_width = 15
-        if field == "design_engineer":
-            design_engs = session.query(DesignEng).all()
-            design_eng_names = sorted([f"{de.first_name} {de.last_name}" for de in design_engs])
-            entry = ttk.Combobox(frame, values=design_eng_names, state="readonly", width = field_width)
-            entry.set(prefilled_data.get(field, ""))
-        elif field == "sales_engineer":
-            sales_engs = session.query(SalesEng).all()
-            sales_eng_names = sorted([f"{de.first_name} {de.last_name}" for de in sales_engs])
-            entry = ttk.Combobox(frame, values=sales_eng_names, state="readonly", width = field_width)
-            entry.set(prefilled_data.get(field, ""))
-        elif field == "project_manager":
-            project_managers = session.query(ProjectManager).all()
-            project_manager_names = sorted([f"{de.first_name} {de.last_name}" for de in project_managers])
-            entry = ttk.Combobox(frame, values=project_manager_names, state="readonly", width = field_width)
-            entry.set(prefilled_data.get(field, ""))
-        elif field == "mechanical_engineer":
-            mechanical_engineers = session.query(MechEng).all()
-            mechanical_engineers_names = sorted([f"{de.mechanical_engineer}" for de in mechanical_engineers])
-            entry = ttk.Combobox(frame, values=mechanical_engineers_names, state="normal", width = field_width)
-            entry.set(prefilled_data.get(field, ""))
-        elif field == "mechanical_contractor":
-            mechanical_contractors = session.query(MechCon).all()
-            mechanical_contractors_names = sorted([f"{de.mechanical_contractor}" for de in mechanical_contractors])
-            entry = ttk.Combobox(frame, values=mechanical_contractors_names, state="normal", width = field_width)
-            entry.set(prefilled_data.get(field, ""))
-        else:
-            entry = ttk.Entry(frame, width = field_width)
-            entry.insert(0, prefilled_data.get(field, ""))
-
+        entry = create_entry_widget(frame, field, metadata, prefilled_data, session, field_width)
         entry.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
         entries[field] = entry
+
         if first_entry is None:
             first_entry = entry
         row_counters[frame_index] += 1

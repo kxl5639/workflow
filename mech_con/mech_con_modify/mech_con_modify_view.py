@@ -1,7 +1,7 @@
 # mech_con_modify_view.py
 import tkinter as tk
 from tkinter import ttk
-from mech_con.mech_con_model import field_metadata #type:ignore
+from mech_con.mech_con_model import field_metadata, session #type:ignore
 from mech_con.mech_con_modify.mech_con_modify_controller import modify_mech_con_properly_selected, modify_mech_con_wrapper #type:ignore
 from utils import create_add_or_modify_window #type:ignore
 from app import testing
@@ -19,6 +19,7 @@ def open_modify_mech_con_window(tree):
     create_add_or_modify_window(
         modify_window,
         field_metadata,
+        session,
         window_title="Modify Mechanical Contractor",
         prefilled_data=prefilled_data,
         button_text="Update Mechanical Contractor",

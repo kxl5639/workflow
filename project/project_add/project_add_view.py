@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from project.project_add.project_add_controller import add_project_wrapper #type:ignore
-from project.project_model import field_metadata #type:ignore
+from project.project_model import field_metadata, session #type:ignore
 from configs import testing #type:ignore
 from utils import create_add_or_modify_window #type:ignore
 #from design_eng.design_eng_model import session, DesignEng # type: ignore
@@ -25,6 +25,7 @@ def open_add_project_window(tree):
     create_add_or_modify_window(
         add_window,        
         field_metadata,
+        session,
         window_title="Add Project",
         prefilled_data=prefilled_data,
         button_text="Add Project",

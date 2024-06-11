@@ -5,14 +5,14 @@ from utils import show_custom_error_message, only_one_record_selected, refresh_t
 def modify_mech_con_properly_selected(tree):
     selected_item = tree.selection()
     if not selected_item:    
-        show_custom_error_message(tree, "Error", "Please select a Sales engineer to modify.")
+        show_custom_error_message(tree, "Error", "Please select a Mechanical Contractor to modify.")
         return
     if only_one_record_selected(tree) is True:
         mech_con_id = selected_item[0]  # The item identifier (iid) is the mech_con ID
         mech_con = session.query(MechCon).get(mech_con_id)
         return mech_con
     else:
-        show_custom_error_message(tree, "Error", "Only one Sales engineer can be selected to modify.")
+        show_custom_error_message(tree, "Error", "Only one Mechanical Contractor can be selected to modify.")
         return     
 
 def modify_mech_con_wrapper(entries, mech_con, modify_window, tree):
