@@ -1,7 +1,8 @@
 # mech_eng_add_controller.py
 from tkinter import messagebox, Toplevel, ttk
 from datetime import datetime
-from mech_eng.mech_eng_model import session, MechEng, field_metadata #type:ignore
+from mech_eng.mech_eng_model import session, MechEng #type:ignore
+from mech_eng.mech_eng_controller import columns_to_display #type:ignore
 from utils import show_custom_error_message, refresh_table #type:ignore
 
 def add_mech_eng(formatted_entries):
@@ -34,5 +35,5 @@ def add_mech_eng_wrapper(entries, tree, add_window):
     if error_message:
         messagebox.showerror("Error", error_message)
     else:
-        refresh_table(tree, MechEng, session, field_metadata)
+        refresh_table(tree, MechEng, session, columns_to_display)
         add_window.destroy()

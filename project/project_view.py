@@ -4,6 +4,7 @@ from project.project_add.project_add_view import open_add_project_window #type:i
 from project.project_modify.project_modify_view import open_modify_project_window #type:ignore 
 from project.project_delete.project_delete_controller import delete_selected_projects #type:ignore 
 from project.project_model import Project, session # type: ignore
+from project.project_controller import columns_to_display # type: ignore
 from utils import create_tree_from_db_table, center_window #type:ignore 
 from components.buttons import create_addmodifydelete_buttons #type:ignore 
 
@@ -12,9 +13,7 @@ def create_project_window():
     project_window = tk.Toplevel()
     project_window.title("Projects")
 
-    columns = ['project_number', 'submittal_date', 'client', 'scope', 'address',
-               'project_manager', 'mechanical_engineer', 'mechanical_contractor', 'design_engineer', 'sales_engineer']
-    project_tree = create_tree_from_db_table(project_window,columns,session,Project)
+    project_tree = create_tree_from_db_table(project_window,columns_to_display,session,Project)
     project_tree.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
 
     # Create and add the action buttons    

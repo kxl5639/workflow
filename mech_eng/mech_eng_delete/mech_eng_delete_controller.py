@@ -1,6 +1,7 @@
 # mech_eng_delete_controller.py
 from tkinter import messagebox
-from mech_eng.mech_eng_model import session, MechEng, field_metadata #type:ignore
+from mech_eng.mech_eng_model import session, MechEng #type:ignore
+from mech_eng.mech_eng_controller import columns_to_display #type:ignore
 from utils import show_custom_error_message, show_custom_confirmation_message, refresh_table #type:ignore
 
 def delete_mech_eng(mech_eng):
@@ -29,7 +30,7 @@ def delete_selected_mech_engs(tree):
             if error_message:
                 show_custom_error_message(tree, "Error", f"Error deleting Mechanical engineer {mech_eng_names[0]}: {error_message}")
             else:
-                refresh_table(tree, MechEng, session, field_metadata)
+                refresh_table(tree, MechEng, session, columns_to_display)
     else:
         if show_custom_confirmation_message(tree, "Confirm Deletion", f"Confirm you want to delete Mechanical engineers:\n\n{mech_eng_names_str}"):
             if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning! This cannot be undone.\n\nPlease confirm you want to delete Mechanical engineers:\n\n{mech_eng_names_str}"):
@@ -39,7 +40,7 @@ def delete_selected_mech_engs(tree):
                     if error_message:
                         show_custom_error_message(tree, "Error", f"Error deleting Mechanical engineer {mech_eng_names[mech_eng_names.index(f'{mech_eng.first_name} {mech_eng.last_name}')]}: {error_message}")
                         break
-                refresh_table(tree, MechEng, session, field_metadata)
+                refresh_table(tree, MechEng, session, columns_to_display)
 
 
 

@@ -1,5 +1,6 @@
 from tkinter import messagebox
-from sales_eng.sales_eng_model import session, SalesEng, field_metadata #type:ignore
+from sales_eng.sales_eng_model import session, SalesEng #type:ignore
+from sales_eng.sales_eng_controller import columns_to_display #type:ignore
 from utils import show_custom_error_message, only_one_record_selected, refresh_table #type:ignore
 
 def modify_sales_eng_properly_selected(tree):
@@ -38,6 +39,6 @@ def modify_sales_eng_wrapper(entries, sales_eng, modify_window, tree):
         setattr(sales_eng, field, value)
 
     session.commit()
-    refresh_table(tree, SalesEng, session, field_metadata)
+    refresh_table(tree, SalesEng, session, columns_to_display)
     
     modify_window.destroy()

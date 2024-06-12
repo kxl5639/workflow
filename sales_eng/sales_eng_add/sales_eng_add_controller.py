@@ -1,7 +1,8 @@
 # sales_eng_add_controller.py
 from tkinter import messagebox, Toplevel, ttk
 from datetime import datetime
-from sales_eng.sales_eng_model import session, SalesEng, field_metadata #type:ignore
+from sales_eng.sales_eng_model import session, SalesEng #type:ignore
+from sales_eng.sales_eng_controller import columns_to_display #type:ignore
 from utils import show_custom_error_message, refresh_table #type:ignore
 
 def add_sales_eng(formatted_entries):
@@ -34,5 +35,5 @@ def add_sales_eng_wrapper(entries, tree, add_window):
     if error_message:
         messagebox.showerror("Error", error_message)
     else:
-        refresh_table(tree, SalesEng, session, field_metadata)
+        refresh_table(tree, SalesEng, session, columns_to_display)
         add_window.destroy()

@@ -1,6 +1,7 @@
 # sales_eng_delete_controller.py
 from tkinter import messagebox
-from sales_eng.sales_eng_model import session, SalesEng, field_metadata #type:ignore
+from sales_eng.sales_eng_model import session, SalesEng #type:ignore
+from sales_eng.sales_eng_controller import columns_to_display #type:ignore
 from utils import show_custom_error_message, show_custom_confirmation_message, refresh_table #type:ignore
 
 def delete_sales_eng(sales_eng):
@@ -29,7 +30,7 @@ def delete_selected_sales_engs(tree):
             if error_message:
                 show_custom_error_message(tree, "Error", f"Error deleting Sales engineer {sales_eng_names[0]}: {error_message}")
             else:
-                refresh_table(tree, SalesEng, session, field_metadata)
+                refresh_table(tree, SalesEng, session, columns_to_display)
     else:
         if show_custom_confirmation_message(tree, "Confirm Deletion", f"Confirm you want to delete Sales engineers:\n\n{sales_eng_names_str}"):
             if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning! This cannot be undone.\n\nPlease confirm you want to delete Sales engineers:\n\n{sales_eng_names_str}"):
@@ -39,7 +40,7 @@ def delete_selected_sales_engs(tree):
                     if error_message:
                         show_custom_error_message(tree, "Error", f"Error deleting Sales engineer {sales_eng_names[sales_eng_names.index(f'{sales_eng.first_name} {sales_eng.last_name}')]}: {error_message}")
                         break
-                refresh_table(tree, SalesEng, session, field_metadata)
+                refresh_table(tree, SalesEng, session, columns_to_display)
 
 
 

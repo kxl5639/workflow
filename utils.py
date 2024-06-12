@@ -73,23 +73,13 @@ def create_tree_from_db_table(master,columns, session, model):
         tree.heading(col, text=col.replace("_", " ").title())
         tree.column(col, width=max(10, len(col.replace("_", " ").title()) * 10), anchor='center')
 
-    # Clear existing items in tree
-    for item in tree.get_children():
-        tree.delete(item)
-
-    # Fetch tree data
-    tree_data = session.query(model).all()   
-
-    # Insert tree_data into the treeview
-    for tree_data in tree_data:
-        values = tuple(getattr(tree_data, col) for col in columns)                
-        tree.insert('', 'end', values=values, iid=tree_data.id)  # Use tree_data.id as the item identifier (iid)        
+    populate_treeview(tree, model, session, columns)
     return tree
 
-def refresh_table(tree, table, session, metadata): #
+def refresh_table(tree, model, session, columns): #
     for item in tree.get_children():
         tree.delete(item)
-    populate_treeview(tree, table, session, metadata)
+    populate_treeview(tree, model, session, columns)
 
 def create_entry_widget( #creates the entry box for add/modify. Determines if the entry box is a textbox, dropdown, etc....)
         window, frame, field, metadata, prefilled_data, session, field_width=15
@@ -249,3 +239,18 @@ def create_add_or_modify_window( #creates view for adding/modifying table entrie
     return entries
 
 
+def populate_treeview(tree, model, session, columns): 
+    #Populates views with columns that have the display metadata = 1    
+
+    # Clear existing items in tree
+    for item in tree.get_children():
+        tree.delete(item)
+
+    # Fetch tree data
+    tree_data = session.query(model).all()   
+
+    # Insert tree_data into the treeview
+    for tree_data in tree_data:
+        values = tuple(getattr(tree_data, col) for col in columns)                
+        tree.insert('', 'end', values=values, iid=tree_data.id)  # Use tree_data.id as the item identifier (iid)  
+    

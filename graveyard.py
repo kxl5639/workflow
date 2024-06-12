@@ -43,20 +43,3 @@ def create_table_window( #creates the main view to show table data
 def columns_to_display(metadata):
     # Extract columns with display value set to 1
     return [field for field, meta in metadata.items() if meta['display'] == 1]    
-
-def populate_treeview(tree, table, session, metadata): 
-    #Populates views with columns that have the display metadata = 1
-    columns = columns_to_display(metadata) 
-
-    # Clear existing items in tree
-    for item in tree.get_children():
-        tree.delete(item)
-
-    # Fetch design engineers
-    design_eng = session.query(table).all()
-    
-    # Insert design engineers into the treeview
-    for design_eng in design_eng:
-        values = tuple(getattr(design_eng, col) for col in columns)
-        tree.insert('', 'end', values=values, iid=design_eng.id)  # Use design_eng.id as the item identifier (iid)
-    

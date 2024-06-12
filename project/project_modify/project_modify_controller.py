@@ -1,6 +1,7 @@
 from tkinter import messagebox
-from project.project_model import session, Project, field_metadata #type:ignore
+from project.project_model import session, Project #type:ignore
 from project.project_utils import validate_date_format #type:ignore
+from project.project_controller import columns_to_display # type: ignore
 from utils import show_custom_error_message, only_one_record_selected, refresh_table #type:ignore
 
 def modify_project_properly_selected(tree):
@@ -46,6 +47,6 @@ def modify_project_wrapper(entries, project, modify_window, tree):
         setattr(project, field, value)
 
     session.commit()
-    refresh_table(tree, Project, session, field_metadata)
+    refresh_table(tree, Project, session, columns_to_display)
     
     modify_window.destroy()

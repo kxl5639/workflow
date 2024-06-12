@@ -1,5 +1,6 @@
 from tkinter import messagebox
-from project_manager.project_manager_model import session, ProjectManager, field_metadata #type:ignore
+from project_manager.project_manager_model import session, ProjectManager #type:ignore
+from project_manager.project_manager_controller import columns_to_display #type:ignore
 from utils import show_custom_error_message, only_one_record_selected, refresh_table #type:ignore
 
 def modify_project_manager_properly_selected(tree):
@@ -38,6 +39,6 @@ def modify_project_manager_wrapper(entries, project_manager, modify_window, tree
         setattr(project_manager, field, value)
 
     session.commit()
-    refresh_table(tree, ProjectManager, session, field_metadata)
+    refresh_table(tree, ProjectManager, session, columns_to_display)
     
     modify_window.destroy()

@@ -1,7 +1,8 @@
 # project_add_controller.py
 from tkinter import messagebox, Toplevel, ttk
 from datetime import datetime
-from project.project_model import session, Project, field_metadata #type:ignore
+from project.project_model import session, Project #type:ignore
+from project.project_controller import columns_to_display #type:ignore
 from project.project_utils import validate_date_format #type:ignore
 from utils import show_custom_error_message, refresh_table #type:ignore
 
@@ -44,5 +45,5 @@ def add_project_wrapper(entries, tree, add_window):
     if error_message:
         messagebox.showerror("Error", error_message)
     else:
-        refresh_table(tree, Project, session, field_metadata)
+        refresh_table(tree, Project, session, columns_to_display)
         add_window.destroy()

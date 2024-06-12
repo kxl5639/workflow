@@ -1,7 +1,8 @@
 # project_manager_add_controller.py
 from tkinter import messagebox, Toplevel, ttk
 from datetime import datetime
-from project_manager.project_manager_model import session, ProjectManager, field_metadata #type:ignore
+from project_manager.project_manager_model import session, ProjectManager #type:ignore
+from project_manager.project_manager_controller import columns_to_display #type:ignore
 from utils import show_custom_error_message, refresh_table #type:ignore
 
 def add_project_manager(formatted_entries):
@@ -34,5 +35,5 @@ def add_project_manager_wrapper(entries, tree, add_window):
     if error_message:
         messagebox.showerror("Error", error_message)
     else:
-        refresh_table(tree, ProjectManager, session, field_metadata)
+        refresh_table(tree, ProjectManager, session, columns_to_display)
         add_window.destroy()

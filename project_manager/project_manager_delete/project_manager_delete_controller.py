@@ -1,6 +1,7 @@
 # project_manager_delete_controller.py
 from tkinter import messagebox
-from project_manager.project_manager_model import session, ProjectManager, field_metadata #type:ignore
+from project_manager.project_manager_model import session, ProjectManager #type:ignore
+from project_manager.project_manager_controller import columns_to_display #type:ignore
 from utils import show_custom_error_message, show_custom_confirmation_message, refresh_table #type:ignore
 
 def delete_project_manager(project_manager):
@@ -29,7 +30,7 @@ def delete_selected_project_managers(tree):
             if error_message:
                 show_custom_error_message(tree, "Error", f"Error deleting Project Manager {project_manager_names[0]}: {error_message}")
             else:
-                refresh_table(tree, ProjectManager, session, field_metadata)
+                refresh_table(tree, ProjectManager, session, columns_to_display)
     else:
         if show_custom_confirmation_message(tree, "Confirm Deletion", f"Confirm you want to delete Project Managers:\n\n{project_manager_names_str}"):
             if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning! This cannot be undone.\n\nPlease confirm you want to delete Project Managers:\n\n{project_manager_names_str}"):
@@ -39,7 +40,7 @@ def delete_selected_project_managers(tree):
                     if error_message:
                         show_custom_error_message(tree, "Error", f"Error deleting Project Manager {project_manager_names[project_manager_names.index(f'{project_manager.first_name} {project_manager.last_name}')]}: {error_message}")
                         break
-                refresh_table(tree, ProjectManager, session, field_metadata)
+                refresh_table(tree, ProjectManager, session, columns_to_display)
 
 
 
