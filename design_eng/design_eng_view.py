@@ -12,12 +12,9 @@ def create_design_eng_window():
     design_eng_window = tk.Toplevel()
     design_eng_window.title("Design Engineer")
 
-    tree_frame = ttk.Frame(design_eng_window)
-    tree_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-
     columns = ['first_name', 'last_name']
     design_eng_tree = create_tree_from_db_table(design_eng_window,columns,session,DesignEng)
-    design_eng_tree.grid(row=0, column=0, pady=0, padx=0)
+    design_eng_tree.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
 
     # Create and add the action buttons    
     button_frame = create_addmodifydelete_buttons(

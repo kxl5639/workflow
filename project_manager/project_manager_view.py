@@ -12,12 +12,9 @@ def create_project_manager_window():
     project_manager_window = tk.Toplevel()
     project_manager_window.title("Project Manager")
 
-    tree_frame = ttk.Frame(project_manager_window)
-    tree_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-
     columns = ['first_name', 'last_name']
     project_manager_tree = create_tree_from_db_table(project_manager_window,columns,session,ProjectManager)
-    project_manager_tree.grid(row=0, column=0, pady=0, padx=0)
+    project_manager_tree.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
 
     # Create and add the action buttons    
     button_frame = create_addmodifydelete_buttons(

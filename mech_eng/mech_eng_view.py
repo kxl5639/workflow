@@ -12,12 +12,9 @@ def create_mech_eng_window():
     mech_eng_window = tk.Toplevel()
     mech_eng_window.title("Mechanical Engineer")
 
-    tree_frame = ttk.Frame(mech_eng_window)
-    tree_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-    
     columns = ['mechanical_engineer', 'address','city','state','zip_code']
-    mech_eng_tree = create_tree_from_db_table(tree_frame,columns,session,MechEng)
-    mech_eng_tree.grid(row=0, column=0, pady=0, padx=0)
+    mech_eng_tree = create_tree_from_db_table(mech_eng_window,columns,session,MechEng)
+    mech_eng_tree.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
     
     # Create and add the action buttons    
     button_frame = create_addmodifydelete_buttons(

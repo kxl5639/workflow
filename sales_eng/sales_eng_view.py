@@ -11,13 +11,10 @@ def create_sales_eng_window():
 
     sales_eng_window = tk.Toplevel()
     sales_eng_window.title("Sales Engineer")
-
-    tree_frame = ttk.Frame(sales_eng_window)
-    tree_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-
+ 
     columns = ['first_name', 'last_name']
     sales_eng_tree = create_tree_from_db_table(sales_eng_window,columns,session,SalesEng)
-    sales_eng_tree.grid(row=0, column=0, pady=0, padx=0)
+    sales_eng_tree.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
 
     # Create and add the action buttons    
     button_frame = create_addmodifydelete_buttons(
