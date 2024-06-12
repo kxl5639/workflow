@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import Toplevel, Listbox, StringVar, Entry, END
 from tkinter import Toplevel, ttk
 from sqlalchemy.inspection import inspect
 from components.buttons import create_addmodifydelete_buttons #type:ignore 
@@ -7,7 +8,6 @@ from sales_eng.sales_eng_model import session, SalesEng # type: ignore
 from project_manager.project_manager_model import session, ProjectManager # type: ignore
 from mech_eng.mech_eng_model import session, MechEng # type: ignore
 from mech_con.mech_con_model import session, MechCon # type: ignore
-
 
 def center_window(window):        
     window.update_idletasks()
@@ -65,86 +65,40 @@ def show_custom_confirmation_message(parent_window, title, message):
 
     return result['value']
 
-def columns_to_display(metadata):
-    # Extract columns with display value set to 1
-    return [field for field, meta in metadata.items() if meta['display'] == 1]    
-
-def populate_treeview(tree, table, session, metadata): 
-    #Populates views with columns that have the display metadata = 1
-    columns = columns_to_display(metadata) 
-
-    # Clear existing items in tree
-    for item in tree.get_children():
-        tree.delete(item)
-
-    # Fetch design engineers
-    design_eng = session.query(table).all()
-    
-    # Insert design engineers into the treeview
-    for design_eng in design_eng:
-        values = tuple(getattr(design_eng, col) for col in columns)
-        tree.insert('', 'end', values=values, iid=design_eng.id)  # Use design_eng.id as the item identifier (iid)
-
-def refresh_table(tree, table, session, metadata): #
-    for item in tree.get_children():
-        tree.delete(item)
-    populate_treeview(tree, table, session, metadata)
-
-def create_table_window( #creates the main view to show table data
-        window_title: str,
-        table,
-        field_metadata: dict,
-        session,
-        add_command,
-        modify_command,
-        delete_command):
-    
-    window = tk.Toplevel()
-    window.title(window_title)
-
-    # Create the treeview
-    columns = columns_to_display(field_metadata)
-    tree = ttk.Treeview(window, columns=columns, show='headings')
+def create_tree_from_db_table(master,columns, session, model):    
+    tree = ttk.Treeview(master,columns=columns, show='headings')
 
     # Define the column headings and set a minimum width
     for col in columns:
         tree.heading(col, text=col.replace("_", " ").title())
         tree.column(col, width=max(10, len(col.replace("_", " ").title()) * 10), anchor='center')
 
-    # Fetch the entity data and insert it into the treeview
-    populate_treeview(tree, table, session, field_metadata)
+    # Clear existing items in tree
+    for item in tree.get_children():
+        tree.delete(item)
 
-    tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+    # Fetch tree data
+    tree_data = session.query(model).all()   
 
-    # Create and add the action buttons    
-    button_frame = create_addmodifydelete_buttons(
-        window,
-        add_command=lambda: add_command(tree),
-        modify_command=lambda: modify_command(tree),
-        delete_command=lambda: delete_command(tree)
-    )
-    button_frame.pack(pady=10)
-  
-    # Center the window after adding widgets
-    center_window(window)
+    # Insert tree_data into the treeview
+    for tree_data in tree_data:
+        values = tuple(getattr(tree_data, col) for col in columns)                
+        tree.insert('', 'end', values=values, iid=tree_data.id)  # Use tree_data.id as the item identifier (iid)        
+    return tree
 
-    # Bring the window to the front and set focus
-    window.focus_force()
+def refresh_table(tree, table, session, metadata): #
+    for item in tree.get_children():
+        tree.delete(item)
+    populate_treeview(tree, table, session, metadata)
 
 def create_entry_widget( #creates the entry box for add/modify. Determines if the entry box is a textbox, dropdown, etc....)
-        frame, field, metadata, prefilled_data, session, field_width=15
+        window, frame, field, metadata, prefilled_data, session, field_width=15
         ):
-        
+    
     entry_method = metadata[field].get("entry_method", "manual")    
     table_ref = metadata[field].get("table_ref")   
-    
-    entry = None
 
-    if entry_method == "manual":
-        entry = ttk.Entry(frame, width=field_width)
-        entry.insert(0, prefilled_data.get(field, ""))
-    elif entry_method == "dropdown":
-        if table_ref:
+    if table_ref: #Creates the dropdown or listbox data if the metadata is either dropdown or lookup
             # Dynamically get the model class based on table_ref
             model = globals().get(table_ref)                        
             output = []            
@@ -156,18 +110,69 @@ def create_entry_widget( #creates the entry box for add/modify. Determines if th
                     row_data = " ".join(str(getattr(row, column)) for column in values)                    
                     output.append(row_data)                        
                 output.sort(key=lambda x: x.split()[0])
-                entry = ttk.Combobox(frame, values=output, state="readonly", width=field_width)
-                entry.set(prefilled_data.get(field, ""))
-            else:
-                entry = ttk.Combobox(frame, values=[], state="readonly", width=field_width)
-                entry.set(prefilled_data.get(field, ""))
-        else:
-            entry = ttk.Combobox(frame, values=[], state="readonly", width=field_width)
-            entry.set(prefilled_data.get(field, ""))
-    elif entry_method == "search":
-        # Placeholder for future search method implementation
-        entry = ttk.Combobox(frame, values=[], state="normal", width=field_width)
-        entry.set(prefilled_data.get(field, ""))
+
+    entry = None
+
+    def open_lookup_window(window):          
+        lookup_window = Toplevel(frame)           
+        lookup_window.title(f"Lookup {field.replace("_", " ").title()}")
+
+        top_frame = ttk.Frame(lookup_window)
+        top_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        bottom_frame = ttk.Frame(lookup_window)
+        bottom_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        #lookup_window.grid_rowconfigure(1, weight=1)
+        #lookup_window.grid_columnconfigure(0, weight=1)
+
+        lookup_label = ttk.Label(top_frame, text=field.replace("_", " ").title())
+        lookup_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+        lookup_var = StringVar()
+        lookup_entry = ttk.Entry(top_frame, textvariable=lookup_var)
+        lookup_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+
+        top_frame.grid_columnconfigure(1, weight=1)
+
+        result_listbox = Listbox(bottom_frame, width=50)
+        result_listbox.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+
+        bottom_frame.grid_rowconfigure(0, weight=1)
+        bottom_frame.grid_columnconfigure(0, weight=1)
+
+        def update_results(*args):
+            lookup_term = lookup_var.get().lower()
+            filtered_values = [value for value in output if lookup_term in value.lower()]
+            result_listbox.delete(0, END)
+            for value in filtered_values:
+                result_listbox.insert(END, value)
+
+        lookup_var.trace("w", update_results)
+
+        def on_select(event):
+            selected_value = result_listbox.get(result_listbox.curselection())
+            entry.delete(0, END)
+            entry.insert(0, selected_value)
+            lookup_window.destroy()
+
+        
+        center_window(lookup_window)        
+        lookup_window.focus_force() 
+        lookup_entry.focus_set() 
+        lookup_window.grab_set()  
+        window.wait_window(lookup_window)  
+        
+        result_listbox.bind("<<ListboxSelect>>", on_select)
+        
+    if entry_method == "manual":
+        entry = ttk.Entry(frame, width=field_width)        
+        entry.insert(0, prefilled_data.get(field, ""))
+    elif entry_method == "dropdown":        
+        entry = ttk.Combobox(frame, values=output, state="readonly", width=field_width)
+        entry.set(prefilled_data.get(field, ""))        
+    elif entry_method == "lookup":
+        entry = ttk.Entry(frame, width=field_width)
+        entry.insert(0, prefilled_data.get(field, ""))
+        entry.bind("<Button-1>", lambda event: open_lookup_window(window))
     else:
         # Default to manual if entry_method is not recognized
         entry = ttk.Entry(frame, width=field_width)
@@ -219,7 +224,7 @@ def create_add_or_modify_window( #creates view for adding/modifying table entrie
         label = ttk.Label(frame, text=field.replace("_", " ").title())
         label.grid(row=row_counters[frame_index], column=0, padx=10, pady=5, sticky=tk.W)
 
-        entry = create_entry_widget(frame, field, metadata, prefilled_data, session, field_width)
+        entry = create_entry_widget(window,frame, field, metadata, prefilled_data, session, field_width)
         entry.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
         entries[field] = entry
 
@@ -242,3 +247,5 @@ def create_add_or_modify_window( #creates view for adding/modifying table entrie
         first_entry.focus_set()
 
     return entries
+
+
