@@ -2,12 +2,8 @@ import tkinter as tk
 from tkinter import Toplevel, Listbox, StringVar, Entry, END
 from tkinter import Toplevel, ttk
 from sqlalchemy.inspection import inspect
-from components.buttons import create_addmodifydelete_buttons #type:ignore 
-from design_eng.design_eng_model import session, DesignEng # type: ignore
-from sales_eng.sales_eng_model import session, SalesEng # type: ignore
-from project_manager.project_manager_model import session, ProjectManager # type: ignore
-from mech_eng.mech_eng_model import session, MechEng # type: ignore
-from mech_con.mech_con_model import session, MechCon # type: ignore
+from utils.controller import populate_treeview
+from utils.button import create_addmodifydelete_button_frame
 
 def center_window(window):        
     window.update_idletasks()
@@ -17,69 +13,36 @@ def center_window(window):
     y = (window.winfo_screenheight() // 2) - (height // 2)
     window.geometry(f'{width}x{height}+{x}+{y}')
 
-def show_custom_error_message(parent_window, title, message):
-    error_message_window = Toplevel()
-    error_message_window.transient(parent_window)
-    error_message_window.title(title)
-    error_message_window.resizable(False, False)  # Make the window non-resizable
-    ttk.Label(error_message_window, text=message).pack(padx=10, pady=10)
-    ttk.Button(error_message_window, text="OK", command=error_message_window.destroy).pack(pady=5)
-    center_window(error_message_window)
-
-    error_message_window.grab_set()  # Make the window modal
-    error_message_window.focus_force()  # Focus on the error message window
-    parent_window.wait_window(error_message_window)  # Wait until the error message window is closed
-
-def only_one_record_selected(tree): #record refers to a record in a table.
-    selected_items = tree.selection()    
-    if len(selected_items) > 1:
-        return False
-    else:
-        return True
-
-def show_custom_confirmation_message(parent_window, title, message):
-    confirmation_window = Toplevel()
-    confirmation_window.transient(parent_window)
-    confirmation_window.title(title)
-    confirmation_window.resizable(False, False)
-    result = {'value': None}
-
-    def on_yes():
-        result['value'] = True
-        confirmation_window.destroy()
-
-    def on_no():
-        result['value'] = False
-        confirmation_window.destroy()
-
-    ttk.Label(confirmation_window, text=message).pack(padx=10, pady=10)
-    button_frame = ttk.Frame(confirmation_window)
-    button_frame.pack(pady=5)
-    ttk.Button(button_frame, text="Yes", command=on_yes).pack(side=tk.LEFT, padx=5)
-    ttk.Button(button_frame, text="No", command=on_no).pack(side=tk.RIGHT, padx=5)
-
-    center_window(confirmation_window)
-    confirmation_window.grab_set()
-    confirmation_window.focus_force()
-    parent_window.wait_window(confirmation_window)
-
-    return result['value']
-
-def create_tree_from_db_table(master,columns, session, model):    
-    tree = ttk.Treeview(master,columns=columns, show='headings')
-
+def create_tree_frame_from_db_table(master,columns, session, model):    
+    tree_frame = ttk.Frame(master)    
+    tree_frame.grid_rowconfigure(0,weight=1) 
+    tree_frame.grid_columnconfigure(0,weight=1) 
+    
+    tree = ttk.Treeview(tree_frame,columns=columns, show='headings')    
+    tree.grid(row=0,column=0, sticky='nsew')
+    
     # Define the column headings and set a minimum width
     for col in columns:
         tree.heading(col, text=col.replace("_", " ").title())
         tree.column(col, width=max(10, len(col.replace("_", " ").title()) * 10), anchor='center')
 
     populate_treeview(tree, model, session, columns)
-    return tree
+    return tree_frame
 
-def refresh_table(tree, model, session, columns): #
-    for item in tree.get_children():
-        tree.delete(item)
-    populate_treeview(tree, model, session, columns)
+def create_tree_and_addmoddel_buttons_frame(master, columns, session, model, add_command=None, modify_command=None, delete_command=None ):
+    tree_addmoddel_frame = ttk.Frame(master)        
+    tree_addmoddel_frame.grid_rowconfigure((0), weight=1)
+    tree_addmoddel_frame.grid_rowconfigure((1), weight=0)
+    tree_addmoddel_frame.grid_columnconfigure(0, weight=1)    
+    
+    tree_frame = create_tree_frame_from_db_table(tree_addmoddel_frame,columns, session, model)
+    tree_frame.grid(row=0, padx=0, pady=(0,20), sticky="nsew")    
+
+    addmoddel_buttons_frame = create_addmodifydelete_button_frame(tree_addmoddel_frame, add_command=None, modify_command=None, delete_command=None)    
+    addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0)
+    #addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0, sticky="nsew")
+
+    return tree_addmoddel_frame
 
 def create_entry_widget( #creates the entry box for add/modify. Determines if the entry box is a textbox, dropdown, etc....)
         window, frame, field, metadata, prefilled_data, session, field_width=15
@@ -238,19 +201,3 @@ def create_add_or_modify_window( #creates view for adding/modifying table entrie
 
     return entries
 
-
-def populate_treeview(tree, model, session, columns): 
-    #Populates views with columns that have the display metadata = 1    
-
-    # Clear existing items in tree
-    for item in tree.get_children():
-        tree.delete(item)
-
-    # Fetch tree data
-    tree_data = session.query(model).all()   
-
-    # Insert tree_data into the treeview
-    for tree_data in tree_data:
-        values = tuple(getattr(tree_data, col) for col in columns)                
-        tree.insert('', 'end', values=values, iid=tree_data.id)  # Use tree_data.id as the item identifier (iid)  
-    

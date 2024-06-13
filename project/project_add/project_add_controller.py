@@ -4,7 +4,8 @@ from datetime import datetime
 from project.project_model import session, Project #type:ignore
 from project.project_controller import columns_to_display #type:ignore
 from project.project_utils import validate_date_format #type:ignore
-from utils import show_custom_error_message, refresh_table #type:ignore
+from utils.msgbox import show_custom_error_message
+from utils.controller import refresh_table
 
 def add_project(formatted_entries):
     try:

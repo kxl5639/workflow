@@ -14,5 +14,8 @@ if __name__ == '__main__':
     if testing == 0:
         install_requirements()
     
-    from home.home_controller import main  # Import after installation
-    main()
+    # from home.home_controller import main  # Import after installation
+    # main()
+
+    from main.main_view import create_main_window  # Import after installation
+    create_main_window()

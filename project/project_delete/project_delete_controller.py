@@ -2,7 +2,8 @@
 from tkinter import messagebox
 from project.project_model import session, Project #type:ignore
 from project.project_controller import columns_to_display #type:ignore
-from utils import show_custom_error_message, show_custom_confirmation_message, refresh_table #type:ignore
+from utils.msgbox import show_custom_error_message, show_custom_confirmation_message
+from utils.controller import refresh_table
 
 def delete_project(project):
     try:

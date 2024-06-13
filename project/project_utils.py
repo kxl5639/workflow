@@ -1,7 +1,7 @@
 from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox, Toplevel, ttk
-from utils import show_custom_error_message #type:ignore
+from utils.msgbox import show_custom_error_message #type:ignore
 
 
 def validate_date_format(date_str, parent_window):

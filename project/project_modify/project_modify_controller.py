@@ -2,7 +2,8 @@ from tkinter import messagebox
 from project.project_model import session, Project #type:ignore
 from project.project_utils import validate_date_format #type:ignore
 from project.project_controller import columns_to_display # type: ignore
-from utils import show_custom_error_message, only_one_record_selected, refresh_table #type:ignore
+from utils.msgbox import show_custom_error_message
+from utils.controller import only_one_record_selected, refresh_table
 
 def modify_project_properly_selected(tree):
     selected_item = tree.selection()
