@@ -317,13 +317,14 @@ def prep_data_entry(master, entries):
     formatted_entries = {field: entry.get() for field, entry in entries.items()}  
     submittal_date_str = formatted_entries.get("submittal_date")
  
-    # Validate the date format
-    formatted_date, error_message = validate_date_format(master, submittal_date_str)
-    if error_message:
-        return
-    formatted_entries["submittal_date"] = formatted_date    
+    if submittal_date_str is not None:
+        # Validate the date format
+        formatted_date, error_message = validate_date_format(master, submittal_date_str)
+        if error_message:
+            return None, error_message
+        formatted_entries["submittal_date"] = formatted_date 
 
-    return formatted_entries
+    return formatted_entries, None
  
 def validate_date_format(master, date_str):    
     if date_str != "XX/XX/XX":

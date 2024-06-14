@@ -4,8 +4,7 @@ from utils import center_window, create_add_or_modify_frame, create_dynamic_butt
 from project.project_model import field_metadata, session, Project
 from project.project_controller import columns_to_display
 
-def open_add_project_window(project_window):
-    print(project_window)
+def open_add_project_window(project_window):    
     add_window = tk.Toplevel()
     add_window.title('Add New Project')    
     add_window.grid_rowconfigure(0, weight=1)
@@ -38,8 +37,9 @@ def open_add_project_window(project_window):
     button_frame.grid(row=1,column=0,padx=10,pady=(0,10))
    
     def add_proj_button_cmd():        
-        formatted_entries=prep_data_entry(add_window,project_entries)
-        print(formatted_entries)
+        formatted_entries, error_message=prep_data_entry(add_window,project_entries)
+        if error_message:
+            return
         update_table(Project,session,formatted_entries)
         refresh_table(project_window_tree, Project, session,columns_to_display)
         add_window.destroy()     
