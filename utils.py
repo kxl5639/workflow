@@ -1,10 +1,11 @@
 import tkinter as tk
-from tkinter import Toplevel, Listbox, StringVar, Entry, END
+from tkinter import Toplevel, Listbox, StringVar, messagebox, Entry, END
 from tkinter import Toplevel, ttk
 from sqlalchemy.inspection import inspect
-from utils.controller import populate_treeview
-from utils.button import create_dynamic_button_frame
-from utils.controller import fields_data_from_dbtable, get_entry_method_and_table_ref, generate_default_entry_data
+from configs import testing
+
+
+#region View Functions
 
 def center_window(window):        
     window.update_idletasks()
@@ -224,3 +225,193 @@ def create_add_or_modify_frame(master, metadata, session,return_dividing_frames=
         return add_or_mod_frame, entries, dividing_frames, row_counters
     else:
         return add_or_mod_frame, entries
+
+#endregion
+
+#region Controller Functions
+
+def only_one_record_selected(tree): #record refers to a record in a table.
+    selected_items = tree.selection()    
+    if len(selected_items) > 1:
+        return False
+    else:
+        return True
+    
+def refresh_table(tree, model, session, columns): #
+    for item in tree.get_children():
+        tree.delete(item)
+    populate_treeview(tree, model, session, columns)
+
+def populate_treeview(tree, model, session, columns): 
+    #Populates views with columns that have the display metadata = 1    
+
+    # Clear existing items in tree
+    for item in tree.get_children():
+        tree.delete(item)
+
+    # Fetch tree data
+    tree_data = session.query(model).all()   
+
+    # Insert tree_data into the treeview
+    for tree_data in tree_data:
+        values = tuple(getattr(tree_data, col) for col in columns)                        
+        tree.insert('', 'end', values=values, iid=tree_data.id)  # Use tree_data.id as the item identifier (iid)  
+
+def generate_default_entry_data(metadata): #This function determines the default data when "Add New Project" window is opened.
+    default_entry_data = {}
+    if testing:
+        for field in metadata.keys():
+            if field == "submittal_date":
+                default_entry_data[field] = "XX/XX/XX"
+            elif field == "design_engineer":
+                default_entry_data[field] = "Kevin Lee"
+            else:
+                default_entry_data[field] = "TESTING"
+    else:
+        for field in metadata.keys():
+            default_entry_data[field] = metadata[field]["default"]
+    return default_entry_data
+
+# Fields to display in Add/Modify Project Window
+def fields_data_from_dbtable(metadata):
+    fields = metadata.keys()
+    frame_ass = {field: metadata[field]["frame"] for field in fields}
+    max_frames = max([value["frame"] for value in metadata.values()])        
+    return fields, frame_ass, max_frames
+
+# Gets entry method as specified by metadata. Field arguement is the particular field of a table
+def get_entry_method_and_table_ref(field,metadata,session):
+    entry_method = metadata[field].get("entry_method", "manual")
+    table_ref = metadata[field].get("table_ref")    
+    #Creates the dropdown or listbox data if the metadata is either dropdown or lookup
+    dropdown_or_tree_data = []
+    if table_ref:
+        # Dynamically get the model class based on table_ref
+        model = globals().get(table_ref)        
+        if model:
+            results = session.query(model).all()                
+            # Get all attributes of the model for the dropdown                
+            values = [column.key for column in inspect(model).mapper.column_attrs if column.key != 'id']                
+            for row in results:
+                row_data = " ".join(str(getattr(row, column)) for column in values)                    
+                dropdown_or_tree_data.append(row_data)                        
+            dropdown_or_tree_data.sort(key=lambda x: x.split()[0]) 
+            print(dropdown_or_tree_data)
+    return entry_method, dropdown_or_tree_data
+
+def update_table(model,session,columns_to_display,entries, tree, add_window):     
+
+    #Picks up empty fields and displays an error message to the user
+    empty_fields = []
+    first_empty_entry = None
+    for field, entry in entries.items():
+        entry_content = entry.get().strip()
+        if not entry_content: 
+            empty_fields.append(field.replace("_", " ").title())             
+            if first_empty_entry is None:
+                first_empty_entry = entry
+    if empty_fields:
+        show_custom_error_message(add_window, "Error", f"The following fields cannot be empty:\n" + "\n" + "\n".join(empty_fields))
+        if first_empty_entry:
+            first_empty_entry.focus_set()
+        return
+
+    formatted_entries = {field: entry.get() for field, entry in entries.items()}  
+    submittal_date_str = formatted_entries.get("submittal_date")
+ 
+    # Validate the date format
+    formatted_date, error_message = validate_date_format(submittal_date_str, add_window)
+    if error_message:
+        return
+    formatted_entries["submittal_date"] = formatted_date    
+
+    try:
+        new_project = model(**formatted_entries)
+        session.add(new_project)
+        session.commit()
+        refresh_table(tree, model, session, columns_to_display)
+        add_window.destroy()       
+    except Exception as e:
+        print(e)
+        if str(e):  # Return the error message
+            messagebox.showerror("Error", error_message)
+
+def validate_date_format(date_str, parent_window):    
+    if date_str != "XX/XX/XX":
+        try:
+            date_obj = datetime.strptime(date_str, '%m/%d/%y').date()
+            return date_obj.strftime('%m/%d/%y'), None  # Return formatted date and no error
+        except ValueError:
+            show_custom_error_message(parent_window, "Error", "Invalid Date Format. Please enter the date in MM/DD/YY format.")
+            return None, "Invalid Date Format"
+    return date_str, None  # Return the original placeholder and no error
+
+#endregion
+
+#region msgbox Functions
+
+def show_custom_error_message(parent_window, title, message):
+    error_message_window = Toplevel()
+    error_message_window.transient(parent_window)
+    error_message_window.title(title)
+    error_message_window.resizable(False, False)  # Make the window non-resizable
+    ttk.Label(error_message_window, text=message).pack(padx=10, pady=10)
+    ttk.Button(error_message_window, text="OK", command=error_message_window.destroy).pack(pady=5)
+    center_window(error_message_window)
+
+    error_message_window.grab_set()  # Make the window modal
+    error_message_window.focus_force()  # Focus on the error message window
+    parent_window.wait_window(error_message_window)  # Wait until the error message window is closed
+
+def show_custom_confirmation_message(parent_window, title, message):
+    confirmation_window = Toplevel()
+    confirmation_window.transient(parent_window)
+    confirmation_window.title(title)
+    confirmation_window.resizable(False, False)
+    result = {'value': None}
+
+    def on_yes():
+        result['value'] = True
+        confirmation_window.destroy()
+
+    def on_no():
+        result['value'] = False
+        confirmation_window.destroy()
+
+    ttk.Label(confirmation_window, text=message).pack(padx=10, pady=10)
+    button_frame = ttk.Frame(confirmation_window)
+    button_frame.pack(pady=5)
+    ttk.Button(button_frame, text="Yes", command=on_yes).pack(side=tk.LEFT, padx=5)
+    ttk.Button(button_frame, text="No", command=on_no).pack(side=tk.RIGHT, padx=5)
+
+    center_window(confirmation_window)
+    confirmation_window.grab_set()
+    confirmation_window.focus_force()
+    parent_window.wait_window(confirmation_window)
+
+    return result['value']
+
+#endregion
+
+#region Button Functions
+
+def create_dynamic_button_frame(master, button_info):
+    # - button_info: A list of tuples, each containing the button label and command.
+    #               Example: [("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)]
+   
+    button_frame = ttk.Frame(master)    
+    gen_pad = 5
+    
+    # Configure grid layout
+    button_frame.grid_rowconfigure(0, weight=1)
+    for i in range(len(button_info)):
+        button_frame.grid_columnconfigure(i, weight=1)
+    
+    # Create buttons based on button_info
+    for index, (label, command) in enumerate(button_info):
+        button = ttk.Button(button_frame, text=label, command=command)
+        button.grid(row=0, column=index, padx=(gen_pad if index != 0 else 0, gen_pad if index != len(button_info) - 1 else 0), pady=0, sticky="nsew")
+    
+    return button_frame
+
+#endregion

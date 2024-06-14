@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from utils.view import center_window #type:ignore
+from utils import center_window #type:ignore
 from main.main_controller import create_main_button
 from project.project_view import create_project_window
 
