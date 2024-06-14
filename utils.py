@@ -135,21 +135,7 @@ def create_entry_widget( #creates the entry box for add/modify. Determines if th
     
     return entry
 
-def create_add_or_modify_window( #creates frame for adding/modifying table entries
-        window,
-        metadata,
-        session,
-        window_title: str,
-        prefilled_data,
-        button_text,
-        submit_callback,        
-        field_width=20,
-        placeholders=None
-        ):
-    
-    print("Place holder to prevent app call issues")
-
-def create_add_or_modify_frame(master, metadata, session,return_dividing_frames=False):
+def create_add_or_modify_frame(master, entry_data, metadata, session,return_dividing_frames=False):
 
     # Obtain list of fields from Project table in DB to create labels, frame association, max frames
     db_fields, frame_assoc, max_frames = fields_data_from_dbtable(metadata)    
@@ -177,8 +163,7 @@ def create_add_or_modify_frame(master, metadata, session,return_dividing_frames=
     row_counters = {i: 0 for i in range(1, max_frames+1)}
     first_entry = None
     entry_widget_width = 15
-    entries = {} # Eventually collects all the entries that will be submitted via the Add or Modify button
-    default_entry_data = generate_default_entry_data(metadata)
+    entries = {} # Eventually collects all the entries that will be submitted via the Add or Modify button    
 
     for db_field in db_fields:  
     # Creates the label widgets iteratively      
@@ -195,20 +180,20 @@ def create_add_or_modify_frame(master, metadata, session,return_dividing_frames=
         # Generate the entry widgets
         if entry_method == "manual":
                 entry_widg = ttk.Entry(dividing_frame,width = entry_widget_width)
-                entry_widg.insert(0, default_entry_data.get(db_field, ""))
+                entry_widg.insert(0, entry_data.get(db_field, ""))
                 entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
                 entries[db_field] = entry_widg
         elif entry_method == "dropdown":        
             entry_widg = ttk.Combobox(dividing_frame, values=dropdown_or_tree_data, state="readonly", width=entry_widget_width)
-            entry_widg.set(default_entry_data.get(db_field, ""))   
+            entry_widg.set(entry_data.get(db_field, ""))   
         # elif entry_method == "lookup":
         #     entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
-        #     entry_widg.insert(0, default_entry_data.get(db_field, ""))
+        #     entry_widg.insert(0, entry_data.get(db_field, ""))
         #     entry_widg.bind("<Button-1>", lambda event: open_lookup_window(window))
         else:
             # Default to manual if entry_method is not recognized
             entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
-            entry_widg.insert(0, default_entry_data.get(db_field, ""))
+            entry_widg.insert(0, entry_data.get(db_field, ""))
         entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky='ew')
         entries[db_field] = entry_widg
 
@@ -312,7 +297,7 @@ def prep_data_entry(master, entries):
         show_custom_error_message(master, "Error", f"The following fields cannot be empty:\n" + "\n" + "\n".join(empty_fields))
         if first_empty_entry:
             first_empty_entry.focus_set()
-        return
+        return None, empty_fields
 
     formatted_entries = {field: entry.get() for field, entry in entries.items()}  
     submittal_date_str = formatted_entries.get("submittal_date")
@@ -336,11 +321,24 @@ def validate_date_format(master, date_str):
             return None, "Invalid Date Format"
     return date_str, None  # Return the original placeholder and no error
 
+def modify_record_properly_selected(tree,session,model):
+    selected_item = tree.selection()
+    if not selected_item:    
+        show_custom_error_message(tree, "Error", "Please select a project to modify.")
+        return
+    if only_one_record_selected(tree) is True:
+        record_id = selected_item[0]  # The item identifier (iid) is the project ID
+        record = session.query(model).get(record_id)
+        return record
+    else:
+        show_custom_error_message(tree, "Error", "Only one project can be selected to modify.")
+        return    
+
 #endregion
 
 #region Model Functions
 
-def update_table(model,session,formatted_entries):
+def add_entry_to_table(model,session,formatted_entries):
     try:
         new_record = model(**formatted_entries)
         session.add(new_record)
@@ -349,6 +347,12 @@ def update_table(model,session,formatted_entries):
     except Exception as e:
         if str(e):  # Return the error message
             messagebox.showerror("Error", 'Unable to add entry.')
+
+
+def update_table(session,formatted_entries,selected_record):
+    for field, value in formatted_entries.items():
+        setattr(selected_record, field, value)
+    session.commit()
 
 #endregion
 
@@ -420,24 +424,42 @@ def create_dynamic_button_frame(master, button_info):
 
 #endregion
 
+#region Create Window Functions
 
-def open_add_modify_window(master, model, session, metadata, columns_to_display, title='Add New _________', button_text='Add or Modify?'):    
+def create_add_modify_window(master, model, session, metadata, columns_to_display, title='Add New _________', button_text='Add or Modify?'):
+    
+    # Tree created from the parent window, need it so that we can pass it to the buttons to refresh the tree when we add/modify data the table
+        # For modifying option, tree is used to determine if user has selected something    
+    table_window_tree = master.nametowidget('tree_addmoddel_frame').tree_frame.tree    
+
+    # If modifying, this sets the entry data, aka existing record data, as well as the selected record being modified
+    if button_text == 'Modify':   
+        #Run checks to see if only 1 entry is selected
+        selected_record = modify_record_properly_selected(table_window_tree,session,model)        
+        if selected_record is None:            
+            return
+        else:            
+            selected_record_data = {field: getattr(selected_record, field) for field in selected_record.__table__.columns.keys()}
+            entry_data = selected_record_data
+    else:
+        default_entry_data = generate_default_entry_data(metadata)        
+        entry_data = default_entry_data            
+            
+    # Creates the window
     add_mod_window = tk.Toplevel()
     add_mod_window.title(title)    
     add_mod_window.grid_rowconfigure(0, weight=1)
     add_mod_window.grid_columnconfigure(0, weight=1)
     add_mod_window.resizable(height=False,width=True)
 
-    #Tree created from the parent window, need it so that we can pass it to the buttons to refresh the tree when we add/modify data the table
-    project_window_tree = master.nametowidget('tree_addmoddel_frame').tree_frame.tree    
-
     add_proj_frame, project_entries, dividing_frame, max_rows_in_dividing_frames = create_add_or_modify_frame(add_mod_window,
+                                                                                                                entry_data,
                                                                                                                 metadata,
                                                                                                                 session,
                                                                                                                 True)
     add_proj_frame.grid(row=0,column=0,padx=10,pady=10,sticky='nsew')    
     
-
+    # Adds buttons for adding new mechanical engineers/contractors
     if model.__tablename__ == 'tblProject':
         # Adds an "Add Eng" button to the column of engineers
         mech_eng_frame = dividing_frame[3] # [3] represents the column that the mechanical engineer info is in
@@ -450,22 +472,29 @@ def open_add_modify_window(master, model, session, metadata, columns_to_display,
         butt_row = max_rows_in_dividing_frames[4]+1    
         add_mech_con_but = create_dynamic_button_frame(mech_con_frame,[('Add Contractor', None)])
         add_mech_con_but.grid(row=butt_row,column=0,columnspan = 2, pady=(10,0))
-    
 
-    button_frame = create_dynamic_button_frame(add_mod_window, [(button_text, lambda:add_mod_button_cmd()),
+    # Creates the buttons at the bottom of the screen
+    button_frame = create_dynamic_button_frame(add_mod_window, [(button_text, lambda:add_mod_button_cmd(button_text)),
                                                             ('Cancel', add_mod_window.destroy)])
     button_frame.grid(row=1,column=0,padx=10,pady=(0,10))
-   
-    def add_mod_button_cmd():        
-        formatted_entries, error_message=prep_data_entry(add_mod_window,project_entries)
+    #Function that defines what the button click will do
+    def add_mod_button_cmd(button_text):     
+        formatted_entries, error_message=prep_data_entry(add_mod_window,project_entries)            
         if error_message:
             return
-        update_table(model,session,formatted_entries)
-        refresh_table(project_window_tree, model, session,columns_to_display)
-        add_mod_window.destroy()     
+        if button_text == 'Add':                      
+            add_entry_to_table(model,session,formatted_entries)
+            refresh_table(table_window_tree, model, session,columns_to_display)
+            add_mod_window.destroy()
+        else:
+            update_table(session,formatted_entries,selected_record)
+            refresh_table(table_window_tree, model, session,columns_to_display)
+            add_mod_window.destroy()
 
 
     center_window(add_mod_window) 
     add_mod_window.grab_set()     
     add_mod_window.focus_force()  
     master.wait_window(add_mod_window)
+
+    #endregion
