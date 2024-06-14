@@ -3,7 +3,7 @@ from tkinter import Toplevel, Listbox, StringVar, Entry, END
 from tkinter import Toplevel, ttk
 from sqlalchemy.inspection import inspect
 from utils.controller import populate_treeview
-from utils.button import create_addmodifydelete_button_frame, create_dynamic_button_frame
+from utils.button import create_dynamic_button_frame
 from utils.controller import fields_data_from_dbtable, get_entry_method_and_table_ref
 
 def center_window(window):        
@@ -39,8 +39,7 @@ def create_standard_tree_but_frame(master, columns, session, model, add_command=
     tree_frame = create_tree_frame_from_db_table(tree_addmoddel_frame,columns, session, model)
     tree_frame.grid(row=0, padx=0, pady=(0,20), sticky="nsew")    
 
-    #addmoddel_buttons_frame = create_addmodifydelete_button_frame(tree_addmoddel_frame, add_command, modify_command=None, delete_command=None)    
-    addmoddel_buttons_frame = create_dynamic_button_frame(tree_addmoddel_frame,[("Add", add_command), ("Modify", None), ("Delete", None)])
+    addmoddel_buttons_frame = create_dynamic_button_frame(tree_addmoddel_frame,[("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)])
     addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0)
     #addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0, sticky="nsew")
 

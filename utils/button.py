@@ -23,17 +23,12 @@ def create_two_button_frame(master,button_text):
 
 
 def create_dynamic_button_frame(master, button_info):
-    # """
-    # Create a frame with dynamically generated buttons.
-
-    # Parameters:
-    # - master: The parent widget.
     # - button_info: A list of tuples, each containing the button label and command.
     #               Example: [("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)]
-    # """
-    button_frame = ttk.Frame(master)
-    
+   
+    button_frame = ttk.Frame(master)    
     gen_pad = 5
+    
     # Configure grid layout
     button_frame.grid_rowconfigure(0, weight=1)
     for i in range(len(button_info)):
