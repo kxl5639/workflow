@@ -1,4 +1,5 @@
 from sqlalchemy.inspection import inspect
+from configs import testing
 
 def only_one_record_selected(tree): #record refers to a record in a table.
     selected_items = tree.selection()    
@@ -27,6 +28,27 @@ def populate_treeview(tree, model, session, columns):
     for tree_data in tree_data:
         values = tuple(getattr(tree_data, col) for col in columns)                        
         tree.insert('', 'end', values=values, iid=tree_data.id)  # Use tree_data.id as the item identifier (iid)  
+
+
+#This function determines the default data when "Add New Project" window is opened.
+def generate_default_entry_data(metadata):
+    default_entry_data = {}
+    if testing:
+        for field in metadata.keys():
+            if field == "submittal_date":
+                default_entry_data[field] = "XX/XX/XX"
+            elif field == "design_engineer":
+                default_entry_data[field] = "Kevin Lee"
+            else:
+                default_entry_data[field] = "TESTING"
+    else:
+        for field in metadata.keys():
+            default_entry_data[field] = metadata[field]["default"]
+    return default_entry_data
+
+
+
+
 
 # Fields to display in Add/Modify Project Window
 def fields_data_from_dbtable(metadata):
