@@ -4,7 +4,7 @@ from tkinter import Toplevel, ttk
 from sqlalchemy.inspection import inspect
 from utils.controller import populate_treeview
 from utils.button import create_dynamic_button_frame
-from utils.controller import fields_data_from_dbtable, get_entry_method_and_table_ref
+from utils.controller import fields_data_from_dbtable, get_entry_method_and_table_ref, generate_default_entry_data
 
 def center_window(window):        
     window.update_idletasks()
@@ -148,12 +148,12 @@ def create_add_or_modify_window( #creates frame for adding/modifying table entri
     
     print("Place holder to prevent app call issues")
 
-def create_add_or_modify_frame(master, metadata, default_entry_data,session):
+def create_add_or_modify_frame(master, metadata, session,return_dividing_frames=False):
 
     # Obtain list of fields from Project table in DB to create labels, frame association, max frames
-    db_fields, frame_assoc, max_frames = fields_data_from_dbtable(metadata)
+    db_fields, frame_assoc, max_frames = fields_data_from_dbtable(metadata)    
 
-    # Create frame to me return
+    # Create frame to be returned
     add_or_mod_frame = ttk.Frame(master)    
     add_or_mod_frame.grid_rowconfigure(0, weight=1)    
     for i in range(max_frames):
@@ -165,7 +165,7 @@ def create_add_or_modify_frame(master, metadata, default_entry_data,session):
     for i, dividing_frame in dividing_frames.items():        
         dividing_frame.grid(row=0, column=(i-1)*2, padx=10, pady=0, sticky="nsew")  
         dividing_frame.grid_columnconfigure(0, weight=0)  
-        dividing_frame.grid_columnconfigure(2, weight=1)  
+        dividing_frame.grid_columnconfigure(1, weight=1)  
             
     # Add vertical separators between frames
     for i in range(1, max_frames):
@@ -176,13 +176,13 @@ def create_add_or_modify_frame(master, metadata, default_entry_data,session):
     row_counters = {i: 0 for i in range(1, max_frames+1)}
     first_entry = None
     entry_widget_width = 15
-    entries = {} # Eventually collects all the entries that will be submitted to the Add or Modify button
+    entries = {} # Eventually collects all the entries that will be submitted via the Add or Modify button
+    default_entry_data = generate_default_entry_data(metadata)
 
     for db_field in db_fields:  
     # Creates the label widgets iteratively      
         frame_index = frame_assoc[db_field] #extracts the frame that the current db_field should be in
-        dividing_frame = dividing_frames[frame_index] 
-        #dividing_frame.grid_rowconfigure(row_counters[frame_index], weight=1) #Not sure if I want this to happen, this allows labels to stretch
+        dividing_frame = dividing_frames[frame_index]         
         label = ttk.Label(dividing_frame, text=db_field.replace("_", " ").title())
         label.grid(row=row_counters[frame_index], column=0, padx=(0,10), pady=5, sticky=tk.W)
 
@@ -208,7 +208,7 @@ def create_add_or_modify_frame(master, metadata, default_entry_data,session):
             # Default to manual if entry_method is not recognized
             entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
             entry_widg.insert(0, default_entry_data.get(db_field, ""))
-        entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
+        entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky='ew')
         entries[db_field] = entry_widg
 
         if first_entry is None:
@@ -219,5 +219,7 @@ def create_add_or_modify_frame(master, metadata, default_entry_data,session):
     if first_entry is not None:
         first_entry.focus_set()       
     
-    #return add_or_mod_frame
-    return add_or_mod_frame, dividing_frames
+    if return_dividing_frames:
+        return add_or_mod_frame, dividing_frames, row_counters
+    else:
+        return add_or_mod_frame

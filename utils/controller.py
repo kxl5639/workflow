@@ -13,7 +13,6 @@ def refresh_table(tree, model, session, columns): #
         tree.delete(item)
     populate_treeview(tree, model, session, columns)
 
-
 def populate_treeview(tree, model, session, columns): 
     #Populates views with columns that have the display metadata = 1    
 
@@ -29,9 +28,7 @@ def populate_treeview(tree, model, session, columns):
         values = tuple(getattr(tree_data, col) for col in columns)                        
         tree.insert('', 'end', values=values, iid=tree_data.id)  # Use tree_data.id as the item identifier (iid)  
 
-
-#This function determines the default data when "Add New Project" window is opened.
-def generate_default_entry_data(metadata):
+def generate_default_entry_data(metadata): #This function determines the default data when "Add New Project" window is opened.
     default_entry_data = {}
     if testing:
         for field in metadata.keys():
