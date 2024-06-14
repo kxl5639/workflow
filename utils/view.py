@@ -220,6 +220,6 @@ def create_add_or_modify_frame(master, metadata, session,return_dividing_frames=
         first_entry.focus_set()       
     
     if return_dividing_frames:
-        return add_or_mod_frame, dividing_frames, row_counters
+        return add_or_mod_frame, entries, dividing_frames, row_counters
     else:
-        return add_or_mod_frame
+        return add_or_mod_frame, entries

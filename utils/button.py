@@ -1,27 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 
-def create_two_button_frame(master,button_text):
-
-    button_frame = ttk.Frame(master)
-    button_frame.grid_rowconfigure((0), weight=1)
-    button_frame.grid_columnconfigure(0, weight=1)
-    button_frame.grid_columnconfigure(1, weight=1)   
-
-    submit_button = ttk.Button(button_frame, text=button_text, command=lambda: submit_callback(entries))
-    submit_button.grid(row=0, column=0, padx=(0,10), pady=0)
-
-    cancel_button = ttk.Button(button_frame, text="Cancel", command=master.destroy)
-    cancel_button.grid(row=0, column=1, padx=0, pady=0)    
-
-    return button_frame
-
-
-
-
-
-
-
 def create_dynamic_button_frame(master, button_info):
     # - button_info: A list of tuples, each containing the button label and command.
     #               Example: [("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)]

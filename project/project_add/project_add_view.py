@@ -4,8 +4,6 @@ from utils.view import center_window, create_add_or_modify_frame
 from utils.button import create_dynamic_button_frame
 from project.project_model import field_metadata, session
 
-
-
 def open_add_project_window():
     add_window = tk.Toplevel()
     add_window.title('Add New Project')    
@@ -13,9 +11,11 @@ def open_add_project_window():
     add_window.grid_columnconfigure(0, weight=1)
     add_window.resizable(height=False,width=True)
     
-    add_proj_frame,dividing_frame, max_rows_in_dividing_frames = create_add_or_modify_frame(add_window,field_metadata,session,True)
-    add_proj_frame.grid(row=0,column=0,padx=10,pady=10,sticky='nsew')
-    
+    add_proj_frame, project_entries, dividing_frame, max_rows_in_dividing_frames = create_add_or_modify_frame(add_window,
+                                                                                                              field_metadata,
+                                                                                                              session,
+                                                                                                              True)
+    add_proj_frame.grid(row=0,column=0,padx=10,pady=10,sticky='nsew')    
     # Adds an "Add Eng" button to the column of engineers
     mech_eng_frame = dividing_frame[3] # [3] represents the column that the mechanical engineer info is in
     butt_row = max_rows_in_dividing_frames[3]+1    
