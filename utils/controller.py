@@ -1,3 +1,5 @@
+from sqlalchemy.inspection import inspect
+
 def only_one_record_selected(tree): #record refers to a record in a table.
     selected_items = tree.selection()    
     if len(selected_items) > 1:
@@ -23,8 +25,7 @@ def populate_treeview(tree, model, session, columns):
 
     # Insert tree_data into the treeview
     for tree_data in tree_data:
-        values = tuple(getattr(tree_data, col) for col in columns)                
-        print(values)
+        values = tuple(getattr(tree_data, col) for col in columns)                        
         tree.insert('', 'end', values=values, iid=tree_data.id)  # Use tree_data.id as the item identifier (iid)  
 
 # Fields to display in Add/Modify Project Window
@@ -35,7 +36,22 @@ def fields_data_from_dbtable(metadata):
     return fields, frame_ass, max_frames
 
 # Gets entry method as specified by metadata. Field arguement is the particular field of a table
-def get_entry_method_and_table_ref(field,metadata):
+def get_entry_method_and_table_ref(field,metadata,session):
     entry_method = metadata[field].get("entry_method", "manual")
-    table_ref = metadata[field].get("table_ref")   
-    return entry_method, table_ref
+    table_ref = metadata[field].get("table_ref")    
+    #Creates the dropdown or listbox data if the metadata is either dropdown or lookup
+    dropdown_or_tree_data = []
+    if table_ref:
+        # Dynamically get the model class based on table_ref
+        model = globals().get(table_ref)        
+        if model:
+            results = session.query(model).all()                
+            # Get all attributes of the model for the dropdown                
+            values = [column.key for column in inspect(model).mapper.column_attrs if column.key != 'id']                
+            for row in results:
+                row_data = " ".join(str(getattr(row, column)) for column in values)                    
+                dropdown_or_tree_data.append(row_data)                        
+            dropdown_or_tree_data.sort(key=lambda x: x.split()[0]) 
+            print(dropdown_or_tree_data)
+    return entry_method, dropdown_or_tree_data
+

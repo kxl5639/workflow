@@ -3,7 +3,7 @@ from tkinter import Toplevel, Listbox, StringVar, Entry, END
 from tkinter import Toplevel, ttk
 from sqlalchemy.inspection import inspect
 from utils.controller import populate_treeview
-from utils.button import create_addmodifydelete_button_frame
+from utils.button import create_addmodifydelete_button_frame, create_dynamic_button_frame
 from utils.controller import fields_data_from_dbtable, get_entry_method_and_table_ref
 
 def center_window(window):        
@@ -39,7 +39,8 @@ def create_standard_tree_but_frame(master, columns, session, model, add_command=
     tree_frame = create_tree_frame_from_db_table(tree_addmoddel_frame,columns, session, model)
     tree_frame.grid(row=0, padx=0, pady=(0,20), sticky="nsew")    
 
-    addmoddel_buttons_frame = create_addmodifydelete_button_frame(tree_addmoddel_frame, add_command, modify_command=None, delete_command=None)    
+    #addmoddel_buttons_frame = create_addmodifydelete_button_frame(tree_addmoddel_frame, add_command, modify_command=None, delete_command=None)    
+    addmoddel_buttons_frame = create_dynamic_button_frame(tree_addmoddel_frame,[("Add", add_command), ("Modify", None), ("Delete", None)])
     addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0)
     #addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0, sticky="nsew")
 
@@ -148,7 +149,7 @@ def create_add_or_modify_window( #creates frame for adding/modifying table entri
     
     print("Place holder to prevent app call issues")
 
-def create_add_or_modify_frame(master, metadata, default_entry_data):
+def create_add_or_modify_frame(master, metadata, default_entry_data,session):
 
     # Obtain list of fields from Project table in DB to create labels, frame association, max frames
     db_fields, frame_assoc, max_frames = fields_data_from_dbtable(metadata)
@@ -188,18 +189,33 @@ def create_add_or_modify_frame(master, metadata, default_entry_data):
         # For each db_field, we are going to get the entry method
             #and if entry method is dropdown or lookup, we will also grab which table
             #we will pull the data from to populate said dropdown or lookup
-        entry_method, table_ref = get_entry_method_and_table_ref(db_field,metadata)
+        entry_method, dropdown_or_tree_data = get_entry_method_and_table_ref(db_field,metadata,session)        
         # Generate the entry widgets
         if entry_method == "manual":
                 entry_widg = ttk.Entry(dividing_frame,width = entry_widget_width)
                 entry_widg.insert(0, default_entry_data.get(db_field, ""))
                 entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
                 entries[db_field] = entry_widg
+        elif entry_method == "dropdown":        
+            entry_widg = ttk.Combobox(dividing_frame, values=dropdown_or_tree_data, state="readonly", width=entry_widget_width)
+            entry_widg.set(default_entry_data.get(db_field, ""))   
+        # elif entry_method == "lookup":
+        #     entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
+        #     entry_widg.insert(0, default_entry_data.get(db_field, ""))
+        #     entry_widg.bind("<Button-1>", lambda event: open_lookup_window(window))
+        else:
+            # Default to manual if entry_method is not recognized
+            entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
+            entry_widg.insert(0, default_entry_data.get(db_field, ""))
+        entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
+        entries[db_field] = entry_widg
 
-
-        row_counters[frame_index] += 1
+        if first_entry is None:
+            first_entry = entry_widg
         
+        row_counters[frame_index] += 1
 
-
+    if first_entry is not None:
+        first_entry.focus_set()       
     
     return add_or_mod_frame
