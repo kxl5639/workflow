@@ -1,9 +1,8 @@
 import tkinter as tk
-from tkinter import Toplevel, Listbox, StringVar, messagebox, Entry, END
-from tkinter import Toplevel, ttk
+from tkinter import Toplevel, ttk, Listbox, StringVar, messagebox, Entry, END
+from datetime import datetime
 from sqlalchemy.inspection import inspect
 from configs import testing
-
 
 #region View Functions
 
@@ -299,8 +298,7 @@ def get_entry_method_and_table_ref(field,metadata,session):
             print(dropdown_or_tree_data)
     return entry_method, dropdown_or_tree_data
 
-def update_table(model,session,columns_to_display,entries, tree, add_window):     
-
+def prep_data_entry(master, entries):     
     #Picks up empty fields and displays an error message to the user
     empty_fields = []
     first_empty_entry = None
@@ -311,7 +309,7 @@ def update_table(model,session,columns_to_display,entries, tree, add_window):
             if first_empty_entry is None:
                 first_empty_entry = entry
     if empty_fields:
-        show_custom_error_message(add_window, "Error", f"The following fields cannot be empty:\n" + "\n" + "\n".join(empty_fields))
+        show_custom_error_message(master, "Error", f"The following fields cannot be empty:\n" + "\n" + "\n".join(empty_fields))
         if first_empty_entry:
             first_empty_entry.focus_set()
         return
@@ -320,31 +318,36 @@ def update_table(model,session,columns_to_display,entries, tree, add_window):
     submittal_date_str = formatted_entries.get("submittal_date")
  
     # Validate the date format
-    formatted_date, error_message = validate_date_format(submittal_date_str, add_window)
+    formatted_date, error_message = validate_date_format(master, submittal_date_str)
     if error_message:
         return
     formatted_entries["submittal_date"] = formatted_date    
 
-    try:
-        new_project = model(**formatted_entries)
-        session.add(new_project)
-        session.commit()
-        refresh_table(tree, model, session, columns_to_display)
-        add_window.destroy()       
-    except Exception as e:
-        print(e)
-        if str(e):  # Return the error message
-            messagebox.showerror("Error", error_message)
-
-def validate_date_format(date_str, parent_window):    
+    return formatted_entries
+ 
+def validate_date_format(master, date_str):    
     if date_str != "XX/XX/XX":
         try:
             date_obj = datetime.strptime(date_str, '%m/%d/%y').date()
             return date_obj.strftime('%m/%d/%y'), None  # Return formatted date and no error
         except ValueError:
-            show_custom_error_message(parent_window, "Error", "Invalid Date Format. Please enter the date in MM/DD/YY format.")
+            show_custom_error_message(master, "Error", "Invalid Date Format. Please enter the date in MM/DD/YY format.")
             return None, "Invalid Date Format"
     return date_str, None  # Return the original placeholder and no error
+
+#endregion
+
+#region Model Functions
+
+def update_table(model,session,formatted_entries):
+    try:
+        new_record = model(**formatted_entries)
+        session.add(new_record)
+        session.commit()
+        return None  # No error message
+    except Exception as e:
+        if str(e):  # Return the error message
+            messagebox.showerror("Error", 'Unable to add entry.')
 
 #endregion
 
