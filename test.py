@@ -1,24 +1,19 @@
-from project.project_model import field_metadata
 import tkinter as tk
+from tkinter import ttk
 
-def fields_from_dbtable():
-    fields = field_metadata.keys()
-    frame_ass = {field: field_metadata[field]["frame"] for field in fields}
-    max_frames = max([value["frame"] for value in field_metadata.values()])
-    return fields, frame_ass, max_frames
-    
-fields , frame_ass, max_frames = fields_from_dbtable()
-#print(fields)
-#print(max_frames)
+test_window = tk.Tk()
+
+dividing_frame = ttk.Frame(test_window)
+dividing_frame.grid()
+
+label1 = ttk.Entry(dividing_frame, text = 'Label 1')
+label1.grid(row=0,column = 0)
+
+button1 = ttk.Button(dividing_frame, text = "Button 1")
+button1.grid(row=0,column = 1)
+
+button1 = ttk.Button(dividing_frame, text = "Button 1")
+button1.grid(row=1,column = 0, columnspan=2)
 
 
-window = tk.Tk()
-for i in range(max_frames):
-        [print(i)]
-
-frames = {i: tk.Frame(window) for i in range(1, max_frames+1)}
-for i, frame in frames.items():
-    frame.grid(row=0, column=(i-1)*2, padx=10, pady=10, sticky="n")
-
-# print(i)
-# print(range(max_frames))
+test_window.mainloop()

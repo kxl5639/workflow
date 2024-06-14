@@ -163,7 +163,9 @@ def create_add_or_modify_frame(master, metadata, default_entry_data,session):
     dividing_frames = {i: ttk.Frame(add_or_mod_frame) for i in range(1, max_frames+1)} # Note that range starts at 1 and ends at max_frames
     # Places frames in add_or_mod_frame frame  
     for i, dividing_frame in dividing_frames.items():        
-        dividing_frame.grid(row=0, column=(i-1)*2, padx=10, pady=0, sticky="nsew")    
+        dividing_frame.grid(row=0, column=(i-1)*2, padx=10, pady=0, sticky="nsew")  
+        dividing_frame.grid_columnconfigure(0, weight=0)  
+        dividing_frame.grid_columnconfigure(2, weight=1)  
             
     # Add vertical separators between frames
     for i in range(1, max_frames):
@@ -217,4 +219,5 @@ def create_add_or_modify_frame(master, metadata, default_entry_data,session):
     if first_entry is not None:
         first_entry.focus_set()       
     
-    return add_or_mod_frame
+    #return add_or_mod_frame
+    return add_or_mod_frame, dividing_frames

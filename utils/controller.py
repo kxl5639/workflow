@@ -46,10 +46,6 @@ def generate_default_entry_data(metadata):
             default_entry_data[field] = metadata[field]["default"]
     return default_entry_data
 
-
-
-
-
 # Fields to display in Add/Modify Project Window
 def fields_data_from_dbtable(metadata):
     fields = metadata.keys()
