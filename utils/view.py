@@ -28,10 +28,11 @@ def create_tree_frame_from_db_table(master,columns, session, model):
         tree.column(col, width=max(10, len(col.replace("_", " ").title()) * 10), anchor='center')
 
     populate_treeview(tree, model, session, columns)
+    tree_frame.tree = tree
     return tree_frame
 
 def create_standard_tree_but_frame(master, columns, session, model, add_command=None, modify_command=None, delete_command=None ):
-    tree_addmoddel_frame = ttk.Frame(master)        
+    tree_addmoddel_frame = ttk.Frame(master, name='tree_addmoddel_frame')        
     tree_addmoddel_frame.grid_rowconfigure((0), weight=1)
     tree_addmoddel_frame.grid_rowconfigure((1), weight=0)
     tree_addmoddel_frame.grid_columnconfigure(0, weight=1)    
@@ -40,9 +41,9 @@ def create_standard_tree_but_frame(master, columns, session, model, add_command=
     tree_frame.grid(row=0, padx=0, pady=(0,20), sticky="nsew")    
 
     addmoddel_buttons_frame = create_dynamic_button_frame(tree_addmoddel_frame,[("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)])
-    addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0)
-    #addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0, sticky="nsew")
+    addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0)    
 
+    tree_addmoddel_frame.tree_frame = tree_frame
     return tree_addmoddel_frame
 
 def create_entry_widget( #creates the entry box for add/modify. Determines if the entry box is a textbox, dropdown, etc....)

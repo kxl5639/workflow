@@ -14,12 +14,12 @@ def create_project_window():
     project_window.grid_columnconfigure(0, weight=1)
    
     tree_but_frame = create_standard_tree_but_frame(project_window,
-                                                             columns_to_display,
-                                                             session,
-                                                             Project,
-                                                             add_command=open_add_project_window,
-                                                             modify_command=None,
-                                                             delete_command=None )
+                                                    columns_to_display,
+                                                    session,
+                                                    Project,
+                                                    add_command=lambda: open_add_project_window(project_window),
+                                                    modify_command=None,
+                                                    delete_command=None )
     
     tree_but_frame.grid(row=0, padx=20, pady=20, sticky="nsew")
 
@@ -28,3 +28,5 @@ def create_project_window():
 
     # Bring the window to the front and set focus
     project_window.focus_force()
+    
+    return project_window

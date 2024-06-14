@@ -4,7 +4,7 @@ from utils.view import center_window, create_add_or_modify_frame
 from utils.button import create_dynamic_button_frame
 from project.project_model import field_metadata, session
 
-def open_add_project_window():
+def open_add_project_window(project_window):
     add_window = tk.Toplevel()
     add_window.title('Add New Project')    
     add_window.grid_rowconfigure(0, weight=1)
@@ -30,6 +30,10 @@ def open_add_project_window():
 
     button_frame = create_dynamic_button_frame(add_window, [('Add', None),('Cancel', add_window.destroy)])
     button_frame.grid(row=1,column=0,padx=10,pady=(0,10))
+
+    project_window_tree = project_window.nametowidget('tree_addmoddel_frame').tree_frame.tree
+    
+
 
     center_window(add_window)    
 
