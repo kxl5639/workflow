@@ -24,4 +24,18 @@ def populate_treeview(tree, model, session, columns):
     # Insert tree_data into the treeview
     for tree_data in tree_data:
         values = tuple(getattr(tree_data, col) for col in columns)                
+        print(values)
         tree.insert('', 'end', values=values, iid=tree_data.id)  # Use tree_data.id as the item identifier (iid)  
+
+# Fields to display in Add/Modify Project Window
+def fields_data_from_dbtable(metadata):
+    fields = metadata.keys()
+    frame_ass = {field: metadata[field]["frame"] for field in fields}
+    max_frames = max([value["frame"] for value in metadata.values()])        
+    return fields, frame_ass, max_frames
+
+# Gets entry method as specified by metadata. Field arguement is the particular field of a table
+def get_entry_method_and_table_ref(field,metadata):
+    entry_method = metadata[field].get("entry_method", "manual")
+    table_ref = metadata[field].get("table_ref")   
+    return entry_method, table_ref

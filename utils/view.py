@@ -4,6 +4,7 @@ from tkinter import Toplevel, ttk
 from sqlalchemy.inspection import inspect
 from utils.controller import populate_treeview
 from utils.button import create_addmodifydelete_button_frame
+from utils.controller import fields_data_from_dbtable, get_entry_method_and_table_ref
 
 def center_window(window):        
     window.update_idletasks()
@@ -29,7 +30,7 @@ def create_tree_frame_from_db_table(master,columns, session, model):
     populate_treeview(tree, model, session, columns)
     return tree_frame
 
-def create_tree_and_addmoddel_buttons_frame(master, columns, session, model, add_command=None, modify_command=None, delete_command=None ):
+def create_standard_tree_but_frame(master, columns, session, model, add_command=None, modify_command=None, delete_command=None ):
     tree_addmoddel_frame = ttk.Frame(master)        
     tree_addmoddel_frame.grid_rowconfigure((0), weight=1)
     tree_addmoddel_frame.grid_rowconfigure((1), weight=0)
@@ -38,7 +39,7 @@ def create_tree_and_addmoddel_buttons_frame(master, columns, session, model, add
     tree_frame = create_tree_frame_from_db_table(tree_addmoddel_frame,columns, session, model)
     tree_frame.grid(row=0, padx=0, pady=(0,20), sticky="nsew")    
 
-    addmoddel_buttons_frame = create_addmodifydelete_button_frame(tree_addmoddel_frame, add_command=None, modify_command=None, delete_command=None)    
+    addmoddel_buttons_frame = create_addmodifydelete_button_frame(tree_addmoddel_frame, add_command, modify_command=None, delete_command=None)    
     addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0)
     #addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0, sticky="nsew")
 
@@ -133,7 +134,7 @@ def create_entry_widget( #creates the entry box for add/modify. Determines if th
     
     return entry
 
-def create_add_or_modify_window( #creates view for adding/modifying table entries
+def create_add_or_modify_window( #creates frame for adding/modifying table entries
         window,
         metadata,
         session,
@@ -145,59 +146,60 @@ def create_add_or_modify_window( #creates view for adding/modifying table entrie
         placeholders=None
         ):
     
-    window.title(window_title)
+    print("Place holder to prevent app call issues")
 
-    fields = metadata.keys()
-    field_to_frame = {field: metadata[field]["frame"] for field in fields}
-    
-    entries = {}
+def create_add_or_modify_frame(master, metadata, default_entry_data):
 
-    #Calculate the max number of frames from the metadata
-    max_frames = max([value["frame"] for value in metadata.values()])
+    # Obtain list of fields from Project table in DB to create labels, frame association, max frames
+    db_fields, frame_assoc, max_frames = fields_data_from_dbtable(metadata)
 
-    frames = {i: ttk.Frame(window, padding="5 5 5 5") for i in range(1, max_frames+1)}
-    for i, frame in frames.items():
-        frame.grid(row=0, column=(i-1)*2, padx=10, pady=10, sticky="n")
+    # Create frame to me return
+    add_or_mod_frame = ttk.Frame(master)    
+    add_or_mod_frame.grid_rowconfigure(0, weight=1)    
+    for i in range(max_frames):
+        add_or_mod_frame.grid_columnconfigure(i*2, weight=1)
 
+    # Creates the number of grids to separate TMBA info, Project info, Mech Eng info, and Mech Con info
+    dividing_frames = {i: ttk.Frame(add_or_mod_frame) for i in range(1, max_frames+1)} # Note that range starts at 1 and ends at max_frames
+    # Places frames in add_or_mod_frame frame  
+    for i, dividing_frame in dividing_frames.items():        
+        dividing_frame.grid(row=0, column=(i-1)*2, padx=10, pady=0, sticky="nsew")    
+            
     # Add vertical separators between frames
     for i in range(1, max_frames):
-        separator = ttk.Separator(window, orient='vertical')
-        separator.grid(row=0, column=(i*2)-1, padx=(0, 10), pady=10, sticky='ns')
+        separator = ttk.Separator(add_or_mod_frame, orient='vertical')
+        separator.grid(row=0, column=(i*2)-1, padx=(5), pady=0, sticky='ns')
 
-    window.grid_rowconfigure(0, weight=1)
-    for i in range(max_frames):
-        window.grid_columnconfigure(i*2, weight=1)
-
+    # Initializing variables to start generating the labels and entries
     row_counters = {i: 0 for i in range(1, max_frames+1)}
     first_entry = None
+    entry_widget_width = 15
+    entries = {} # Eventually collects all the entries that will be submitted to the Add or Modify button
 
-    for field in fields:
-        frame_index = field_to_frame[field]
-        frame = frames[frame_index]
-        label = ttk.Label(frame, text=field.replace("_", " ").title())
-        label.grid(row=row_counters[frame_index], column=0, padx=10, pady=5, sticky=tk.W)
+    for db_field in db_fields:  
+    # Creates the label widgets iteratively      
+        frame_index = frame_assoc[db_field] #extracts the frame that the current db_field should be in
+        dividing_frame = dividing_frames[frame_index] 
+        #dividing_frame.grid_rowconfigure(row_counters[frame_index], weight=1) #Not sure if I want this to happen, this allows labels to stretch
+        label = ttk.Label(dividing_frame, text=db_field.replace("_", " ").title())
+        label.grid(row=row_counters[frame_index], column=0, padx=(0,10), pady=5, sticky=tk.W)
 
-        entry = create_entry_widget(window,frame, field, metadata, prefilled_data, session, field_width)
-        entry.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
-        entries[field] = entry
+    # Creates entry widgets iteratively        
+        # For each db_field, we are going to get the entry method
+            #and if entry method is dropdown or lookup, we will also grab which table
+            #we will pull the data from to populate said dropdown or lookup
+        entry_method, table_ref = get_entry_method_and_table_ref(db_field,metadata)
+        # Generate the entry widgets
+        if entry_method == "manual":
+                entry_widg = ttk.Entry(dividing_frame,width = entry_widget_width)
+                entry_widg.insert(0, default_entry_data.get(db_field, ""))
+                entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
+                entries[db_field] = entry_widg
 
-        if first_entry is None:
-            first_entry = entry
+
         row_counters[frame_index] += 1
+        
 
-    button_frame = ttk.Frame(window)
-    button_frame.grid(row=1, column=0, columnspan=7, pady=10)
 
-    submit_button = ttk.Button(button_frame, text=button_text, command=lambda: submit_callback(entries))
-    submit_button.grid(row=0, column=0, padx=10)
-
-    cancel_button = ttk.Button(button_frame, text="Cancel", command=window.destroy)
-    cancel_button.grid(row=0, column=1, padx=10)
-
-    center_window(window)
-
-    if first_entry is not None:
-        first_entry.focus_set()
-
-    return entries
-
+    
+    return add_or_mod_frame
