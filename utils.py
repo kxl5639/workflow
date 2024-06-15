@@ -175,27 +175,47 @@ def create_add_or_modify_frame(master, entry_data, model, metadata, session,retu
     # Creates entry widgets iteratively        
         # For each db_field, we are going to get the entry method
             #and if entry method is dropdown or lookup, we will also grab which table
-            #we will pull the data from to populate said dropdown or lookup
-        entry_method, dropdown_or_tree_data = get_entry_method_and_table_ref(db_field,metadata,session)        
+            #we will pull the data from to populate said dropdown or lookup                
         # Generate the entry widgets    
-        if model.__tablename__ == 'tblProject':
+        if model.__tablename__ != 'tblProject':            
             entry_method = 'manual'
-            if entry_method == "manual":
-                    entry_widg = ttk.Entry(dividing_frame,width = entry_widget_width)
-                    entry_widg.insert(0, entry_data.get(db_field, ""))
-                    entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
-                    entries[db_field] = entry_widg
-            elif entry_method == "dropdown":        
+        else:
+            entry_method, dropdown_or_tree_data = get_entry_method_and_table_ref(db_field,metadata,session)        
+        match entry_method:
+            case 'manual':
+                entry_widg = ttk.Entry(dividing_frame,width = entry_widget_width)
+                entry_widg.insert(0, entry_data.get(db_field, ""))
+                entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
+                entries[db_field] = entry_widg
+            case 'dropdown':
                 entry_widg = ttk.Combobox(dividing_frame, values=dropdown_or_tree_data, state="readonly", width=entry_widget_width)
-                entry_widg.set(entry_data.get(db_field, ""))   
-            # elif entry_method == "lookup":
+                entry_widg.set(entry_data.get(db_field, ""))        
+            # case 'lookup':
             #     entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
             #     entry_widg.insert(0, entry_data.get(db_field, ""))
-            #     entry_widg.bind("<Button-1>", lambda event: open_lookup_window(window))
-            else:
-                # Default to manual if entry_method is not recognized
-                entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
+            #     entry_widg.bind("<Button-1>", lambda event: open_lookup_window(window))                
+            case _:
+                entry_widg = ttk.Entry(dividing_frame,width = entry_widget_width)
                 entry_widg.insert(0, entry_data.get(db_field, ""))
+                entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
+                entries[db_field] = entry_widg
+        
+            # if entry_method == "manual":
+            #         entry_widg = ttk.Entry(dividing_frame,width = entry_widget_width)
+            #         entry_widg.insert(0, entry_data.get(db_field, ""))
+            #         entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
+            #         entries[db_field] = entry_widg
+            # elif entry_method == "dropdown":        
+            #     entry_widg = ttk.Combobox(dividing_frame, values=dropdown_or_tree_data, state="readonly", width=entry_widget_width)
+            #     entry_widg.set(entry_data.get(db_field, ""))   
+            # # elif entry_method == "lookup":
+            # #     entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
+            # #     entry_widg.insert(0, entry_data.get(db_field, ""))
+            # #     entry_widg.bind("<Button-1>", lambda event: open_lookup_window(window))
+            # else:
+            #     # Default to manual if entry_method is not recognized
+            #     entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
+            #     entry_widg.insert(0, entry_data.get(db_field, ""))
 
         entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky='ew')
         entries[db_field] = entry_widg
