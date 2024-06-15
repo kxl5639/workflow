@@ -373,16 +373,16 @@ def delete_record_properly_selected(tree, session, model, *fields):
     records_labels_str = "\n".join(records_labels)
     
     if len(selected_records) == 1:
-        if show_custom_confirmation_message(tree, "Confirm Deletion", f"Are you sure you want to delete design engineer {records_labels[0]}?") is False:
+        if show_custom_confirmation_message(tree, "Confirm Deletion", f"Are you sure you want to delete record:\n\n {records_labels[0]}?\n") is False:
             return None, False
         else:            
             record_id = [selected_records[0]]            
             return record_id, True
     else:
-        if show_custom_confirmation_message(tree, "Confirm Deletion", f"Confirm you want to delete design engineers:\n\n{records_labels_str}") is False:
+        if show_custom_confirmation_message(tree, "Confirm Deletion", f"Confirm you want to delete delete records:\n\n{records_labels_str}\n") is False:
             return None, False
         else:
-            if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning! This cannot be undone.\n\nPlease confirm you want to delete design engineers:\n\n{records_labels_str}") is False:
+            if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning! This cannot be undone.\n\nPlease confirm you want to delete delete records:\n\n{records_labels_str}\n") is False:
                 return None, False
             else:
                 record_ids = []
@@ -425,8 +425,12 @@ def show_custom_error_message(parent_window, title, message):
     error_message_window.transient(parent_window)
     error_message_window.title(title)
     error_message_window.resizable(False, False)  # Make the window non-resizable
+    #error_message_window.overrideredirect(True)  # Remove title bar and window controls
+    error_message_window.wm_attributes('-toolwindow', 'true')
+
     ttk.Label(error_message_window, text=message).pack(padx=10, pady=10)
     ttk.Button(error_message_window, text="OK", command=error_message_window.destroy).pack(pady=5)
+    
     center_window(error_message_window)
 
     error_message_window.grab_set()  # Make the window modal
@@ -437,7 +441,9 @@ def show_custom_confirmation_message(parent_window, title, message):
     confirmation_window = Toplevel()
     confirmation_window.transient(parent_window)
     confirmation_window.title(title)
-    confirmation_window.resizable(False, False)
+    confirmation_window.resizable(False, False)  # Make the window non-resizable
+    confirmation_window.wm_attributes('-toolwindow', 'true')
+    #confirmation_window.overrideredirect(True)  # Remove title bar and window controls
     result = {'value': None}
 
     def on_yes():
@@ -453,6 +459,8 @@ def show_custom_confirmation_message(parent_window, title, message):
     button_frame.pack(pady=5)
     ttk.Button(button_frame, text="Yes", command=on_yes).pack(side=tk.LEFT, padx=5)
     ttk.Button(button_frame, text="No", command=on_no).pack(side=tk.RIGHT, padx=5)
+    # Bind the close button to on_no
+    confirmation_window.protocol("WM_DELETE_WINDOW", on_no)
 
     center_window(confirmation_window)
     confirmation_window.grab_set()

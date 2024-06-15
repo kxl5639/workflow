@@ -7,7 +7,7 @@ Base = declarative_base()
 # Define the field metadata
 ## default - what appears when a new add window is opened
 ## frame - determines which frame or column the data will show up in on the add/modify window
-## display - determines which field will appear on the main project window ie: don't need to show the specifics of the address in that main project window.
+## display - determines which field will appear on the main design_eng window ie: don't need to show the specifics of the address in that main design_eng window.
 ## entry_method - determines how the user wil enter the data. 'manual', via 'dropdown', or via a 'lookup' that will spawn in new window
 ## table_ref - references the table in the database where the data comes from
 field_metadata = {
