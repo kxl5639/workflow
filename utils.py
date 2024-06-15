@@ -324,21 +324,54 @@ def validate_date_format(master, date_str):
 def modify_record_properly_selected(tree,session,model):
     selected_item = tree.selection()
     if not selected_item:    
-        show_custom_error_message(tree, "Error", "Please select a project to modify.")
+        show_custom_error_message(tree, "Error", "Please select a record to modify.")
         return
     if only_one_record_selected(tree) is True:
         record_id = selected_item[0]  # The item identifier (iid) is the project ID
         record = session.query(model).get(record_id)
         return record
     else:
-        show_custom_error_message(tree, "Error", "Only one project can be selected to modify.")
+        show_custom_error_message(tree, "Error", "Only one record can be selected to modify.")
         return    
+
+def delete_record_properly_selected(tree, session, model, *fields):
+    selected_records = tree.selection()
+    if not selected_records:
+        show_custom_error_message(tree, "Error", "Please select at least one record to delete.")
+        return None, False
+    
+    # Creates a string of list of record(s) that are selected to be deleted    
+    records_labels = []
+    for item in selected_records:
+        instance = session.query(model).get(item)
+        if instance:
+            record_label = " ".join(str(getattr(instance, attr)) for attr in fields)
+            records_labels.append(record_label)
+    records_labels_str = "\n".join(records_labels)
+    
+    if len(selected_records) == 1:
+        if show_custom_confirmation_message(tree, "Confirm Deletion", f"Are you sure you want to delete design engineer {records_labels[0]}?") is False:
+            return None, False
+        else:            
+            record_id = [selected_records[0]]            
+            return record_id, True
+    else:
+        if show_custom_confirmation_message(tree, "Confirm Deletion", f"Confirm you want to delete design engineers:\n\n{records_labels_str}") is False:
+            return None, False
+        else:
+            if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning! This cannot be undone.\n\nPlease confirm you want to delete design engineers:\n\n{records_labels_str}") is False:
+                return None, False
+            else:
+                record_ids = []
+                for record_id in selected_records:    
+                    record_ids.append(record_id)                
+                return record_ids, True    
 
 #endregion
 
 #region Model Functions
 
-def add_entry_to_table(model,session,formatted_entries):
+def add_record_to_table(model,session,formatted_entries):
     try:
         new_record = model(**formatted_entries)
         session.add(new_record)
@@ -348,12 +381,18 @@ def add_entry_to_table(model,session,formatted_entries):
         if str(e):  # Return the error message
             messagebox.showerror("Error", 'Unable to add entry.')
 
-
 def update_table(session,formatted_entries,selected_record):
     for field, value in formatted_entries.items():
         setattr(selected_record, field, value)
     session.commit()
 
+def delete_record(record, session):
+    try:
+        session.delete(record)
+        session.commit()
+    except Exception as e:
+        return str(e)  # Return the error message
+    return None
 #endregion
 
 #region msgbox Functions
@@ -483,7 +522,7 @@ def create_add_modify_window(master, model, session, metadata, columns_to_displa
         if error_message:
             return
         if button_text == 'Add':                      
-            add_entry_to_table(model,session,formatted_entries)
+            add_record_to_table(model,session,formatted_entries)
             refresh_table(table_window_tree, model, session,columns_to_display)
             add_mod_window.destroy()
         else:
