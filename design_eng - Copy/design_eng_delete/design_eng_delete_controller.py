@@ -6,7 +6,8 @@ def delete_selected_projects(project_window):
     table_window_tree = project_window.nametowidget('tree_addmoddel_frame').tree_frame.tree    
     # Checks if at least 1 record was selected.
     record_ids, ready_to_delete = delete_record_properly_selected(table_window_tree,session,Project,'project_number')
-    if not ready_to_delete is True:
+    if not ready_to_delete is True:      
+        print('Not ready to delete')  
         return
     else:
         for record_id in record_ids:

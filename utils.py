@@ -135,7 +135,7 @@ def create_entry_widget( #creates the entry box for add/modify. Determines if th
     
     return entry
 
-def create_add_or_modify_frame(master, entry_data, metadata, session,return_dividing_frames=False):
+def create_add_or_modify_frame(master, entry_data, model, metadata, session,return_dividing_frames=False):    
 
     # Obtain list of fields from Project table in DB to create labels, frame association, max frames
     db_fields, frame_assoc, max_frames = fields_data_from_dbtable(metadata)    
@@ -177,23 +177,26 @@ def create_add_or_modify_frame(master, entry_data, metadata, session,return_divi
             #and if entry method is dropdown or lookup, we will also grab which table
             #we will pull the data from to populate said dropdown or lookup
         entry_method, dropdown_or_tree_data = get_entry_method_and_table_ref(db_field,metadata,session)        
-        # Generate the entry widgets
-        if entry_method == "manual":
-                entry_widg = ttk.Entry(dividing_frame,width = entry_widget_width)
+        # Generate the entry widgets    
+        if model.__tablename__ == 'tblProject':
+            entry_method = 'manual'
+            if entry_method == "manual":
+                    entry_widg = ttk.Entry(dividing_frame,width = entry_widget_width)
+                    entry_widg.insert(0, entry_data.get(db_field, ""))
+                    entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
+                    entries[db_field] = entry_widg
+            elif entry_method == "dropdown":        
+                entry_widg = ttk.Combobox(dividing_frame, values=dropdown_or_tree_data, state="readonly", width=entry_widget_width)
+                entry_widg.set(entry_data.get(db_field, ""))   
+            # elif entry_method == "lookup":
+            #     entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
+            #     entry_widg.insert(0, entry_data.get(db_field, ""))
+            #     entry_widg.bind("<Button-1>", lambda event: open_lookup_window(window))
+            else:
+                # Default to manual if entry_method is not recognized
+                entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
                 entry_widg.insert(0, entry_data.get(db_field, ""))
-                entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky=tk.W)
-                entries[db_field] = entry_widg
-        elif entry_method == "dropdown":        
-            entry_widg = ttk.Combobox(dividing_frame, values=dropdown_or_tree_data, state="readonly", width=entry_widget_width)
-            entry_widg.set(entry_data.get(db_field, ""))   
-        # elif entry_method == "lookup":
-        #     entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
-        #     entry_widg.insert(0, entry_data.get(db_field, ""))
-        #     entry_widg.bind("<Button-1>", lambda event: open_lookup_window(window))
-        else:
-            # Default to manual if entry_method is not recognized
-            entry_widg = ttk.Entry(dividing_frame, width=entry_widget_width)
-            entry_widg.insert(0, entry_data.get(db_field, ""))
+
         entry_widg.grid(row=row_counters[frame_index], column=1, padx=10, pady=5, sticky='ew')
         entries[db_field] = entry_widg
 
@@ -493,6 +496,7 @@ def create_add_modify_window(master, model, session, metadata, columns_to_displa
 
     add_proj_frame, project_entries, dividing_frame, max_rows_in_dividing_frames = create_add_or_modify_frame(add_mod_window,
                                                                                                                 entry_data,
+                                                                                                                model,
                                                                                                                 metadata,
                                                                                                                 session,
                                                                                                                 True)

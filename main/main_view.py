@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 from utils import center_window #type:ignore
 from main.main_controller import create_main_button
 from project.project_view import create_project_window
+from design_eng.design_eng_view import create_design_eng_window
 
 
 def create_main_window():
@@ -20,7 +21,7 @@ def create_main_window():
     projects_button = create_main_button(button_frame, "Projects", create_project_window)
     projects_button.grid(row=0, column=0, padx=0, pady=(0,20))
 
-    design_engs_button = create_main_button(button_frame, "Design Engineers")
+    design_engs_button = create_main_button(button_frame, "Design Engineers",create_design_eng_window)
     design_engs_button.grid(row=1, column=0, padx=0, pady=0)
 
     # Center the window after adding widgets

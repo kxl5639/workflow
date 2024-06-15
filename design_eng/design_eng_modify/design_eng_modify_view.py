@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from utils import create_add_modify_window
-from project.project_model import field_metadata, session, Project
-from project.project_controller import columns_to_display
+from design_eng.design_eng_model import field_metadata, session, DesignEng
+from design_eng.design_eng_controller import columns_to_display
 
-def open_modify_project_window(project_window):    
-    create_add_modify_window(project_window,Project,session,field_metadata,columns_to_display,'Modify Project','Modify')
+def open_modify_design_eng_window(design_eng_window):    
+    create_add_modify_window(design_eng_window,DesignEng,session,field_metadata,columns_to_display,'Modify Design Engineer','Modify')
     
