@@ -25,7 +25,9 @@ def create_tree_frame_from_db_table(master,columns, session, model):
     # Define the column headings and set a minimum width
     for col in columns:
         tree.heading(col, text=col.replace("_", " ").title())
-        tree.column(col, width=max(10, len(col.replace("_", " ").title()) * 10), anchor='center')
+        tree.column(col, width=10, anchor='center')  # Initial minimum width
+
+    resize_max_width_of_tree_columns(tree, session,model,columns)
 
     populate_treeview(tree, model, session, columns)
     tree_frame.tree = tree
@@ -243,10 +245,29 @@ def only_one_record_selected(tree): #record refers to a record in a table.
         return False
     else:
         return True
+
+def resize_max_width_of_tree_columns(tree, session,model,columns):
+    # Fetch data from the database
+    data = session.query(model).all()
+
+    # Determine the maximum width needed for each column
+    column_widths = {col: len(col.replace("_", " ").title()) * 10 for col in columns}
     
+    for row in data:
+        values = [str(getattr(row, col)) for col in columns]
+        for col, value in zip(columns, values):
+            column_widths[col] = max(column_widths[col], len(value) * 10)
+    
+    # Adjust column widths based on the content
+    for col in columns:
+        tree.column(col, width=column_widths[col])
+
 def refresh_table(tree, model, session, columns): #
     for item in tree.get_children():
         tree.delete(item)
+
+    resize_max_width_of_tree_columns(tree, session,model,columns)
+
     populate_treeview(tree, model, session, columns)
 
 def populate_treeview(tree, model, session, columns): 
