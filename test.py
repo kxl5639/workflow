@@ -1,139 +1,86 @@
 import tkinter as tk
-from tkinter import ttk
-from sqlalchemy.orm import aliased
-from sqlalchemy.orm import sessionmaker, declarative_base, relationship
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from tkinter import Toplevel, ttk, Listbox, StringVar, messagebox, Entry, END
+from project.project_controller import column_map, table_data, columns_to_display
+from utils import center_window
 
-Base = declarative_base()
+def populate_treeview(tree, table_data, column_map):
+    """
+    Populate a TreeView with the provided data.
 
-class Project(Base):
-    __tablename__ = 'projects'
-    id = Column(Integer, primary_key=True)
-    project_number = Column(String, nullable=False, unique=True)
-    em_type = Column(String, nullable=False)
-    job_phase = Column(Integer, nullable=False)
-    submit_date = Column(String, nullable=False)
-    client_id = Column(Integer, ForeignKey('clients.id'), nullable=False)
-    projectmanager_id = Column(Integer, ForeignKey('projectmanagers.id'), nullable=False)
-    mechanicalengineer_id = Column(Integer, ForeignKey('mechanicalengineers.id'), nullable=False)
-    mechanicalcontractor_id = Column(Integer, ForeignKey('mechanicalcontractors.id'), nullable=False)
-    designengineer_id = Column(Integer, ForeignKey('designengineers.id'), nullable=False)
-    salesengineer_id = Column(Integer, ForeignKey('salesengineers.id'), nullable=False)
+    Parameters:
+    - tree: The TreeView widget.
+    - table_data: List of tuples containing the data to be inserted.
+    - column_map: Dictionary mapping of column names to their positions in the data tuples.
+    """
+    for row in table_data:
+        values = [row[column_map[col]] for col in tree["columns"]]
+        tree.insert("", "end", text=row[column_map["project_number"]], values=values)
 
-class Client(Base):
-    __tablename__ = 'clients'
-    id = Column(Integer, primary_key=True)
-    client_name = Column(String, nullable=False)
-    scope = Column(String, nullable=False)
-    address = Column(String, nullable=False)
+def column_map_to_list(column_map):
+    # Sort the dictionary by the values (positions) and extract the keys (column names)
+    return [col for col, pos in sorted(column_map.items(), key=lambda item: item[1])]
 
-class ProjectManager(Base):
-    __tablename__ = 'projectmanagers'
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
 
-class MechanicalEngineer(Base):
-    __tablename__ = 'mechanicalengineers'
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+def resize_max_width_of_tree_columns(tree, table_data, column_map):
+    columns =  column_map_to_list(column_map) 
 
-class MechanicalContractor(Base):
-    __tablename__ = 'mechanicalcontractors'
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    # Determine the maximum width needed for each column
+    column_widths = {col: len(col) * 10 for col in columns}
 
-class DesignEngineer(Base):
-    __tablename__ = 'designengineers'
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-
-class SalesEngineer(Base):
-    __tablename__ = 'salesengineers'
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-
-# Setup the database connection
-DATABASE_URL = 'sqlite:///test.db'
-engine = create_engine(DATABASE_URL)
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-session = Session()
-
-# Aliasing the classes for better query readability
-ClientAlias = aliased(Client)
-ProjectManagerAlias = aliased(ProjectManager)
-MechanicalEngineerAlias = aliased(MechanicalEngineer)
-MechanicalContractorAlias = aliased(MechanicalContractor)
-DesignEngineerAlias = aliased(DesignEngineer)
-SalesEngineerAlias = aliased(SalesEngineer)
-
-# Query to get the required data
-projects_data = session.query(
-    Project.project_number,
-    Project.submit_date,
-    ClientAlias.client_name,
-    ClientAlias.scope,
-    ClientAlias.address,
-    ProjectManagerAlias.first_name,
-    ProjectManagerAlias.last_name,
-    MechanicalEngineerAlias.name,
-    MechanicalContractorAlias.name,
-    DesignEngineerAlias.first_name,
-    DesignEngineerAlias.last_name,
-    SalesEngineerAlias.first_name,
-    SalesEngineerAlias.last_name
-).join(ClientAlias, Project.client_id == ClientAlias.id)\
- .join(ProjectManagerAlias, Project.projectmanager_id == ProjectManagerAlias.id)\
- .join(MechanicalEngineerAlias, Project.mechanicalengineer_id == MechanicalEngineerAlias.id)\
- .join(MechanicalContractorAlias, Project.mechanicalcontractor_id == MechanicalContractorAlias.id)\
- .join(DesignEngineerAlias, Project.designengineer_id == DesignEngineerAlias.id)\
- .join(SalesEngineerAlias, Project.salesengineer_id == SalesEngineerAlias.id)\
- .all()
-
-# Function to create the treeview and populate it
-def create_treeview():
-    root = tk.Tk()
-    root.title("Project TreeView")
-
-    tree = ttk.Treeview(root)
-    tree["columns"] = ("project_number", "submit_date", "client", "client_scope", "client_address",
-                       "project_manager", "mech_eng", "mech_contractor", "design_eng", "sales_eng")
+    for row in table_data:
+        values = [str(row[column_map[col]]) for col in columns]
+        for col, value in zip(columns, values):
+            column_widths[col] = max(column_widths[col], len(value) * 10)        
     
-    tree.heading("project_number", text="Project Number")
-    tree.heading("submit_date", text="Submit Date")
-    tree.heading("client", text="Client")
-    tree.heading("client_scope", text="Client Scope")
-    tree.heading("client_address", text="Client Address")
-    tree.heading("project_manager", text="Project Manager")
-    tree.heading("mech_eng", text="Mechanical Engineer")
-    tree.heading("mech_contractor", text="Mechanical Contractor")
-    tree.heading("design_eng", text="Design Engineer")
-    tree.heading("sales_eng", text="Sales Engineer")
+    for col in columns:
+        tree.column(col, width=column_widths[col])
 
-    tree.column("project_number", width=100)
-    tree.column("submit_date", width=100)
-    tree.column("client", width=100)
-    tree.column("client_scope", width=100)
-    tree.column("client_address", width=150)
-    tree.column("project_manager", width=150)
-    tree.column("mech_eng", width=150)
-    tree.column("mech_contractor", width=150)
-    tree.column("design_eng", width=150)
-    tree.column("sales_eng", width=150)
+    
+    # column_widths = {col: len(col.replace("_", " ").title()) * 10 for col in columns}
+    
+    # for row in table_data:
+    #     values = [str(getattr(row, col)) for col in columns]
+    #     for col, value in zip(columns, values):
+    #         column_widths[col] = max(column_widths[col], len(value) * 10)
+    
+    # # Adjust column widths based on the content
+    # for col in columns:
+    #     tree.column(col, width=column_widths[col])
 
-    for project in projects_data:
-        project_manager = f"{project[5]} {project[6]}"
-        design_engineer = f"{project[9]} {project[10]}"
-        sales_engineer = f"{project[11]} {project[12]}"
-        
-        tree.insert("", "end", text=project[0],
-                    values=(project[0], project[1], project[2], project[3], project[4],
-                            project_manager, project[7], project[8], design_engineer, sales_engineer))
 
-    tree.pack(expand=True, fill='both')
-    root.mainloop()
 
-create_treeview()
+def create_tree_frame_from_db_table(master,table_data, column_map):   
+    columns = column_map_to_list(column_map)     
+
+    tree_frame = ttk.Frame(master)   
+    tree_frame.grid(row=0, column=0, sticky='nsew') 
+    tree_frame.grid_rowconfigure(0,weight=1) 
+    tree_frame.grid_columnconfigure(0,weight=1) 
+    
+    tree = ttk.Treeview(tree_frame,columns=columns, show='headings')    
+    tree.grid(row=0,column=0, sticky='nsew')
+    
+    # Define the column headings and set a minimum width
+    for col in columns:
+        tree.heading(col, text=col.replace("_", " ").title())
+    
+    populate_treeview(tree, table_data, column_map)
+
+    resize_max_width_of_tree_columns(tree, table_data, column_map)
+
+    
+    tree_frame.tree = tree
+    return tree_frame
+
+
+
+
+
+
+root = tk.Tk()
+root.title('Test')
+center_window(root)
+tree_frame = create_tree_frame_from_db_table(root,table_data, column_map)
+root.grid_rowconfigure(0,weight=1) 
+root.grid_columnconfigure(0,weight=1) 
+root.mainloop()

@@ -590,3 +590,6 @@ def create_add_modify_window(master, model, session, metadata, columns_to_displa
     master.wait_window(add_mod_window)
 
     #endregion
+
+
+

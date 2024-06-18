@@ -1,5 +1,9 @@
 from model import Client, Project, ProjectManager, DesignEngineer, SalesEngineer, MechanicalContractor, MechanicalEngineer, session
 
+
+columns_to_display = ['project_number', 'submittal_date', 'client', 'scope', 'address',
+               'project_manager', 'mechanical_engineer', 'mechanical_contractor', 'design_engineer', 'sales_engineer']
+
 table_data = session.query(
     Project.project_number,
     Project.submit_date,
@@ -14,7 +18,7 @@ table_data = session.query(
     DesignEngineer.last_name,
     SalesEngineer.first_name,
     SalesEngineer.last_name
-).join(Client, Project.client_id == Client.id)
+).join(Client, Project.client_id == Client.id)\
  .join(ProjectManager, Project.projectmanager_id == ProjectManager.id)\
  .join(MechanicalEngineer, Project.mechanicalengineer_id == MechanicalEngineer.id)\
  .join(MechanicalContractor, Project.mechanicalcontractor_id == MechanicalContractor.id)\
@@ -46,5 +50,4 @@ column_map = {
 }
 
 
-print(table_data)
 
