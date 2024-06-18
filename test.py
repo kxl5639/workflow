@@ -1,76 +1,139 @@
+import tkinter as tk
+from tkinter import ttk
+from sqlalchemy.orm import aliased
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
-
-# # Define the base class
-# Base = declarative_base()
-
-# # Define the User class (table)
-
-# project_field_metadata = {
-#     "project_number": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1, "entry_method":"manual"},
-#     "em_type": {"type": Column(String(50)), "default": "B", "frame": 1, "display": 0, "entry_method":"manual"},
-#     "job_phase": {"type": Column(String(50)), "default": "1", "frame": 1, "display": 0, "entry_method":"manual"},
-#     "submittal_date": {"type": Column(String), "default": "XX/XX/XX", "frame": 1, "display": 1, "entry_method":"manual"},
-#     "client": {"type": Column(String(100)), "default": "", "frame": 2, "display": 1, "entry_method":"manual",'relationship':['Client','tblProject']},
-#     "scope": {"type": Column(String(250)), "default": "", "frame": 2, "display": 1, "entry_method":"manual"},
-#     "address": {"type": Column(String(250)), "default": "", "frame": 2, "display": 1, "entry_method":"manual"},
-#     "city": {"type": Column(String(100)), "default": "New York", "frame": 2, "display": 0, "entry_method":"manual"},
-#     "state": {"type": Column(String(50)), "default": "NY", "frame": 2, "display": 0, "entry_method":"manual"},
-#     "zip_code": {"type": Column(String(20)), "default": "10001", "frame": 2, "display": 0, "entry_method":"manual"},}
-
-
-
-# class Project(Base):
-#     __tablename__ = 'tblProject'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     for field, meta in project_field_metadata.items():
-#         vars()[field] = meta["type"]
-
-
-# client_field_metadata = {
-#     "client": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
-#     "scope": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
-#     "address": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
-#     "city": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
-#     "state": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1},
-#     "zip_code": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1}
-# }
-
-
-# # Dynamically create the Client class
-# class Client(Base):
-#     __tablename__ = 'tblClient'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     for field, meta in client_field_metadata.items():
-#         vars()[field] = meta["type"]
-
-# DATABASE_URL = 'sqlite:///test.db'
-# engine = create_engine(DATABASE_URL)
-# Base.metadata.create_all(engine)
-# Session = sessionmaker(bind=engine)
-# session = Session()
-
-
 
 Base = declarative_base()
 
-project_field_metadata = {
-    "project_number": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1, "entry_method":"manual"},
-    "em_type": {"type": Column(String(50)), "default": "B", "frame": 1, "display": 0, "entry_method":"manual"},
-    "job_phase": {"type": Column(String(50)), "default": "1", "frame": 1, "display": 0, "entry_method":"manual"},
-    "submittal_date": {"type": Column(String), "default": "XX/XX/XX", "frame": 1, "display": 1, "entry_method":"manual"},
-    "client": {"type": Column(String(100)), "default": "", "frame": 2, "display": 1, "entry_method":"manual",'relationship':['Client','tblProject']},
-    "scope": {"type": Column(String(250)), "default": "", "frame": 2, "display": 1, "entry_method":"manual"},
-    "address": {"type": Column(String(250)), "default": "", "frame": 2, "display": 1, "entry_method":"manual"},
-    "city": {"type": Column(String(100)), "default": "New York", "frame": 2, "display": 0, "entry_method":"manual"},
-    "state": {"type": Column(String(50)), "default": "NY", "frame": 2, "display": 0, "entry_method":"manual"},
-    "zip_code": {"type": Column(String(20)), "default": "10001", "frame": 2, "display": 0, "entry_method":"manual"},}
+class Project(Base):
+    __tablename__ = 'projects'
+    id = Column(Integer, primary_key=True)
+    project_number = Column(String, nullable=False, unique=True)
+    em_type = Column(String, nullable=False)
+    job_phase = Column(Integer, nullable=False)
+    submit_date = Column(String, nullable=False)
+    client_id = Column(Integer, ForeignKey('clients.id'), nullable=False)
+    projectmanager_id = Column(Integer, ForeignKey('projectmanagers.id'), nullable=False)
+    mechanicalengineer_id = Column(Integer, ForeignKey('mechanicalengineers.id'), nullable=False)
+    mechanicalcontractor_id = Column(Integer, ForeignKey('mechanicalcontractors.id'), nullable=False)
+    designengineer_id = Column(Integer, ForeignKey('designengineers.id'), nullable=False)
+    salesengineer_id = Column(Integer, ForeignKey('salesengineers.id'), nullable=False)
 
-# Dynamically create the Client class
 class Client(Base):
-    __tablename__ = 'tblClient'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    for field, meta in project_field_metadata.items():
-        vars()[field] = meta["type"]
-        print(field)
+    __tablename__ = 'clients'
+    id = Column(Integer, primary_key=True)
+    client_name = Column(String, nullable=False)
+    scope = Column(String, nullable=False)
+    address = Column(String, nullable=False)
+
+class ProjectManager(Base):
+    __tablename__ = 'projectmanagers'
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+
+class MechanicalEngineer(Base):
+    __tablename__ = 'mechanicalengineers'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+
+class MechanicalContractor(Base):
+    __tablename__ = 'mechanicalcontractors'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+
+class DesignEngineer(Base):
+    __tablename__ = 'designengineers'
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+
+class SalesEngineer(Base):
+    __tablename__ = 'salesengineers'
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+
+# Setup the database connection
+DATABASE_URL = 'sqlite:///test.db'
+engine = create_engine(DATABASE_URL)
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# Aliasing the classes for better query readability
+ClientAlias = aliased(Client)
+ProjectManagerAlias = aliased(ProjectManager)
+MechanicalEngineerAlias = aliased(MechanicalEngineer)
+MechanicalContractorAlias = aliased(MechanicalContractor)
+DesignEngineerAlias = aliased(DesignEngineer)
+SalesEngineerAlias = aliased(SalesEngineer)
+
+# Query to get the required data
+projects_data = session.query(
+    Project.project_number,
+    Project.submit_date,
+    ClientAlias.client_name,
+    ClientAlias.scope,
+    ClientAlias.address,
+    ProjectManagerAlias.first_name,
+    ProjectManagerAlias.last_name,
+    MechanicalEngineerAlias.name,
+    MechanicalContractorAlias.name,
+    DesignEngineerAlias.first_name,
+    DesignEngineerAlias.last_name,
+    SalesEngineerAlias.first_name,
+    SalesEngineerAlias.last_name
+).join(ClientAlias, Project.client_id == ClientAlias.id)\
+ .join(ProjectManagerAlias, Project.projectmanager_id == ProjectManagerAlias.id)\
+ .join(MechanicalEngineerAlias, Project.mechanicalengineer_id == MechanicalEngineerAlias.id)\
+ .join(MechanicalContractorAlias, Project.mechanicalcontractor_id == MechanicalContractorAlias.id)\
+ .join(DesignEngineerAlias, Project.designengineer_id == DesignEngineerAlias.id)\
+ .join(SalesEngineerAlias, Project.salesengineer_id == SalesEngineerAlias.id)\
+ .all()
+
+# Function to create the treeview and populate it
+def create_treeview():
+    root = tk.Tk()
+    root.title("Project TreeView")
+
+    tree = ttk.Treeview(root)
+    tree["columns"] = ("project_number", "submit_date", "client", "client_scope", "client_address",
+                       "project_manager", "mech_eng", "mech_contractor", "design_eng", "sales_eng")
+    
+    tree.heading("project_number", text="Project Number")
+    tree.heading("submit_date", text="Submit Date")
+    tree.heading("client", text="Client")
+    tree.heading("client_scope", text="Client Scope")
+    tree.heading("client_address", text="Client Address")
+    tree.heading("project_manager", text="Project Manager")
+    tree.heading("mech_eng", text="Mechanical Engineer")
+    tree.heading("mech_contractor", text="Mechanical Contractor")
+    tree.heading("design_eng", text="Design Engineer")
+    tree.heading("sales_eng", text="Sales Engineer")
+
+    tree.column("project_number", width=100)
+    tree.column("submit_date", width=100)
+    tree.column("client", width=100)
+    tree.column("client_scope", width=100)
+    tree.column("client_address", width=150)
+    tree.column("project_manager", width=150)
+    tree.column("mech_eng", width=150)
+    tree.column("mech_contractor", width=150)
+    tree.column("design_eng", width=150)
+    tree.column("sales_eng", width=150)
+
+    for project in projects_data:
+        project_manager = f"{project[5]} {project[6]}"
+        design_engineer = f"{project[9]} {project[10]}"
+        sales_engineer = f"{project[11]} {project[12]}"
+        
+        tree.insert("", "end", text=project[0],
+                    values=(project[0], project[1], project[2], project[3], project[4],
+                            project_manager, project[7], project[8], design_engineer, sales_engineer))
+
+    tree.pack(expand=True, fill='both')
+    root.mainloop()
+
+create_treeview()

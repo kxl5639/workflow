@@ -44,9 +44,11 @@ class Project(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     for field, meta in field_metadata.items():
         vars()[field] = meta["type"]
+        print(vars()[field])
 
 DATABASE_URL = 'sqlite:///workflows.db'
 engine = create_engine(DATABASE_URL)
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
+
