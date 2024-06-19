@@ -609,13 +609,11 @@ def create_label_entry(parent, label_text, row, column, default_text='', readonl
     ttk.Label(parent, text=label_text).grid(row=row, column=column, padx=10, pady=10, sticky="w")
     entry = ttk.Entry(parent, state='readonly' if readonly else 'normal')
     entry.grid(row=row, column=column + 1, padx=(0, 10), pady=10, sticky='ew')
-    if testing:
+    if testing == 1:
         set_entry_text(entry, 'Testing')
     else:
         set_entry_text(entry, default_text)
     return entry
-
-
 
 def create_frame(parent, text, row, column):
     frame = ttk.Labelframe(parent, text=text)
@@ -623,17 +621,14 @@ def create_frame(parent, text, row, column):
     frame.grid_columnconfigure(1, weight=1)
     return frame
 
-
 def get_entry_data(entries):
     return {key: entry.get() for key, entry in entries.items()}
-
 
 def create_combobox(parent, label_text, values, row, column):
     ttk.Label(parent, text=label_text).grid(row=row, column=column, padx=10, pady=10, sticky="w")
     combobox = ttk.Combobox(parent, values=values, state="readonly")
     combobox.grid(row=row, column=column + 1, padx=(0, 10), pady=10, sticky='ew')
     return combobox
-
 
 def fetch_names(model):
     return [f"{instance.first_name} {instance.last_name}" for instance in session.query(model).all()]
@@ -657,10 +652,10 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record=None):
 
     proj_info_frame = create_frame(add_mod_frame, "Project Info", 0, 0)
     proj_info_entries = {
-        "project_number": create_label_entry(proj_info_frame, "Project Number", 0, 0, '', readonly=is_modify, testing=not is_modify),
-        "em_type": create_label_entry(proj_info_frame, "EM Type", 1, 0, 'B', testing=not is_modify),
-        "job_phase": create_label_entry(proj_info_frame, "Job Phase", 2, 0, '1', testing=not is_modify),
-        "submit_date": create_label_entry(proj_info_frame, "Submit Date", 3, 0, 'XX/XX/XX', testing=not is_modify),
+        "project_number": create_label_entry(proj_info_frame, "Project Number", 0, 0, '', readonly=is_modify, testing=testing),
+        "em_type": create_label_entry(proj_info_frame, "EM Type", 1, 0, 'B', testing=testing),
+        "job_phase": create_label_entry(proj_info_frame, "Job Phase", 2, 0, '1', testing=testing),
+        "submit_date": create_label_entry(proj_info_frame, "Submit Date", 3, 0, 'XX/XX/XX', testing=testing),
     }
 
     # Fetch names for comboboxes
@@ -676,31 +671,31 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record=None):
 
     client_frame = create_frame(add_mod_frame, "Client", 0, 1)
     client_entries = {
-        "client_name": create_label_entry(client_frame, "Client", 0, 0, '', testing=not is_modify),
-        "scope": create_label_entry(client_frame, "Scope", 1, 0, '', testing=not is_modify),
-        "address": create_label_entry(client_frame, "Address", 2, 0, '', testing=not is_modify),
-        "city": create_label_entry(client_frame, "City", 3, 0, '', testing=not is_modify),
-        "state": create_label_entry(client_frame, "State", 4, 0, '', testing=not is_modify),
-        "zip_code": create_label_entry(client_frame, "Zip Code", 5, 0, '', testing=not is_modify)
+        "client_name": create_label_entry(client_frame, "Client", 0, 0, '', testing=testing),
+        "scope": create_label_entry(client_frame, "Scope", 1, 0, '', testing=testing),
+        "address": create_label_entry(client_frame, "Address", 2, 0, '', testing=testing),
+        "city": create_label_entry(client_frame, "City", 3, 0, '', testing=testing),
+        "state": create_label_entry(client_frame, "State", 4, 0, '', testing=testing),
+        "zip_code": create_label_entry(client_frame, "Zip Code", 5, 0, '', testing=testing)
     }
 
     me_frame = create_frame(add_mod_frame, "Mechanical Engineer", 0, 2)
     me_entries = {
-        "name": create_label_entry(me_frame, "Name", 0, 0, '', testing=not is_modify),
-        "address": create_label_entry(me_frame, "Address", 1, 0, '', testing=not is_modify),
-        "city": create_label_entry(me_frame, "City", 2, 0, '', testing=not is_modify),
-        "state": create_label_entry(me_frame, "State", 3, 0, '', testing=not is_modify),
-        "zip_code": create_label_entry(me_frame, "Zip Code", 4, 0, '', testing=not is_modify)
+        "name": create_label_entry(me_frame, "Name", 0, 0, '', testing=testing),
+        "address": create_label_entry(me_frame, "Address", 1, 0, '', testing=testing),
+        "city": create_label_entry(me_frame, "City", 2, 0, '', testing=testing),
+        "state": create_label_entry(me_frame, "State", 3, 0, '', testing=testing),
+        "zip_code": create_label_entry(me_frame, "Zip Code", 4, 0, '', testing=testing)
     }
 
     mc_frame = create_frame(add_mod_frame, "Mechanical Contractor", 0, 3)
     mc_entries = {
-        "name": create_label_entry(mc_frame, "Name", 0, 0, '', testing=not is_modify),
-        "address": create_label_entry(mc_frame, "Address", 1, 0, '', testing=not is_modify),
-        "city": create_label_entry(mc_frame, "City", 2, 0, '', testing=not is_modify),
-        "state": create_label_entry(mc_frame, "State", 3, 0, '', testing=not is_modify),
-        "zip_code": create_label_entry(mc_frame, "Zip Code", 4, 0, '', testing=not is_modify),
-        "telephone": create_label_entry(mc_frame, "Telephone", 5, 0, '', testing=not is_modify)
+        "name": create_label_entry(mc_frame, "Name", 0, 0, '', testing=testing),
+        "address": create_label_entry(mc_frame, "Address", 1, 0, '', testing=testing),
+        "city": create_label_entry(mc_frame, "City", 2, 0, '', testing=testing),
+        "state": create_label_entry(mc_frame, "State", 3, 0, '', testing=testing),
+        "zip_code": create_label_entry(mc_frame, "Zip Code", 4, 0, '', testing=testing),
+        "telephone": create_label_entry(mc_frame, "Telephone", 5, 0, '', testing=testing)
     }
 
     if is_modify and selected_record:
@@ -738,6 +733,7 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record=None):
 
 
 def create_add_modify_window(master, title='Add New _________', button_text='Add or Modify?', selected_record=None):
+
     is_modify = button_text.lower() == 'modify'
     add_mod_window = tk.Toplevel()
     add_mod_window.title(title)
