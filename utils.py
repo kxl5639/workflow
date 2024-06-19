@@ -53,6 +53,7 @@ def create_standard_tree_but_frame(master, table_data, column_map, add_command=N
     return tree_addmoddel_frame
 
 
+
 #endregion
 
 #region Controller Functions
@@ -93,12 +94,6 @@ def resize_max_width_of_tree_columns(tree, table_data, column_map):
 #region Model Functions
 
 
-    try:
-        session.delete(record)
-        session.commit()
-    except Exception as e:
-        return str(e)  # Return the error message
-    return None
 #endregion
 
 #region msgbox Functions
@@ -178,6 +173,7 @@ def create_dynamic_button_frame(master, button_info):
 #endregion
 
 #region Create Window Functions
+
 
 
 #endregion

@@ -1,86 +1,78 @@
 import tkinter as tk
-from tkinter import Toplevel, ttk, Listbox, StringVar, messagebox, Entry, END
-from project.project_controller import column_map, table_data, columns_to_display
+from tkinter import ttk
+from tkinter import messagebox
+from sqlalchemy.orm import Session
+from model import Client, Project, ProjectManager, DesignEngineer, SalesEngineer, MechanicalContractor, MechanicalEngineer, session
 from utils import center_window
+from project.project_utils import create_add_or_modify_frame
+# Function to add project
 
-def populate_treeview(tree, table_data, column_map):
-    """
-    Populate a TreeView with the provided data.
+def add_project():
+  
+    # project_number_entry = 
+    # em_type_entry = 
+    # job_phase_entry = 
+    # submit_date_entry = 
+    # projectmanager_entry = 
+    # designengineer_entry = 
+    # salesengineer_entry = 
+    # client_entry = 
+    # client_scope = 
+    # client_address = 
+    # client_city = 
+    # client_state = 
+    # client_zip_code = 
+    # mecheng_name = 
+    # mecheng_address = 
+    # mecheng_city = 
+    # mecheng_state = 
+    # mecheng_zip_code = 
+    # mechcon_name = 
+    # mechcon_address = 
+    # mechcon_city = 
+    # mechcon_state = 
+    # mechcon_zip_code = 
+    # mechcon_phone = 
 
-    Parameters:
-    - tree: The TreeView widget.
-    - table_data: List of tuples containing the data to be inserted.
-    - column_map: Dictionary mapping of column names to their positions in the data tuples.
-    """
-    for row in table_data:
-        values = [row[column_map[col]] for col in tree["columns"]]
-        tree.insert("", "end", text=row[column_map["project_number"]], values=values)
-
-def column_map_to_list(column_map):
-    # Sort the dictionary by the values (positions) and extract the keys (column names)
-    return [col for col, pos in sorted(column_map.items(), key=lambda item: item[1])]
 
 
-def resize_max_width_of_tree_columns(tree, table_data, column_map):
-    columns =  column_map_to_list(column_map) 
+    pass
 
-    # Determine the maximum width needed for each column
-    column_widths = {col: len(col) * 10 for col in columns}
-
-    for row in table_data:
-        values = [str(row[column_map[col]]) for col in columns]
-        for col, value in zip(columns, values):
-            column_widths[col] = max(column_widths[col], len(value) * 10)        
+def extract_entry_widgets(parent, entry_widgets=None):
+    if entry_widgets is None:
+        entry_widgets = []
     
-    for col in columns:
-        tree.column(col, width=column_widths[col])
-
+    for widget in parent.winfo_children():
+        if isinstance(widget, ttk.Entry) or isinstance(widget, ttk.Entry):
+            entry_widgets.append(widget)
+        elif isinstance(widget, tk.Frame) or isinstance(widget, ttk.Frame):
+            extract_entry_widgets(widget, entry_widgets)
     
-    # column_widths = {col: len(col.replace("_", " ").title()) * 10 for col in columns}
-    
-    # for row in table_data:
-    #     values = [str(getattr(row, col)) for col in columns]
-    #     for col, value in zip(columns, values):
-    #         column_widths[col] = max(column_widths[col], len(value) * 10)
-    
-    # # Adjust column widths based on the content
-    # for col in columns:
-    #     tree.column(col, width=column_widths[col])
+    return entry_widgets
 
 
 
-def create_tree_frame_from_db_table(master,table_data, column_map):   
-    columns = column_map_to_list(column_map)     
+#region Create labels and entry boxes
+# Create the main window
+add_mod_window = tk.Tk()
+add_mod_window.title("Add Project")
+add_mod_window.grid_rowconfigure(0, weight=1)
+add_mod_window.grid_columnconfigure(0, weight=1)
+add_mod_window.resizable(height=False,width=True)
 
-    tree_frame = ttk.Frame(master)   
-    tree_frame.grid(row=0, column=0, sticky='nsew') 
-    tree_frame.grid_rowconfigure(0,weight=1) 
-    tree_frame.grid_columnconfigure(0,weight=1) 
-    
-    tree = ttk.Treeview(tree_frame,columns=columns, show='headings')    
-    tree.grid(row=0,column=0, sticky='nsew')
-    
-    # Define the column headings and set a minimum width
-    for col in columns:
-        tree.heading(col, text=col.replace("_", " ").title())
-    
-    populate_treeview(tree, table_data, column_map)
+frame = create_add_or_modify_frame(add_mod_window)
 
-    resize_max_width_of_tree_columns(tree, table_data, column_map)
 
-    
-    tree_frame.tree = tree
-    return tree_frame
+# # Create submit button
+# submit_button = tk.Button(add_mod_window, text="Add Project", command=add_project)
+# submit_button.grid(row=10, columnspan=2)
+
+center_window(add_mod_window)
+# Start the main loop
+add_mod_window.mainloop()
 
 
 
 
 
 
-root = tk.Tk()
-root.title('Test')
-center_window(root)
-tree_frame = create_tree_frame_from_db_table(root,table_data, column_map)
-root.grid_rowconfigure(0,weight=1) 
-root.grid_columnconfigure(0,weight=1) 
-root.mainloop()

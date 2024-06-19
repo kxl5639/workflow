@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-# from project.project_add.project_add_view import open_add_project_window
+from project.project_add.project_add_view import open_add_project_window
 # from project.project_modify.project_modify_view import open_modify_project_window
 # from project.project_delete.project_delete_controller import delete_selected_projects #type:ignore 
 from project.project_controller import column_map, table_data # type: ignore
@@ -15,8 +15,8 @@ def create_project_window():
     tree_but_frame = create_standard_tree_but_frame(project_window,
                                                     table_data,
                                                     column_map,                                                    
-                                                    add_command=None,
-                                                    #add_command=lambda: open_add_project_window(project_window),
+                                                    #add_command=None,
+                                                    add_command=lambda: open_add_project_window(project_window),
                                                     modify_command=None,
                                                     delete_command=None)                                                    
                                                     # modify_command=lambda: open_modify_project_window(project_window),
