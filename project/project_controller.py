@@ -4,7 +4,7 @@ from model import Client, Project, ProjectManager, DesignEngineer, SalesEngineer
 columns_to_display = ['project_number', 'submittal_date', 'client', 'scope', 'address',
                'project_manager', 'mechanical_engineer', 'mechanical_contractor', 'design_engineer', 'sales_engineer']
 
-table_data = session.query(
+unformatted_table_data = session.query(
     Project.project_number,
     Project.submit_date,
     Client.client_name,
@@ -27,12 +27,12 @@ table_data = session.query(
  .all()
 
 # Combine first and last names for project manager, design engineer, and sales engineer
-formatted_projects_data = [
+table_data = [
     (
         project[0], project[1], project[2], project[3], project[4],
         f"{project[5]} {project[6]}", project[7], project[8],
         f"{project[9]} {project[10]}", f"{project[11]} {project[12]}"
-    ) for project in table_data
+    ) for project in unformatted_table_data
 ]
 
 # Example usage
