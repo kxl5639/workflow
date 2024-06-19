@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from configs import testing
-from utils import center_window
+from utils import center_window, create_dynamic_button_frame
 
 def set_entry_text(entry_widget, testing, testing_text, production_text):
     entry_widget.insert(0, testing_text if testing == 1 else production_text)
@@ -9,16 +9,17 @@ def set_entry_text(entry_widget, testing, testing_text, production_text):
 
 def create_add_or_modify_frame(master):
 
-    add_or_mod_frame = ttk.Frame(master)
-    # add_or_mod_frame.grid(row=0,column=0,padx=10,pady=10,sticky='nsew')   
-    add_or_mod_frame.grid_rowconfigure(0, weight=1)
-    add_or_mod_frame.grid_columnconfigure(0, weight=1)
-    add_or_mod_frame.grid_columnconfigure(1, weight=1)
-    add_or_mod_frame.grid_columnconfigure(2, weight=1)
-    add_or_mod_frame.grid_columnconfigure(3, weight=1)
+    #region Create Frames, Labels, and Entry Widgets
+    add_mod_frame = ttk.Frame(master)
+    # add_mod_frame.grid(row=0,column=0,padx=10,pady=10,sticky='nsew')   
+    add_mod_frame.grid_rowconfigure(0, weight=1)
+    add_mod_frame.grid_columnconfigure(0, weight=1)
+    add_mod_frame.grid_columnconfigure(1, weight=1)
+    add_mod_frame.grid_columnconfigure(2, weight=1)
+    add_mod_frame.grid_columnconfigure(3, weight=1)
 
     # Create labels and entry boxes
-    proj_info_frame = ttk.Labelframe(add_or_mod_frame, text = "Project Info")
+    proj_info_frame = ttk.Labelframe(add_mod_frame, text = "Project Info")
     proj_info_frame.grid(row=0,column=0,padx=10,pady=10,sticky='nsew')
     proj_info_frame.grid_columnconfigure((1), weight=1)
 
@@ -42,22 +43,37 @@ def create_add_or_modify_frame(master):
     submit_date_entry.grid(row=3, column=1,padx=(0,10), pady=(0,10),sticky='ew')
     set_entry_text(submit_date_entry, testing, 'Testing', 'XX/XX/XX')
 
-    ttk.Label(proj_info_frame, text="Project Manager").grid(row=4, column=0, padx=10, pady=(0,10),sticky="w")
-    projectmanager_entry = ttk.Entry(proj_info_frame)
-    projectmanager_entry.grid(row=4, column=1,padx=(0,10), pady=(0,10),sticky='ew')
-    set_entry_text(projectmanager_entry, testing, 'Testing', '')
+    ttk.Label(proj_info_frame, text="PM First Name").grid(row=4, column=0, padx=10, pady=(0,10),sticky="w")
+    pm_first_name_entry = ttk.Entry(proj_info_frame)
+    pm_first_name_entry.grid(row=4, column=1,padx=(0,10), pady=(0,10),sticky='ew')
+    set_entry_text(pm_first_name_entry, testing, 'Testing', '')
 
-    ttk.Label(proj_info_frame, text="Design Engineer").grid(row=5, column=0, padx=10, pady=(0,10),sticky="w")
-    designengineer_entry = ttk.Entry(proj_info_frame)
-    designengineer_entry.grid(row=5, column=1,padx=(0,10), pady=(0,10),sticky='ew')
-    set_entry_text(designengineer_entry, testing, 'Testing', '')
+    ttk.Label(proj_info_frame, text="PM Last Name").grid(row=5, column=0, padx=10, pady=(0,10),sticky="w")
+    pm_last_name_entry = ttk.Entry(proj_info_frame)
+    pm_last_name_entry.grid(row=5, column=1,padx=(0,10), pady=(0,10),sticky='ew')
+    set_entry_text(pm_last_name_entry, testing, 'Testing', '')
 
-    ttk.Label(proj_info_frame, text="Sales Engineer").grid(row=6, column=0, padx=10, pady=(0,10),sticky="w")
-    salesengineer_entry = ttk.Entry(proj_info_frame)
-    salesengineer_entry.grid(row=6, column=1,padx=(0,10), pady=(0,10),sticky='ew')
-    set_entry_text(salesengineer_entry, testing, 'Testing', '')
+    ttk.Label(proj_info_frame, text="DE First Name").grid(row=6, column=0, padx=10, pady=(0,10),sticky="w")
+    de_first_name_entry = ttk.Entry(proj_info_frame)
+    de_first_name_entry.grid(row=6, column=1,padx=(0,10), pady=(0,10),sticky='ew')
+    set_entry_text(de_first_name_entry, testing, 'Testing', '')
 
-    client_frame = ttk.Labelframe(add_or_mod_frame, text = "Client")
+    ttk.Label(proj_info_frame, text="DE Last Name").grid(row=7, column=0, padx=10, pady=(0,10),sticky="w")
+    de_last_name_entry = ttk.Entry(proj_info_frame)
+    de_last_name_entry.grid(row=7, column=1,padx=(0,10), pady=(0,10),sticky='ew')
+    set_entry_text(de_last_name_entry, testing, 'Testing', '')
+
+    ttk.Label(proj_info_frame, text="SE First Name").grid(row=8, column=0, padx=10, pady=(0,10),sticky="w")
+    se_first_name_entry = ttk.Entry(proj_info_frame)
+    se_first_name_entry.grid(row=8, column=1,padx=(0,10), pady=(0,10),sticky='ew')
+    set_entry_text(se_first_name_entry, testing, 'Testing', '')
+
+    ttk.Label(proj_info_frame, text="SE Last Name").grid(row=9, column=0, padx=10, pady=(0,10),sticky="w")
+    se_last_name_entry = ttk.Entry(proj_info_frame)
+    se_last_name_entry.grid(row=9, column=1,padx=(0,10), pady=(0,10),sticky='ew')
+    set_entry_text(se_last_name_entry, testing, 'Testing', '')
+
+    client_frame = ttk.Labelframe(add_mod_frame, text = "Client")
     client_frame.grid(row=0,column=1,padx=10,pady=10,sticky='nsew')
     client_frame.grid_columnconfigure((1), weight=1)
     
@@ -91,7 +107,7 @@ def create_add_or_modify_frame(master):
     client_zip_code.grid(row=5, column=1,padx=(0,10),pady=(0,10),sticky='ew')
     set_entry_text(client_zip_code, testing, 'Testing', '')
 
-    mecheng_frame = ttk.Labelframe(add_or_mod_frame, text = "Mechanical Engineer")
+    mecheng_frame = ttk.Labelframe(add_mod_frame, text = "Mechanical Engineer")
     mecheng_frame.grid(row=0,column=2,padx=10,pady=10,sticky='nsew')
     mecheng_frame.grid_columnconfigure((1), weight=1)
 
@@ -120,7 +136,7 @@ def create_add_or_modify_frame(master):
     mecheng_zip_code.grid(row=4, column=1,padx=(0,10),pady=(0,10),sticky='ew')
     set_entry_text(mecheng_zip_code, testing, 'Testing', '')
 
-    mechcon_frame = ttk.Labelframe(add_or_mod_frame, text = "Mechanical Contractor")
+    mechcon_frame = ttk.Labelframe(add_mod_frame, text = "Mechanical Contractor")
     mechcon_frame.grid(row=0,column=3,padx=10,pady=10,sticky='nsew')
     mechcon_frame.grid_columnconfigure((1), weight=1)
 
@@ -153,8 +169,58 @@ def create_add_or_modify_frame(master):
     mechcon_phone = ttk.Entry(mechcon_frame)
     mechcon_phone.grid(row=6, column=1,padx=(0,10),pady=(0,10),sticky='ew')
     set_entry_text(mechcon_phone, testing, 'Testing', '')
-    
-    return add_or_mod_frame
+    #endregion
+    #region Get Entry data
+    # Add Client
+    client_data = {
+        "client_name": client_entry.get(),
+        "scope": client_scope.get(),
+        "address": client_address.get(),
+        "city": client_city.get(),
+        "state": client_state.get(),
+        "zip_code": client_zip_code.get()
+    }
+    # Add Project Manager
+    pm_data = {
+        "first_name": pm_first_name_entry.get(),
+        "last_name": pm_last_name_entry.get()
+    }
+    # Add Mechanical Engineer
+    me_data = {
+        "name": mecheng_name.get(),
+        "address": mecheng_address.get(),
+        "city": mecheng_city.get(),
+        "state": mecheng_state.get(),
+        "zip_code": mecheng_zip_code.get()
+    }
+    # Add Mechanical Contractor
+    mc_data = {
+        "name": mechcon_name.get(),
+        "address": mechcon_address.get(),
+        "city": mechcon_city.get(),
+        "state": mechcon_state.get(),
+        "zip_code": mechcon_zip_code.get(),
+        "telephone": mechcon_phone.get()
+    }
+    # Add Design Engineer
+    de_data = {
+        "first_name": de_first_name_entry.get(),
+        "last_name": de_last_name_entry.get()
+    }
+    # Add Sales Engineer
+    se_data = {
+        "first_name": se_first_name_entry.get(),
+        "last_name": se_last_name_entry.get()
+    }
+    # Add Project
+    project_data = {
+        "project_number": project_number_entry.get(),
+        "em_type": em_type_entry.get(),
+        "job_phase": job_phase_entry.get(),
+        "submit_date": submit_date_entry.get()            
+    }
+    #endregion
+    return add_mod_frame, client_data, pm_data, me_data, mc_data, de_data, se_data, project_data
 
 def create_add_modify_window(master,title='Add New _________', button_text='Add or Modify?'):
     
@@ -182,7 +248,7 @@ def create_add_modify_window(master,title='Add New _________', button_text='Add 
     add_mod_window.grid_columnconfigure(0, weight=1)
     add_mod_window.resizable(height=False,width=True)
 
-    add_mod_frame = create_add_or_modify_frame(add_mod_window)
+    add_mod_frame, client_data, pm_data, me_data, mc_data, de_data, se_data, project_data = create_add_or_modify_frame(add_mod_window)
     add_mod_frame.grid(row=0,column=0,padx=10,pady=10,sticky='nsew')    
     
     # # Adds buttons for adding new mechanical engineers/contractors
@@ -199,12 +265,67 @@ def create_add_modify_window(master,title='Add New _________', button_text='Add 
     #     add_mech_con_but = create_dynamic_button_frame(mech_con_frame,[('Add Contractor', None)])
     #     add_mech_con_but.grid(row=butt_row,column=0,columnspan = 2, pady=(10,0))
 
-    # # Creates the buttons at the bottom of the screen
-    # button_frame = create_dynamic_button_frame(add_mod_window, [(button_text, lambda:add_mod_button_cmd(button_text)),
-    #                                                         ('Cancel', add_mod_window.destroy)])
-    # button_frame.grid(row=1,column=0,padx=10,pady=(0,10))
+    #region Add Project Function
+    def add_project_and_related_entities(client_data, pm_data, me_data, mc_data, de_data, se_data, project_data):
+        try:
+            from model import Client, ProjectManager, MechanicalContractor, MechanicalEngineer, DesignEngineer, SalesEngineer, Project, session
+            from tkinter import messagebox
+            # Add Client   
+            new_client = Client(**client_data)
+            session.add(new_client)
+            session.commit()
+
+            # Add Project Manager 
+            new_pm = ProjectManager(**pm_data)
+            session.add(new_pm)
+            session.commit()
+
+            # Add Mechanical Engineer        
+            new_me = MechanicalEngineer(**me_data)
+            session.add(new_me)
+            session.commit()
+
+            # Add Mechanical Contractor        
+            new_mc = MechanicalContractor(**mc_data)
+            session.add(new_mc)
+            session.commit()
+
+            # Add Design Engineer        
+            new_de = DesignEngineer(**de_data)
+            session.add(new_de)
+            session.commit()
+
+            # Add Sales Engineer        
+            new_se = SalesEngineer(**se_data)
+            session.add(new_se)
+            session.commit()
+
+            # Add Project
+            project_data.update({
+                "client_id": new_client.id,
+                "projectmanager_id": new_pm.id,
+                "mechanicalengineer_id": new_me.id,
+                "mechanicalcontractor_id": new_mc.id,
+                "designengineer_id": new_de.id,
+                "salesengineer_id": new_se.id
+            })
+            new_project = Project(**project_data)
+            session.add(new_project)
+            session.commit()
+
+            messagebox.showinfo("Success", "Project and related entities added successfully!")
+        except Exception as e:
+            session.rollback()
+            messagebox.showerror("Error", str(e))
+    #endregion
+
+    # Creates the buttons at the bottom of the screen
+    button_frame = create_dynamic_button_frame(add_mod_window, [(button_text, lambda:add_project_and_related_entities(client_data, pm_data, me_data, mc_data, de_data, se_data, project_data)),
+                                                            ('Cancel', add_mod_window.destroy)])
+    button_frame.grid(row=1,column=0,padx=10,pady=(0,10))
     # #Function that defines what the button click will do
     # def add_mod_button_cmd(button_text):     
+    #    pass
     #     formatted_entries, error_message=prep_data_entry(add_mod_window,project_entries)            
     #     if error_message:
     #         return
@@ -222,3 +343,4 @@ def create_add_modify_window(master,title='Add New _________', button_text='Add 
     add_mod_window.grab_set()     
     add_mod_window.focus_force()  
     master.wait_window(add_mod_window)
+
