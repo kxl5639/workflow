@@ -22,7 +22,7 @@ def create_tree_frame_from_db_table(master,table_data, column_map):
     tree_frame.grid_rowconfigure(0,weight=1) 
     tree_frame.grid_columnconfigure(0,weight=1) 
     
-    tree = ttk.Treeview(tree_frame,columns=columns, show='headings')    
+    tree = ttk.Treeview(tree_frame,columns=columns, show='headings')
     tree.grid(row=0,column=0, sticky='nsew')
     
     # Define the column headings and set a minimum width
@@ -67,9 +67,11 @@ def populate_treeview(tree, table_data, column_map):
     - table_data: List of tuples containing the data to be inserted.
     - column_map: Dictionary mapping of column names to their positions in the data tuples.
     """
+    print("Populating TreeView...")  # Debug print
     for row in table_data:
         values = [row[column_map[col]] for col in tree["columns"]]
-        tree.insert("", "end", text=row[column_map["project_number"]], values=values)
+        print(f"Inserting row: {values} with iid: {row[0]}")  # Debug print
+        tree.insert("", "end", iid=row[0], values=values)
 
 def column_map_to_list(column_map):
     # Sort the dictionary by the values (positions) and extract the keys (column names)

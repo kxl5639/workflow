@@ -635,6 +635,7 @@ def fetch_names(model):
 
 
 def fetch_record_data(record_id):
+    from model import Client, ProjectManager, MechanicalContractor, MechanicalEngineer, DesignEngineer, SalesEngineer, Project, session
     project = session.query(Project).filter_by(id=record_id).first()
     client = session.query(Client).filter_by(id=project.client_id).first()
     pm = session.query(ProjectManager).filter_by(id=project.projectmanager_id).first()
@@ -645,7 +646,7 @@ def fetch_record_data(record_id):
     return project, client, pm, me, mc, de, se
 
 
-def create_add_or_modify_frame(master, is_modify=False, selected_record=None):
+def create_add_or_modify_frame(master, is_modify=False, selected_record_id=None):
     add_mod_frame = ttk.Frame(master)
     add_mod_frame.grid_rowconfigure(0, weight=1)
     add_mod_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
@@ -698,8 +699,17 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record=None):
         "telephone": create_label_entry(mc_frame, "Telephone", 5, 0, '', testing=testing)
     }
 
-    if is_modify and selected_record:
-        project, client, pm, me, mc, de, se = fetch_record_data(selected_record)
+    if is_modify and selected_record_id:
+        print(f'selected record id: {selected_record_id}')
+        project, client, pm, me, mc, de, se = fetch_record_data(selected_record_id)
+        print(f'project: {project}')
+        print(f'project.project_number: {project.project_number}')
+        print(f'client: {client}')
+        print(f'pm: {pm}')
+        print(f'me: {me}')
+        print(f'mc: {mc}')
+        print(f'de: {de}')
+        print(f'se: {se}')
         set_entry_text(proj_info_entries["project_number"], project.project_number)
         set_entry_text(proj_info_entries["em_type"], project.em_type)
         set_entry_text(proj_info_entries["job_phase"], str(project.job_phase))
@@ -741,70 +751,70 @@ def create_add_modify_window(master, title='Add New _________', button_text='Add
     add_mod_window.grid_columnconfigure(0, weight=1)
     add_mod_window.resizable(height=False, width=True)
 
-    add_mod_frame, proj_info_entries, client_entries, me_entries, mc_entries = create_add_or_modify_frame(add_mod_window, is_modify, selected_record)
+    add_mod_frame, proj_info_entries, client_entries, me_entries, mc_entries = create_add_or_modify_frame(add_mod_window, is_modify, selected_record.id)
     add_mod_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 
-    def add_project_and_related_entities():
-        try:
-            new_client = Client(**get_entry_data(client_entries))
-            session.add(new_client)
-            session.commit()
+    # def add_project_and_related_entities():
+    #     try:
+    #         new_client = Client(**get_entry_data(client_entries))
+    #         session.add(new_client)
+    #         session.commit()
 
-            pm_first_name, pm_last_name = proj_info_entries["pm_name"].get().split()
-            projectmanager_id = session.query(ProjectManager).filter_by(first_name=pm_first_name, last_name=pm_last_name).first().id
+    #         pm_first_name, pm_last_name = proj_info_entries["pm_name"].get().split()
+    #         projectmanager_id = session.query(ProjectManager).filter_by(first_name=pm_first_name, last_name=pm_last_name).first().id
 
-            de_first_name, de_last_name = proj_info_entries["de_name"].get().split()
-            designengineer_id = session.query(DesignEngineer).filter_by(first_name=de_first_name, last_name=de_last_name).first().id
+    #         de_first_name, de_last_name = proj_info_entries["de_name"].get().split()
+    #         designengineer_id = session.query(DesignEngineer).filter_by(first_name=de_first_name, last_name=de_last_name).first().id
 
-            se_first_name, se_last_name = proj_info_entries["se_name"].get().split()
-            salesengineer_id = session.query(SalesEngineer).filter_by(first_name=se_first_name, last_name=se_last_name).first().id
+    #         se_first_name, se_last_name = proj_info_entries["se_name"].get().split()
+    #         salesengineer_id = session.query(SalesEngineer).filter_by(first_name=se_first_name, last_name=se_last_name).first().id
 
-            new_me = MechanicalEngineer(**get_entry_data(me_entries))
-            session.add(new_me)
-            session.commit()
+    #         new_me = MechanicalEngineer(**get_entry_data(me_entries))
+    #         session.add(new_me)
+    #         session.commit()
 
-            new_mc = MechanicalContractor(**get_entry_data(mc_entries))
-            session.add(new_mc)
-            session.commit()
+    #         new_mc = MechanicalContractor(**get_entry_data(mc_entries))
+    #         session.add(new_mc)
+    #         session.commit()
 
-            project_data = {
-                "project_number": proj_info_entries["project_number"].get(),
-                "em_type": proj_info_entries["em_type"].get(),
-                "job_phase": proj_info_entries["job_phase"].get(),
-                "submit_date": proj_info_entries["submit_date"].get(),
-                "client_id": new_client.id,
-                "projectmanager_id": projectmanager_id,
-                "mechanicalengineer_id": new_me.id,
-                "mechanicalcontractor_id": new_mc.id,
-                "designengineer_id": designengineer_id,
-                "salesengineer_id": salesengineer_id
-            }
+    #         project_data = {
+    #             "project_number": proj_info_entries["project_number"].get(),
+    #             "em_type": proj_info_entries["em_type"].get(),
+    #             "job_phase": proj_info_entries["job_phase"].get(),
+    #             "submit_date": proj_info_entries["submit_date"].get(),
+    #             "client_id": new_client.id,
+    #             "projectmanager_id": projectmanager_id,
+    #             "mechanicalengineer_id": new_me.id,
+    #             "mechanicalcontractor_id": new_mc.id,
+    #             "designengineer_id": designengineer_id,
+    #             "salesengineer_id": salesengineer_id
+    #         }
 
-            if is_modify:
-                existing_project = session.query(Project).filter_by(id=selected_record).first()
-                for key, value in project_data.items():
-                    setattr(existing_project, key, value)
-                session.commit()
-                messagebox.showinfo("Success", "Project and related entities modified successfully!")
-            else:
-                existing_project = session.query(Project).filter_by(project_number=project_data["project_number"]).first()
-                if existing_project:
-                    raise IntegrityError("Project number already exists", None, None)
+    #         if is_modify:
+    #             existing_project = session.query(Project).filter_by(id=selected_record.id).first()
+    #             for key, value in project_data.items():
+    #                 setattr(existing_project, key, value)
+    #             session.commit()
+    #             messagebox.showinfo("Success", "Project and related entities modified successfully!")
+    #         else:
+    #             existing_project = session.query(Project).filter_by(project_number=project_data["project_number"]).first()
+    #             if existing_project:
+    #                 raise IntegrityError("Project number already exists", None, None)
 
-                new_project = Project(**project_data)
-                session.add(new_project)
-                session.commit()
-                messagebox.showinfo("Success", "Project and related entities added successfully!")
+    #             new_project = Project(**project_data)
+    #             session.add(new_project)
+    #             session.commit()
+    #             messagebox.showinfo("Success", "Project and related entities added successfully!")
 
-        except IntegrityError as e:
-            session.rollback()
-            messagebox.showerror("Error", "Project number already exists. Please use a unique project number.")
-        except Exception as e:
-            session.rollback()
-            messagebox.showerror("Error", str(e))
+    #     except IntegrityError as e:
+    #         session.rollback()
+    #         messagebox.showerror("Error", "Project number already exists. Please use a unique project number.")
+    #     except Exception as e:
+    #         session.rollback()
+    #         messagebox.showerror("Error", str(e))
 
-    button_frame = create_dynamic_button_frame(add_mod_window, [(button_text, add_project_and_related_entities), ('Cancel', add_mod_window.destroy)])
-    button_frame.grid(row=1, column=0, padx=10, pady=(0, 10))
+    # button_frame = create_dynamic_button_frame(add_mod_window, [(button_text, add_project_and_related_entities), ('Cancel', add_mod_window.destroy)])
+    # button_frame.grid(row=1, column=0, padx=10, pady=(0, 10))
 
     center_window(add_mod_window)
     add_mod_window.grab_set()
