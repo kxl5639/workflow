@@ -152,7 +152,7 @@ def create_add_modify_window(master, title='Add New _________', button_text='Add
     add_mod_window.grid_columnconfigure(0, weight=1)
     add_mod_window.resizable(height=False, width=True)
 
-    add_mod_frame, proj_info_entries, client_entries, me_entries, mc_entries = create_add_or_modify_frame(add_mod_window, is_modify, selected_record.id)
+    add_mod_frame, proj_info_entries, client_entries, me_entries, mc_entries = create_add_or_modify_frame(add_mod_window, is_modify, selected_record.id if selected_record else None)
     add_mod_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 
     def add_project_and_related_entities():
