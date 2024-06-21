@@ -91,7 +91,7 @@ def is_valid_data(master, entry_dict, is_modify): # Validates data to be added o
     def has_blank_entries(master, entry_dict):
         # Define the table name mappings
         table_name_map = {
-            'projects': 'Project',
+            'projects': 'Project Info',
             'clients': 'Client',
             'mechanicalengineers': 'Mechanical Engineer',
             'mechanicalcontractors': 'Mechanical Contractor'
@@ -141,58 +141,49 @@ def is_valid_data(master, entry_dict, is_modify): # Validates data to be added o
         if empty_fields:
             show_custom_error_message(master, "Error", f"The following fields cannot be empty:\n\n" + "\n".join(empty_fields))
             if first_empty_entry:
-                first_empty_entry.focus_set()
-            return True
-        return False
+                first_empty_entry.focus_set()            
+            return False
+        return True
 
-    def is_valid_date_entry(master, entry_dict):
-
-        # def extract_submit_dates(entry_dict):        
-        #     for entries in entry_dict.values():
-        #         if 'submit_date' in entries:
-        #             submit_date_widget = entries['submit_date']
-        #             submit_date_value = submit_date_widget.get().strip()                        
-        #     return submit_date_value, submit_date_widget
-
+    def is_invalid_date_entry(master, entry_dict):
+        import re
         submit_date_str, submit_date_widget = extract_data_from_dict(entry_dict, 'submit_date')
-
-        def validate_date_format(master, date_str):    
-            if date_str != "XX/XX/XX":
-                try:
-                    date_obj = datetime.strptime(date_str, '%m/%d/%y').date()
-                    return True  # Return formatted date and no error
-                except ValueError:
-                    show_custom_error_message(master, "Error", "Invalid Date Format. Please enter the date in MM/DD/YY format.")
-                    submit_date_widget.focus_set()
-                    submit_date_widget.selection_range(0, tk.END)
-                    return False
+        date_pattern = re.compile(r'^\d{2}/\d{2}/\d{2}$')
+        filler_date = 'XX/XX/XX'
+        if submit_date_str != filler_date:
+            if not date_pattern.match(submit_date_str):
+                show_custom_error_message(master, "Error", f"Invalid Date Format. Please enter the date in MM/DD/YY format or {filler_date} if submittal has not been submitted yet.")
+                submit_date_widget.focus_set()
+                submit_date_widget.selection_range(0, tk.END)
+                return False
             return True
-        
-        if validate_date_format(master, submit_date_str):
-            return True
-        return False
+        return True 
 
-    def exist_project_number(master, entry_dict, is_modify):
-        curr_project_number = extract_data_from_dict(entry_dict, 'project_number')
-        existing_project = session.query(Project).filter_by('project_number').first()
+    def exist_project_number(master, entry_dict):
+        curr_project_number, project_number_widget = extract_data_from_dict(entry_dict, 'project_number')
+        existing_project = session.query(Project).filter_by(project_number=curr_project_number).first()
         if existing_project:
-            # raise IntegrityError("Project number already exists", None, None)
-            pass
+            show_custom_error_message(master, "Error", f'Project Number {curr_project_number} already exist. It cannot be added again.')
+            project_number_widget.focus_set()
+            project_number_widget.selection_range(0, tk.END)
+            return False
+        return True
+            
+    # Check if project number already exists if we are in modify
+    if not is_modify:
+        if not exist_project_number(master, entry_dict):
+            return False
 
     # Check for blank fields and provide pop up message
-    if has_blank_entries(master, entry_dict):
+    if not has_blank_entries(master, entry_dict):
         return False
+    
 
     #Validate Date format
-    if is_valid_date_entry(master, entry_dict):                
-        # Check if project number exists only if we are in add mode
-        if not is_modify:        
-            if exist_project_number(master, entry_dict, is_modify):
-        else:
-            return False
-        else:
-            pass
-    else:
+    if not is_invalid_date_entry(master, entry_dict):
         return False
-      
     
+
+    
+    print('Moving on to check next error')
+    return True
