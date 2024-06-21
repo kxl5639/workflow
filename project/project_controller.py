@@ -100,7 +100,7 @@ def delete_records_properly_selected(tree,session,model):
     selected_items = tree.selection()
     if not selected_items:
         show_custom_error_message(tree, "Error", "Please select at least one record to delete.")
-        return None
+        return None, False
     
     projects_numbers = []
     for item_id in selected_items:

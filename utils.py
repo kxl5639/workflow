@@ -119,6 +119,13 @@ def num_record_selected(tree): #record refers to a record in a table.
 
 #region Model Functions
 
+def delete_record(record, session):
+    try:
+        session.delete(record)
+        session.commit()
+    except Exception as e:
+        return str(e)  # Return the error message
+    return None
 
 #endregion
 

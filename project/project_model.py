@@ -107,8 +107,12 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
     return None  # Return None if no refresh was needed
 
 def delete_selected_projects(master, selected_records=None):
-    print(selected_records)
-
-     
+    table_window_tree = master.nametowidget('tree_addmoddel_frame').tree_frame.tree
+    from utils import delete_record    
+    for selected_record in selected_records:
+        record = session.query(Project).get(selected_record)        
+        delete_record(record, session)        
+        refresh_tree(table_window_tree, column_map)
+    
 
  

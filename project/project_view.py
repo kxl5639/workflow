@@ -46,8 +46,8 @@ def open_delete_project_window(project_window):
     
     from project.project_controller import delete_records_properly_selected
     table_window_tree = project_window.nametowidget('tree_addmoddel_frame').tree_frame.tree
-    selected_records = delete_records_properly_selected(table_window_tree,session,Project)
-    if selected_records is not None:
+    selected_records, good_selection = delete_records_properly_selected(table_window_tree,session,Project)    
+    if good_selection is not False:
         delete_selected_projects(project_window, selected_records)
 #endregion
 
