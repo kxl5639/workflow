@@ -158,7 +158,11 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record_id=None)
     return add_mod_frame, entry_dict
 
 def create_add_modify_window(master, title='Add New _________', button_text='Add or Modify?', selected_record=None):
-    from project.project_model import add_mod_project   
+    from project.project_model import add_mod_project
+    from utils import highlight_tree_item 
+
+# Tree grabbed from project window 
+    table_window_tree = master.nametowidget('tree_addmoddel_frame').tree_frame.tree
 
     is_modify = button_text.lower() == 'modify'
     add_mod_window = tk.Toplevel()
@@ -170,7 +174,12 @@ def create_add_modify_window(master, title='Add New _________', button_text='Add
     add_mod_frame, entry_dict = create_add_or_modify_frame(add_mod_window, is_modify, selected_record.id if selected_record else None)
     add_mod_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 
-    button_frame = create_button_frame(add_mod_window, [(button_text, lambda: add_mod_project(add_mod_window, master, entry_dict, is_modify, selected_record if selected_record else None)),
+    def on_add_modify():
+        project_id = add_mod_project(add_mod_window, master, entry_dict, is_modify, selected_record if selected_record else None)
+        if project_id is not None:
+            highlight_tree_item(master, table_window_tree, project_id)  # Highlight the newly added or modified item
+
+    button_frame = create_button_frame(add_mod_window, [(button_text, lambda: on_add_modify()),
                                                                 ('Cancel', add_mod_window.destroy)])
     button_frame.grid(row=1, column=0, padx=10, pady=(0, 10))
 

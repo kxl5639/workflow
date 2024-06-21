@@ -30,9 +30,7 @@ def create_tree_frame_from_db_table(master,column_map):
         tree.heading(col, text=col.replace("_", " ").title())
     
     populate_treeview(tree, column_map)
-
     resize_max_width_of_tree_columns(tree, column_map)
-
     
     tree_frame.tree = tree
     return tree_frame
@@ -51,6 +49,10 @@ def create_standard_tree_but_frame(master, column_map, add_command=None, modify_
 
     tree_addmoddel_frame.tree_frame = tree_frame
     return tree_addmoddel_frame
+
+def highlight_tree_item(master, tree, item_id):    
+    tree.selection_set(item_id)
+    tree.see(item_id)
 
 
 

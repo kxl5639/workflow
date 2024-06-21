@@ -6,7 +6,10 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
     from sqlalchemy.exc import IntegrityError
     from utils import refresh_tree
     from project.project_controller import column_map
-    
+
+    #Init
+    need_refresh = False
+
     #Data Validation
     if is_valid_data(master, entry_dict, is_modify):    
         
@@ -18,7 +21,7 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
 
         # Tree grabbed from project window 
         table_window_tree = project_window.nametowidget('tree_addmoddel_frame').tree_frame.tree
-
+        
         # Init project_id to be used so that when add/modify is complete, the project window will have the updated/added record selected
         project_id = None
         try:
@@ -26,14 +29,23 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
             session.add(new_client)
             session.commit()
 
-            pm_first_name, pm_last_name = proj_info_entries["pm_name"].get().split()
-            projectmanager_id = session.query(ProjectManager).filter_by(first_name=pm_first_name, last_name=pm_last_name).first().id
+            pm_first_name, pm_last_name = proj_info_entries["pm_name"].get().split()            
+            project_manager = session.query(ProjectManager).filter_by(first_name=pm_first_name, last_name=pm_last_name).first()
+            if project_manager is None:
+                raise ValueError(f"Project Manager {pm_first_name} {pm_last_name} not found.")
+            projectmanager_id = project_manager.id
 
             de_first_name, de_last_name = proj_info_entries["de_name"].get().split()
-            designengineer_id = session.query(DesignEngineer).filter_by(first_name=de_first_name, last_name=de_last_name).first().id
+            design_engineer = session.query(DesignEngineer).filter_by(first_name=de_first_name, last_name=de_last_name).first()
+            if design_engineer is None:
+                raise ValueError(f"Design Engineer {de_first_name} {de_last_name} not found.")
+            designengineer_id = design_engineer.id
 
             se_first_name, se_last_name = proj_info_entries["se_name"].get().split()
-            salesengineer_id = session.query(SalesEngineer).filter_by(first_name=se_first_name, last_name=se_last_name).first().id
+            sales_engineer = session.query(SalesEngineer).filter_by(first_name=se_first_name, last_name=se_last_name).first()
+            if sales_engineer is None:
+                raise ValueError(f"Sales Engineer {se_first_name} {se_last_name} not found.")
+            salesengineer_id = sales_engineer.id
 
             new_me = MechanicalEngineer(**get_entry_data(me_entries))
             session.add(new_me)
@@ -55,15 +67,14 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
                 "designengineer_id": designengineer_id,
                 "salesengineer_id": salesengineer_id
             }
-            need_refresh = False
+            
             if is_modify:
                 existing_project = session.query(Project).filter_by(id=selected_record.id).first()
                 for key, value in project_data.items():
                     setattr(existing_project, key, value)
                 session.commit()
-                project_id = existing_project.id  # Get the ID of the modified project
-                refresh_tree(table_window_tree, column_map)
-                messagebox.showinfo("Success", "Project and related entities modified successfully!")
+                project_id = existing_project.id  # Get the ID of the modified project                
+                messagebox.showinfo("Success", "Project modified successfully!")
                 need_refresh = True                
             else:
                 existing_project = session.query(Project).filter_by(project_number=project_data["project_number"]).first()
@@ -72,22 +83,25 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
                 new_project = Project(**project_data)
                 session.add(new_project)
                 session.commit()
-                project_id = existing_project.id  # Get the ID of the modified project
-                refresh_tree(table_window_tree, column_map)
-                messagebox.showinfo("Success", "Project and related entities added successfully!")
+                project_id = new_project.id  # Get the ID of the modified project                
+                messagebox.showinfo("Success", "Project added successfully!")
                 need_refresh = True
 
         except IntegrityError as e:
             session.rollback()
             messagebox.showerror("Error", "Project number already exists. Please use a unique project number.")
+        except ValueError as e:
+            session.rollback()
+            messagebox.showerror("Error", str(e))
         except Exception as e:
             session.rollback()
             messagebox.showerror("Error", str(e))
     
     if need_refresh:
+        refresh_tree(table_window_tree, column_map)
         master.destroy()
         project_window.lift()
-        project_window.focus_set()
+        project_window.focus_set()        
         return project_id
     
     return None  # Return None if no refresh was needed
