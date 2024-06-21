@@ -171,7 +171,7 @@ def create_add_modify_window(master, title='Add New _________', button_text='Add
     add_mod_frame, entry_dict = create_add_or_modify_frame(add_mod_window, is_modify, selected_record.id if selected_record else None)
     add_mod_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 
-    button_frame = create_button_frame(add_mod_window, [(button_text, lambda: add_mod_project(add_mod_window, entry_dict, is_modify, selected_record if selected_record else None)),
+    button_frame = create_button_frame(add_mod_window, [(button_text, lambda: add_mod_project(add_mod_window, master, entry_dict, is_modify, selected_record if selected_record else None)),
                                                                 ('Cancel', add_mod_window.destroy)])
     button_frame.grid(row=1, column=0, padx=10, pady=(0, 10))
 

@@ -75,6 +75,15 @@ def column_map_to_list(column_map):
     # Sort the dictionary by the values (positions) and extract the keys (column names)
     return [col for col, pos in sorted(column_map.items(), key=lambda item: item[1])]
 
+def refresh_tree(tree, table_data, column_map): 
+    for item in tree.get_children():
+        tree.delete(item)
+
+    resize_max_width_of_tree_columns(tree, table_data, column_map)
+
+    populate_treeview(tree, table_data, column_map)
+
+
 def resize_max_width_of_tree_columns(tree, table_data, column_map):
     columns =  column_map_to_list(column_map) 
 

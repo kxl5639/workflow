@@ -2,7 +2,7 @@ from model import Client, ProjectManager, MechanicalContractor, MechanicalEngine
 from tkinter import messagebox
 from project.project_controller import get_entry_data, is_valid_data
 
-def add_mod_project(master, entry_dict, is_modify, selected_record=None):    
+def add_mod_project(master,project_window, entry_dict, is_modify, selected_record=None):    
     from sqlalchemy.exc import IntegrityError
     
     #Data Validation
@@ -74,4 +74,6 @@ def add_mod_project(master, entry_dict, is_modify, selected_record=None):
     
     if need_refresh:
         master.destroy()
+        project_window.lift()
+        project_window.focus_set()
         
