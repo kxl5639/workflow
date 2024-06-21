@@ -1,17 +1,17 @@
 from model import Client, ProjectManager, MechanicalContractor, MechanicalEngineer, DesignEngineer, SalesEngineer, Project, session
 from tkinter import messagebox
-from project.project_controller import get_entry_data, is_valid_data
+from project.project_controller import get_entry_data, is_valid_addmodd_data, column_map
+from utils import refresh_tree
+
 
 def add_mod_project(master,project_window, entry_dict, is_modify, selected_record=None):    
     from sqlalchemy.exc import IntegrityError
-    from utils import refresh_tree
-    from project.project_controller import column_map
 
     #Init
     need_refresh = False
 
     #Data Validation
-    if is_valid_data(master, entry_dict, is_modify):    
+    if is_valid_addmodd_data(master, entry_dict, is_modify):    
         
         #Unpack entry_dict
         proj_info_entries = entry_dict[Project.__tablename__]
@@ -106,5 +106,9 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
     
     return None  # Return None if no refresh was needed
 
-        
-        
+def delete_selected_projects(master, selected_records=None):
+    print(selected_records)
+
+     
+
+ 

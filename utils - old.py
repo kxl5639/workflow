@@ -33,7 +33,7 @@ def create_tree_frame_from_db_table(master,columns, session, model):
     tree_frame.tree = tree
     return tree_frame
 
-def create_standard_tree_but_frame(master, columns, session, model, add_command=None, modify_command=None, delete_command=None ):
+def create_tree_button_frame(master, columns, session, model, add_command=None, modify_command=None, delete_command=None ):
     tree_addmoddel_frame = ttk.Frame(master, name='tree_addmoddel_frame')        
     tree_addmoddel_frame.grid_rowconfigure((0), weight=1)
     tree_addmoddel_frame.grid_rowconfigure((1), weight=0)

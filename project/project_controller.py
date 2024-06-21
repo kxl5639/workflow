@@ -1,13 +1,11 @@
 from model import Client, Project, ProjectManager, DesignEngineer, SalesEngineer, MechanicalContractor, MechanicalEngineer, session
-from utils import show_custom_error_message
+from utils import show_custom_error_message, show_custom_confirmation_message, num_record_selected, only_one_record_selected
 import tkinter as tk
 from datetime import datetime
 
 #region Formatting data to pass to project tree
 columns_to_display = ['project_number', 'submittal_date', 'client', 'scope', 'address',
                'project_manager', 'mechanical_engineer', 'mechanical_contractor', 'design_engineer', 'sales_engineer']
-
-
 
 def update_table_data():
 
@@ -45,23 +43,6 @@ def update_table_data():
     ]
 
     return table_data
-
-# Combine first and last names for project manager, design engineer, and sales engineer
-
-# unformatted_table_data = update_table_data()
-
-# def format_table_data(unformatted_table_data)
-#     table_data = [
-#         (
-#             project[0],  # Primary key
-#             project[1], project[2], project[3], project[4], project[5],
-#             f"{project[6]} {project[7]}", project[8], project[9],
-#             f"{project[10]} {project[11]}", f"{project[12]} {project[13]}"
-#         ) for project in unformatted_table_data
-#     ]
-#     return table_data
-
-# Example usage
 
 column_map = {
     "project_number": 1,
@@ -101,8 +82,55 @@ def set_entry_text(entry_widget, text):
     entry_widget.delete(0, tk.END)
     entry_widget.insert(0, text)
 
-def is_valid_data(master, entry_dict, is_modify): # Validates data to be added or updated to database
+def modify_record_properly_selected(tree,session,model):
+    selected_item = tree.selection()
+    if not selected_item:    
+        show_custom_error_message(tree, "Error", "Please select a record to modify.")
+        return None
+    if only_one_record_selected(tree) is True:
+        record_id = selected_item[0]  # The item identifier (iid) is the project ID
+        record = session.query(model).get(record_id)
+        return record
+    else:
+        show_custom_error_message(tree, "Error", "Only one record can be selected to modify.")
+        return None
+
+def delete_records_properly_selected(tree,session,model):
+
+    selected_items = tree.selection()
+    if not selected_items:
+        show_custom_error_message(tree, "Error", "Please select at least one record to delete.")
+        return None
     
+    projects_numbers = []
+    for item_id in selected_items:
+        project_record = session.query(model).get(item_id)
+        if project_record:
+            project_number = str(getattr(project_record, 'project_number'))
+            projects_numbers.append(project_number)
+    projects_numbers_str = "\n".join(projects_numbers)
+
+    if len(selected_items) == 1:
+        if show_custom_confirmation_message(tree, "Confirm Deletion", f"Are you sure you want to delete record:\n\n {projects_numbers[0]}?\n") is False:
+            return None, False
+        else:            
+            record_id = [selected_items[0]]            
+            return record_id, True
+    else:
+        if show_custom_confirmation_message(tree, "Confirm Deletion", f"Confirm you want to delete delete records:\n\n{projects_numbers_str}\n") is False:
+            return None, False
+        else:
+            if show_custom_confirmation_message(tree, "Confirm Deletion", f"FINAL warning! This cannot be undone.\n\nPlease confirm you want to delete delete records:\n\n{projects_numbers_str}\n") is False:
+                return None, False
+            else:
+                record_ids = []
+                for record_id in selected_items:    
+                    record_ids.append(record_id)                
+                return record_ids, True
+
+def is_valid_addmodd_data(master, entry_dict, is_modify): # Validates data to be added or updated to database
+
+    #region Functions  
     def extract_data_from_dict(entry_dict, to_extract):        
             for entries in entry_dict.values():
                 if to_extract in entries:
@@ -190,6 +218,7 @@ def is_valid_data(master, entry_dict, is_modify): # Validates data to be added o
             project_number_widget.selection_range(0, tk.END)
             return False
         return True
+    #endregion
             
     # Check if project number already exists if we are in modify
     if not is_modify:

@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-# from project.project_delete.project_delete_controller import delete_selected_projects #type:ignore 
 from project.project_controller import column_map, fetch_names, fetch_record_data, get_entry_data, set_entry_state, set_entry_text
-from utils import center_window, create_standard_tree_but_frame, create_button_frame
+from project.project_model import delete_selected_projects
+from utils import center_window, create_tree_button_frame, create_button_frame
 from configs import testing
 from model import ProjectManager, DesignEngineer, SalesEngineer, Project, Client, MechanicalContractor, MechanicalEngineer, session
 
@@ -14,12 +14,11 @@ def create_project_window():
     project_window.grid_rowconfigure(0, weight=1)
     project_window.grid_columnconfigure(0, weight=1)
    
-    tree_but_frame = create_standard_tree_but_frame(project_window,                                                    
+    tree_but_frame = create_tree_button_frame(project_window,                                                    
                                                     column_map,                                                                                                        
                                                     add_command=lambda: open_add_project_window(project_window),                                                    
-                                                    modify_command=lambda: open_modify_project_window(project_window),
-                                                    delete_command=None)                                                                                                        
-                                                    # delete_command=lambda: delete_selected_projects(project_window))
+                                                    modify_command=lambda: open_modify_project_window(project_window),                                                                                                                                                   
+                                                    delete_command=lambda: open_delete_project_window(project_window))
     
     tree_but_frame.grid(row=0, padx=20, pady=20, sticky="nsew")
 
@@ -30,16 +29,26 @@ def create_project_window():
     return project_window
 #endregion
 
-#region Call project add/modify window
+#region Call project add/modify/delete window
 def open_add_project_window(project_window):   
+    
     create_add_modify_window(project_window,'Add New Projects','Add',selected_record=None)
 
 def open_modify_project_window(project_window):    
-    from utils import modify_record_properly_selected
+    
+    from project.project_controller import modify_record_properly_selected
     table_window_tree = project_window.nametowidget('tree_addmoddel_frame').tree_frame.tree
     selected_record = modify_record_properly_selected(table_window_tree,session,Project)
     if selected_record is not None:    
         create_add_modify_window(project_window, 'Modify Projects', 'Modify', selected_record=selected_record)
+
+def open_delete_project_window(project_window):
+    
+    from project.project_controller import delete_records_properly_selected
+    table_window_tree = project_window.nametowidget('tree_addmoddel_frame').tree_frame.tree
+    selected_records = delete_records_properly_selected(table_window_tree,session,Project)
+    if selected_records is not None:
+        delete_selected_projects(project_window, selected_records)
 #endregion
 
 #region create project add/modify window
@@ -66,7 +75,7 @@ def create_combobox(parent, label_text, values, row, column):
     return combobox
 
 def create_add_or_modify_frame(master, is_modify=False, selected_record_id=None):
-    
+
     add_mod_frame = ttk.Frame(master)
     add_mod_frame.grid_rowconfigure(0, weight=1)
     add_mod_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
@@ -76,6 +85,8 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record_id=None)
     de_names = fetch_names(DesignEngineer)
     se_names = fetch_names(SalesEngineer)
 
+
+    #region Creates labels and entry/combo widgets and fills in the data
     proj_info_frame = create_frame(add_mod_frame, "Project Info", 0, 0)
     proj_info_entries = {
         "project_number": create_label_entry(proj_info_frame, "Project Number", 0, 0, '', testing=testing),
@@ -148,6 +159,7 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record_id=None)
         proj_info_entries["pm_name"].set(f"{pm.first_name} {pm.last_name}")
         proj_info_entries["de_name"].set(f"{de.first_name} {de.last_name}")
         proj_info_entries["se_name"].set(f"{se.first_name} {se.last_name}")
+    #endregion
 
     # Creates a dictionary of the dictionary of entries. For example proj_info_entries is a dictionary of the label and the entry object.
     entry_dict = {Project.__tablename__:proj_info_entries, 
@@ -162,7 +174,7 @@ def create_add_modify_window(master, title='Add New _________', button_text='Add
     from utils import highlight_tree_item 
 
 # Tree grabbed from project window 
-    table_window_tree = master.nametowidget('tree_addmoddel_frame').tree_frame.tree
+    table_window_tree = master.nametowidget('tree_addmoddel_frame').tree_frame.tree    
 
     is_modify = button_text.lower() == 'modify'
     add_mod_window = tk.Toplevel()

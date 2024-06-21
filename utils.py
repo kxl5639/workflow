@@ -35,7 +35,7 @@ def create_tree_frame_from_db_table(master,column_map):
     tree_frame.tree = tree
     return tree_frame
 
-def create_standard_tree_but_frame(master, column_map, add_command=None, modify_command=None, delete_command=None ):
+def create_tree_button_frame(master, column_map, add_command=None, modify_command=None, delete_command=None ):
     tree_addmoddel_frame = ttk.Frame(master, name='tree_addmoddel_frame')        
     tree_addmoddel_frame.grid_rowconfigure((0), weight=1)
     tree_addmoddel_frame.grid_rowconfigure((1), weight=0)
@@ -104,26 +104,16 @@ def resize_max_width_of_tree_columns(tree, column_map):
     for col in columns:
         tree.column(col, width=column_widths[col])
 
-def only_one_record_selected(tree): #record refers to a record in a table.
-    selected_items = tree.selection()    
-    if len(selected_items) > 1:
+def only_one_record_selected(tree): #record refers to a record in a table.    
+    if num_record_selected(tree) > 1:
         return False
     else:
         return True
 
-def modify_record_properly_selected(tree,session,model):
-    selected_item = tree.selection()
-    if not selected_item:    
-        show_custom_error_message(tree, "Error", "Please select a record to modify.")
-        return None
-    if only_one_record_selected(tree) is True:
-        record_id = selected_item[0]  # The item identifier (iid) is the project ID
-        record = session.query(model).get(record_id)
-        return record
-    else:
-        show_custom_error_message(tree, "Error", "Only one record can be selected to modify.")
-        return None
-
+def num_record_selected(tree): #record refers to a record in a table.
+    selected_items = tree.selection()    
+    num_record_selected = len(selected_items)
+    return num_record_selected
 
 #endregion
 
