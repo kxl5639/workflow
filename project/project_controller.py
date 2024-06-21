@@ -1,5 +1,5 @@
 from model import Client, Project, ProjectManager, DesignEngineer, SalesEngineer, MechanicalContractor, MechanicalEngineer, session
-
+import tkinter as tk
 
 columns_to_display = ['project_number', 'submittal_date', 'client', 'scope', 'address',
                'project_manager', 'mechanical_engineer', 'mechanical_contractor', 'design_engineer', 'sales_engineer']
@@ -51,10 +51,26 @@ column_map = {
     "sales_eng": 10
 }
 
-# Debug print to verify structure of table_data
-print("Table Data:")
-for row in table_data:
-    print(row)
+def fetch_record_data(record_id):
+    from model import Client, ProjectManager, MechanicalContractor, MechanicalEngineer, DesignEngineer, SalesEngineer, Project, session
+    project = session.query(Project).filter_by(id=record_id).first()
+    client = session.query(Client).filter_by(id=project.client_id).first()
+    pm = session.query(ProjectManager).filter_by(id=project.projectmanager_id).first()
+    me = session.query(MechanicalEngineer).filter_by(id=project.mechanicalengineer_id).first()
+    mc = session.query(MechanicalContractor).filter_by(id=project.mechanicalcontractor_id).first()
+    de = session.query(DesignEngineer).filter_by(id=project.designengineer_id).first()
+    se = session.query(SalesEngineer).filter_by(id=project.salesengineer_id).first()
+    return project, client, pm, me, mc, de, se
 
-print("Column Map:")
-print(column_map)
+def fetch_names(model):
+    return [f"{instance.first_name} {instance.last_name}" for instance in session.query(model).all()]
+
+def get_entry_data(entries):
+    return {key: entry.get() for key, entry in entries.items()}
+
+def set_entry_state(entry, state):
+    entry.config(state=state)
+
+def set_entry_text(entry_widget, text):
+    entry_widget.delete(0, tk.END)
+    entry_widget.insert(0, text)

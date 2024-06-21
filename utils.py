@@ -66,11 +66,9 @@ def populate_treeview(tree, table_data, column_map):
     - tree: The TreeView widget.
     - table_data: List of tuples containing the data to be inserted.
     - column_map: Dictionary mapping of column names to their positions in the data tuples.
-    """
-    print("Populating TreeView...")  # Debug print
+    """    
     for row in table_data:
-        values = [row[column_map[col]] for col in tree["columns"]]
-        print(f"Inserting row: {values} with iid: {row[0]}")  # Debug print
+        values = [row[column_map[col]] for col in tree["columns"]]        
         tree.insert("", "end", iid=row[0], values=values)
 
 def column_map_to_list(column_map):
