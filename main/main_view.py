@@ -1,9 +1,11 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from utils import center_window #type:ignore
-from main.main_controller import create_main_button
 from project.project_view import create_project_window
 
+def create_main_button(master, button_text, button_command=None):
+    button = ttk.Button(master, text=button_text, command=button_command)
+    return button    
 
 def create_main_window():
     main_window = tk.Tk()
