@@ -9,7 +9,7 @@ from model import ProjectManager, DesignEngineer, SalesEngineer, Project, Client
 
 #region create project window
 def create_project_window():    
-    project_window = tk.Toplevel()
+    project_window = tk.Toplevel(name='project_window')
     project_window.title("Projects")
     project_window.grid_rowconfigure(0, weight=1)
     project_window.grid_columnconfigure(0, weight=1)

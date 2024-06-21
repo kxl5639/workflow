@@ -181,9 +181,6 @@ def is_valid_data(master, entry_dict, is_modify): # Validates data to be added o
 
     #Validate Date format
     if not is_invalid_date_entry(master, entry_dict):
-        return False
+        return False    
     
-
-    
-    print('Moving on to check next error')
     return True
