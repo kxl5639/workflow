@@ -14,7 +14,7 @@ def center_window(window):
     y = (window.winfo_screenheight() // 2) - (height // 2)
     window.geometry(f'{width}x{height}+{x}+{y}')
 
-def create_tree_frame_from_db_table(master,table_data, column_map):   
+def create_tree_frame_from_db_table(master,column_map):   
     columns = column_map_to_list(column_map)     
 
     tree_frame = ttk.Frame(master)   
@@ -29,21 +29,21 @@ def create_tree_frame_from_db_table(master,table_data, column_map):
     for col in columns:
         tree.heading(col, text=col.replace("_", " ").title())
     
-    populate_treeview(tree, table_data, column_map)
+    populate_treeview(tree, column_map)
 
-    resize_max_width_of_tree_columns(tree, table_data, column_map)
+    resize_max_width_of_tree_columns(tree, column_map)
 
     
     tree_frame.tree = tree
     return tree_frame
 
-def create_standard_tree_but_frame(master, table_data, column_map, add_command=None, modify_command=None, delete_command=None ):
+def create_standard_tree_but_frame(master, column_map, add_command=None, modify_command=None, delete_command=None ):
     tree_addmoddel_frame = ttk.Frame(master, name='tree_addmoddel_frame')        
     tree_addmoddel_frame.grid_rowconfigure((0), weight=1)
     tree_addmoddel_frame.grid_rowconfigure((1), weight=0)
     tree_addmoddel_frame.grid_columnconfigure(0, weight=1)    
     
-    tree_frame = create_tree_frame_from_db_table(tree_addmoddel_frame,table_data, column_map)
+    tree_frame = create_tree_frame_from_db_table(tree_addmoddel_frame, column_map)
     tree_frame.grid(row=0, padx=0, pady=(0,20), sticky="nsew")    
 
     addmoddel_buttons_frame = create_button_frame(tree_addmoddel_frame,[("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)])
@@ -58,15 +58,16 @@ def create_standard_tree_but_frame(master, table_data, column_map, add_command=N
 
 #region Controller Functions
 
-def populate_treeview(tree, table_data, column_map):
+def populate_treeview(tree, column_map):    
     """
     Populate a TreeView with the provided data.
 
     Parameters:
-    - tree: The TreeView widget.
-    - table_data: List of tuples containing the data to be inserted.
+    - tree: The TreeView widget.    
     - column_map: Dictionary mapping of column names to their positions in the data tuples.
     """    
+    from project.project_controller import update_table_data    
+    table_data = update_table_data()
     for row in table_data:
         values = [row[column_map[col]] for col in tree["columns"]]        
         tree.insert("", "end", iid=row[0], values=values)
@@ -75,16 +76,19 @@ def column_map_to_list(column_map):
     # Sort the dictionary by the values (positions) and extract the keys (column names)
     return [col for col, pos in sorted(column_map.items(), key=lambda item: item[1])]
 
-def refresh_tree(tree, table_data, column_map): 
+def refresh_tree(tree, column_map): 
     for item in tree.get_children():
         tree.delete(item)
 
-    resize_max_width_of_tree_columns(tree, table_data, column_map)
+    resize_max_width_of_tree_columns(tree, column_map)
 
-    populate_treeview(tree, table_data, column_map)
+    populate_treeview(tree, column_map)
 
 
-def resize_max_width_of_tree_columns(tree, table_data, column_map):
+def resize_max_width_of_tree_columns(tree, column_map):
+    from project.project_controller import update_table_data    
+    table_data = update_table_data()
+
     columns =  column_map_to_list(column_map) 
 
     # Determine the maximum width needed for each column

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 # from project.project_delete.project_delete_controller import delete_selected_projects #type:ignore 
-from project.project_controller import column_map, table_data, fetch_names, fetch_record_data, get_entry_data, set_entry_state, set_entry_text
+from project.project_controller import column_map, fetch_names, fetch_record_data, get_entry_data, set_entry_state, set_entry_text
 from utils import center_window, create_standard_tree_but_frame, create_button_frame
 from configs import testing
 from model import ProjectManager, DesignEngineer, SalesEngineer, Project, Client, MechanicalContractor, MechanicalEngineer, session
@@ -14,8 +14,7 @@ def create_project_window():
     project_window.grid_rowconfigure(0, weight=1)
     project_window.grid_columnconfigure(0, weight=1)
    
-    tree_but_frame = create_standard_tree_but_frame(project_window,
-                                                    table_data,
+    tree_but_frame = create_standard_tree_but_frame(project_window,                                                    
                                                     column_map,                                                                                                        
                                                     add_command=lambda: open_add_project_window(project_window),                                                    
                                                     modify_command=lambda: open_modify_project_window(project_window),
@@ -159,7 +158,7 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record_id=None)
     return add_mod_frame, entry_dict
 
 def create_add_modify_window(master, title='Add New _________', button_text='Add or Modify?', selected_record=None):
-    from project.project_model import add_mod_project
+    from project.project_model import add_mod_project   
 
     is_modify = button_text.lower() == 'modify'
     add_mod_window = tk.Toplevel()

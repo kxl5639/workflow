@@ -4,6 +4,8 @@ from project.project_controller import get_entry_data, is_valid_data
 
 def add_mod_project(master,project_window, entry_dict, is_modify, selected_record=None):    
     from sqlalchemy.exc import IntegrityError
+    from utils import refresh_tree
+    from project.project_controller import column_map
     
     #Data Validation
     if is_valid_data(master, entry_dict, is_modify):    
@@ -12,7 +14,13 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
         proj_info_entries = entry_dict[Project.__tablename__]
         client_entries = entry_dict[Client.__tablename__]
         me_entries = entry_dict[MechanicalEngineer.__tablename__]
-        mc_entries = entry_dict[MechanicalContractor.__tablename__]     
+        mc_entries = entry_dict[MechanicalContractor.__tablename__]    
+
+        # Tree grabbed from project window 
+        table_window_tree = project_window.nametowidget('tree_addmoddel_frame').tree_frame.tree
+
+        # Init project_id to be used so that when add/modify is complete, the project window will have the updated/added record selected
+        project_id = None
         try:
             new_client = Client(**get_entry_data(client_entries))
             session.add(new_client)
@@ -53,6 +61,8 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
                 for key, value in project_data.items():
                     setattr(existing_project, key, value)
                 session.commit()
+                project_id = existing_project.id  # Get the ID of the modified project
+                refresh_tree(table_window_tree, column_map)
                 messagebox.showinfo("Success", "Project and related entities modified successfully!")
                 need_refresh = True                
             else:
@@ -62,6 +72,8 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
                 new_project = Project(**project_data)
                 session.add(new_project)
                 session.commit()
+                project_id = existing_project.id  # Get the ID of the modified project
+                refresh_tree(table_window_tree, column_map)
                 messagebox.showinfo("Success", "Project and related entities added successfully!")
                 need_refresh = True
 
@@ -76,4 +88,9 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
         master.destroy()
         project_window.lift()
         project_window.focus_set()
+        return project_id
+    
+    return None  # Return None if no refresh was needed
+
+        
         

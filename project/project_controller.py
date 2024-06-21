@@ -7,40 +7,62 @@ from datetime import datetime
 columns_to_display = ['project_number', 'submittal_date', 'client', 'scope', 'address',
                'project_manager', 'mechanical_engineer', 'mechanical_contractor', 'design_engineer', 'sales_engineer']
 
-unformatted_table_data = session.query(
-    Project.id,  # Include the primary key
-    Project.project_number,
-    Project.submit_date,
-    Client.client_name,
-    Client.scope,
-    Client.address,
-    ProjectManager.first_name,
-    ProjectManager.last_name,
-    MechanicalEngineer.name,
-    MechanicalContractor.name,
-    DesignEngineer.first_name,
-    DesignEngineer.last_name,
-    SalesEngineer.first_name,
-    SalesEngineer.last_name
-).join(Client, Project.client_id == Client.id)\
- .join(ProjectManager, Project.projectmanager_id == ProjectManager.id)\
- .join(MechanicalEngineer, Project.mechanicalengineer_id == MechanicalEngineer.id)\
- .join(MechanicalContractor, Project.mechanicalcontractor_id == MechanicalContractor.id)\
- .join(DesignEngineer, Project.designengineer_id == DesignEngineer.id)\
- .join(SalesEngineer, Project.salesengineer_id == SalesEngineer.id)\
- .all()
+
+
+def update_table_data():
+
+    unformatted_table_data = session.query(
+        Project.id,  # Include the primary key
+        Project.project_number,
+        Project.submit_date,
+        Client.client_name,
+        Client.scope,
+        Client.address,
+        ProjectManager.first_name,
+        ProjectManager.last_name,
+        MechanicalEngineer.name,
+        MechanicalContractor.name,
+        DesignEngineer.first_name,
+        DesignEngineer.last_name,
+        SalesEngineer.first_name,
+        SalesEngineer.last_name
+    ).join(Client, Project.client_id == Client.id)\
+    .join(ProjectManager, Project.projectmanager_id == ProjectManager.id)\
+    .join(MechanicalEngineer, Project.mechanicalengineer_id == MechanicalEngineer.id)\
+    .join(MechanicalContractor, Project.mechanicalcontractor_id == MechanicalContractor.id)\
+    .join(DesignEngineer, Project.designengineer_id == DesignEngineer.id)\
+    .join(SalesEngineer, Project.salesengineer_id == SalesEngineer.id)\
+    .all()
+
+    # Combine first and last names for project manager, design engineer, and sales engineer
+    table_data = [
+        (
+            project[0],  # Primary key
+            project[1], project[2], project[3], project[4], project[5],
+            f"{project[6]} {project[7]}", project[8], project[9],
+            f"{project[10]} {project[11]}", f"{project[12]} {project[13]}"
+        ) for project in unformatted_table_data
+    ]
+
+    return table_data
 
 # Combine first and last names for project manager, design engineer, and sales engineer
-table_data = [
-    (
-        project[0],  # Primary key
-        project[1], project[2], project[3], project[4], project[5],
-        f"{project[6]} {project[7]}", project[8], project[9],
-        f"{project[10]} {project[11]}", f"{project[12]} {project[13]}"
-    ) for project in unformatted_table_data
-]
+
+# unformatted_table_data = update_table_data()
+
+# def format_table_data(unformatted_table_data)
+#     table_data = [
+#         (
+#             project[0],  # Primary key
+#             project[1], project[2], project[3], project[4], project[5],
+#             f"{project[6]} {project[7]}", project[8], project[9],
+#             f"{project[10]} {project[11]}", f"{project[12]} {project[13]}"
+#         ) for project in unformatted_table_data
+#     ]
+#     return table_data
 
 # Example usage
+
 column_map = {
     "project_number": 1,
     "submit_date": 2,
