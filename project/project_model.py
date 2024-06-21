@@ -6,7 +6,7 @@ def add_mod_project(master, entry_dict, is_modify, selected_record=None):
     from sqlalchemy.exc import IntegrityError
     
     #Data Validation
-    if is_valid_data(master, entry_dict):
+    if is_valid_data(master, entry_dict, is_modify):
         print('Continued Executing')
     # if validate_data(entry_dict):    
     #     try:

@@ -79,7 +79,14 @@ def set_entry_text(entry_widget, text):
     entry_widget.delete(0, tk.END)
     entry_widget.insert(0, text)
 
-def is_valid_data(master, entry_dict): # Validates data to be added or updated to database
+def is_valid_data(master, entry_dict, is_modify): # Validates data to be added or updated to database
+    
+    def extract_data_from_dict(entry_dict, to_extract):        
+            for entries in entry_dict.values():
+                if to_extract in entries:
+                    to_extract_widget = entries[to_extract]
+                    to_extract_value = to_extract_widget.get().strip()                        
+            return to_extract_value, to_extract_widget
     
     def has_blank_entries(master, entry_dict):
         # Define the table name mappings
@@ -140,14 +147,14 @@ def is_valid_data(master, entry_dict): # Validates data to be added or updated t
 
     def is_valid_date_entry(master, entry_dict):
 
-        def extract_submit_dates(entry_dict):        
-            for entries in entry_dict.values():
-                if 'submit_date' in entries:
-                    submit_date_widget = entries['submit_date']
-                    submit_date_value = submit_date_widget.get().strip()                        
-            return submit_date_value, submit_date_widget
+        # def extract_submit_dates(entry_dict):        
+        #     for entries in entry_dict.values():
+        #         if 'submit_date' in entries:
+        #             submit_date_widget = entries['submit_date']
+        #             submit_date_value = submit_date_widget.get().strip()                        
+        #     return submit_date_value, submit_date_widget
 
-        submit_date_str, submit_date_widget = extract_submit_dates(entry_dict)
+        submit_date_str, submit_date_widget = extract_data_from_dict(entry_dict, 'submit_date')
 
         def validate_date_format(master, date_str):    
             if date_str != "XX/XX/XX":
@@ -165,12 +172,27 @@ def is_valid_data(master, entry_dict): # Validates data to be added or updated t
             return True
         return False
 
+    def exist_project_number(master, entry_dict, is_modify):
+        curr_project_number = extract_data_from_dict(entry_dict, 'project_number')
+        existing_project = session.query(Project).filter_by('project_number').first()
+        if existing_project:
+            # raise IntegrityError("Project number already exists", None, None)
+            pass
+
     # Check for blank fields and provide pop up message
     if has_blank_entries(master, entry_dict):
         return False
 
     #Validate Date format
-    if is_valid_date_entry(master, entry_dict):
-        return True    
+    if is_valid_date_entry(master, entry_dict):                
+        # Check if project number exists only if we are in add mode
+        if not is_modify:        
+            if exist_project_number(master, entry_dict, is_modify):
+        else:
+            return False
+        else:
+            pass
+    else:
+        return False
       
     
