@@ -4,7 +4,7 @@ from tkinter import ttk
 from project.project_controller import column_map, table_data, fetch_names, fetch_record_data, get_entry_data, set_entry_state, set_entry_text
 from utils import center_window, create_standard_tree_but_frame, create_button_frame
 from configs import testing
-from model import ProjectManager, DesignEngineer, SalesEngineer, Project, session
+from model import ProjectManager, DesignEngineer, SalesEngineer, Project, Client, MechanicalContractor, MechanicalEngineer, session
 
 
 #region create project window
@@ -88,8 +88,7 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record_id=None)
         "pm_name": create_combobox(proj_info_frame, "Project Manager", pm_names, 4, 0),
         "de_name": create_combobox(proj_info_frame, "Design Engineer", de_names, 5, 0),
         "se_name": create_combobox(proj_info_frame, "Sales Engineer", se_names, 6, 0),
-    })
-
+    })    
     client_frame = create_frame(add_mod_frame, "Client", 0, 1)
     client_entries = {
         "client_name": create_label_entry(client_frame, "Client", 0, 0, '', testing=testing),
@@ -151,7 +150,13 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record_id=None)
         proj_info_entries["de_name"].set(f"{de.first_name} {de.last_name}")
         proj_info_entries["se_name"].set(f"{se.first_name} {se.last_name}")
 
-    return add_mod_frame, proj_info_entries, client_entries, me_entries, mc_entries
+    # Creates a dictionary of the dictionary of entries. For example proj_info_entries is a dictionary of the label and the entry object.
+    entry_dict = {Project.__tablename__:proj_info_entries, 
+                  Client.__tablename__:client_entries,
+                  MechanicalEngineer.__tablename__:me_entries,
+                  MechanicalContractor.__tablename__:mc_entries}
+    
+    return add_mod_frame, entry_dict
 
 def create_add_modify_window(master, title='Add New _________', button_text='Add or Modify?', selected_record=None):
     from project.project_model import add_mod_project
@@ -163,12 +168,10 @@ def create_add_modify_window(master, title='Add New _________', button_text='Add
     add_mod_window.grid_columnconfigure(0, weight=1)
     add_mod_window.resizable(height=False, width=True)
 
-    add_mod_frame, proj_info_entries, client_entries, me_entries, mc_entries = create_add_or_modify_frame(add_mod_window, is_modify, selected_record.id if selected_record else None)
+    add_mod_frame, entry_dict = create_add_or_modify_frame(add_mod_window, is_modify, selected_record.id if selected_record else None)
     add_mod_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 
-    button_frame = create_button_frame(add_mod_window, [(button_text, lambda: add_mod_project(proj_info_entries,
-                                                                                        client_entries, me_entries,
-                                                                                        mc_entries, is_modify, selected_record if selected_record else None)),
+    button_frame = create_button_frame(add_mod_window, [(button_text, lambda: add_mod_project(add_mod_window, entry_dict, is_modify, selected_record if selected_record else None)),
                                                                 ('Cancel', add_mod_window.destroy)])
     button_frame.grid(row=1, column=0, padx=10, pady=(0, 10))
 
