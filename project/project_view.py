@@ -1,14 +1,13 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 # from project.project_delete.project_delete_controller import delete_selected_projects #type:ignore 
 from project.project_controller import column_map, table_data, fetch_names, fetch_record_data, get_entry_data, set_entry_state, set_entry_text
-from utils import center_window, create_standard_tree_but_frame, create_dynamic_button_frame
+from utils import center_window, create_standard_tree_but_frame, create_button_frame
 from configs import testing
-from model import Client, ProjectManager, MechanicalContractor, MechanicalEngineer, DesignEngineer, SalesEngineer, Project, session
-from sqlalchemy.exc import IntegrityError
+from model import ProjectManager, DesignEngineer, SalesEngineer, Project, session
+
 
 #region create project window
-
 def create_project_window():    
     project_window = tk.Toplevel()
     project_window.title("Projects")
@@ -32,8 +31,19 @@ def create_project_window():
     return project_window
 #endregion
 
-#region create project add/modify window
+#region Call project add/modify window
+def open_add_project_window(project_window):   
+    create_add_modify_window(project_window,'Add New Projects','Add',selected_record=None)
 
+def open_modify_project_window(project_window):    
+    from utils import modify_record_properly_selected
+    table_window_tree = project_window.nametowidget('tree_addmoddel_frame').tree_frame.tree
+    selected_record = modify_record_properly_selected(table_window_tree,session,Project)
+    if selected_record is not None:    
+        create_add_modify_window(project_window, 'Modify Projects', 'Modify', selected_record=selected_record)
+#endregion
+
+#region create project add/modify window
 def create_label_entry(parent, label_text, row, column, default_text='', testing=False):
     ttk.Label(parent, text=label_text).grid(row=row, column=column, padx=10, pady=10, sticky="w")
     entry = ttk.Entry(parent)
@@ -144,6 +154,7 @@ def create_add_or_modify_frame(master, is_modify=False, selected_record_id=None)
     return add_mod_frame, proj_info_entries, client_entries, me_entries, mc_entries
 
 def create_add_modify_window(master, title='Add New _________', button_text='Add or Modify?', selected_record=None):
+    from project.project_model import add_mod_project
 
     is_modify = button_text.lower() == 'modify'
     add_mod_window = tk.Toplevel()
@@ -155,89 +166,15 @@ def create_add_modify_window(master, title='Add New _________', button_text='Add
     add_mod_frame, proj_info_entries, client_entries, me_entries, mc_entries = create_add_or_modify_frame(add_mod_window, is_modify, selected_record.id if selected_record else None)
     add_mod_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 
-    def add_project_and_related_entities():
-        try:
-            new_client = Client(**get_entry_data(client_entries))
-            session.add(new_client)
-            session.commit()
-
-            pm_first_name, pm_last_name = proj_info_entries["pm_name"].get().split()
-            projectmanager_id = session.query(ProjectManager).filter_by(first_name=pm_first_name, last_name=pm_last_name).first().id
-
-            de_first_name, de_last_name = proj_info_entries["de_name"].get().split()
-            designengineer_id = session.query(DesignEngineer).filter_by(first_name=de_first_name, last_name=de_last_name).first().id
-
-            se_first_name, se_last_name = proj_info_entries["se_name"].get().split()
-            salesengineer_id = session.query(SalesEngineer).filter_by(first_name=se_first_name, last_name=se_last_name).first().id
-
-            new_me = MechanicalEngineer(**get_entry_data(me_entries))
-            session.add(new_me)
-            session.commit()
-
-            new_mc = MechanicalContractor(**get_entry_data(mc_entries))
-            session.add(new_mc)
-            session.commit()
-
-            project_data = {
-                "project_number": proj_info_entries["project_number"].get(),
-                "em_type": proj_info_entries["em_type"].get(),
-                "job_phase": proj_info_entries["job_phase"].get(),
-                "submit_date": proj_info_entries["submit_date"].get(),
-                "client_id": new_client.id,
-                "projectmanager_id": projectmanager_id,
-                "mechanicalengineer_id": new_me.id,
-                "mechanicalcontractor_id": new_mc.id,
-                "designengineer_id": designengineer_id,
-                "salesengineer_id": salesengineer_id
-            }
-
-            if is_modify:
-                existing_project = session.query(Project).filter_by(id=selected_record.id).first()
-                for key, value in project_data.items():
-                    setattr(existing_project, key, value)
-                session.commit()
-                messagebox.showinfo("Success", "Project and related entities modified successfully!")
-            else:
-                existing_project = session.query(Project).filter_by(project_number=project_data["project_number"]).first()
-                if existing_project:
-                    raise IntegrityError("Project number already exists", None, None)
-
-                new_project = Project(**project_data)
-                session.add(new_project)
-                session.commit()
-                messagebox.showinfo("Success", "Project and related entities added successfully!")
-
-        except IntegrityError as e:
-            session.rollback()
-            messagebox.showerror("Error", "Project number already exists. Please use a unique project number.")
-        except Exception as e:
-            session.rollback()
-            messagebox.showerror("Error", str(e))
-
-    button_frame = create_dynamic_button_frame(add_mod_window, [(button_text, add_project_and_related_entities), ('Cancel', add_mod_window.destroy)])
+    button_frame = create_button_frame(add_mod_window, [(button_text, lambda: add_mod_project(proj_info_entries,
+                                                                                        client_entries, me_entries,
+                                                                                        mc_entries, is_modify, selected_record if selected_record else None)),
+                                                                ('Cancel', add_mod_window.destroy)])
     button_frame.grid(row=1, column=0, padx=10, pady=(0, 10))
 
     center_window(add_mod_window)
     add_mod_window.grab_set()
     add_mod_window.focus_force()
     master.wait_window(add_mod_window)
-
 #endregion
 
-#region Call project add window
-def open_add_project_window(project_window):   
-    create_add_modify_window(project_window,'Add New Projects','Add',selected_record=None)
-#endregion
-
-#region Call project modify window
-def open_modify_project_window(project_window):
-    from model import Project, session
-    table_window_tree = project_window.nametowidget('tree_addmoddel_frame').tree_frame.tree
-    selected_record = table_window_tree.selection()
-    if not selected_record:    
-        return
-    selected_record_id = selected_record[0]  # This should be the primary key (ID) of the selected record
-    selected_record_info = session.query(Project).get(int(selected_record_id))
-    if selected_record_info:        
-        create_add_modify_window(project_window, 'Modify Projects', 'Modify', selected_record=selected_record_info)
-#endregion

@@ -1,54 +1,70 @@
-# from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
-# from sqlalchemy.ext.declarative import declarative_base
-# from sqlalchemy.orm import sessionmaker, relationship
+from model import Client, ProjectManager, MechanicalContractor, MechanicalEngineer, DesignEngineer, SalesEngineer, Project, session
+from tkinter import messagebox
+from project.project_controller import get_entry_data, validate_data
 
-# Base = declarative_base()
-
-# # Define the field metadata
-# ## default - what appears when a new add window is opened
-# ## frame - determines which frame or column the data will show up in on the add/modify window
-# ## display - determines which field will appear on the main project window ie: don't need to show the specifics of the address in that main project window.
-# ## entry_method - determines how the user wil enter the data. Manually, via dropdown, or via a lookup that will spawn in new window
-# ## table_ref - references the table in the database where the data comes from
-# field_metadata = {
-#     "project_number": {"type": Column(String(50)), "default": "", "frame": 1, "display": 1, "entry_method":"manual"},
-#     "em_type": {"type": Column(String(50)), "default": "B", "frame": 1, "display": 0, "entry_method":"manual"},
-#     "job_phase": {"type": Column(String(50)), "default": "1", "frame": 1, "display": 0, "entry_method":"manual"},
-#     "submittal_date": {"type": Column(String), "default": "XX/XX/XX", "frame": 1, "display": 1, "entry_method":"manual"},
-#     "client": {"type": Column(String(100)), "default": "", "frame": 2, "display": 1, "entry_method":"manual",'relationship':['Client','tblProject']},
-#     "scope": {"type": Column(String(250)), "default": "", "frame": 2, "display": 1, "entry_method":"manual"},
-#     "address": {"type": Column(String(250)), "default": "", "frame": 2, "display": 1, "entry_method":"manual"},
-#     "city": {"type": Column(String(100)), "default": "New York", "frame": 2, "display": 0, "entry_method":"manual"},
-#     "state": {"type": Column(String(50)), "default": "NY", "frame": 2, "display": 0, "entry_method":"manual"},
-#     "zip_code": {"type": Column(String(20)), "default": "10001", "frame": 2, "display": 0, "entry_method":"manual"},
-#     "project_manager": {"type": Column(String(100)), "default": "", "frame": 1, "display": 1, "entry_method":"dropdown", "table_ref":"ProjectManager"},
-#     "mechanical_engineer": {"type": Column(String(100)), "default": "", "frame": 3, "display": 1, "entry_method":"lookup", "table_ref":"MechEng"},
-#     "me_address": {"type": Column(String(250)), "default": "", "frame": 3, "display": 0, "entry_method":"manual"},
-#     "me_city": {"type": Column(String(100)), "default": "New York", "frame": 3, "display": 0, "entry_method":"manual"},
-#     "me_state": {"type": Column(String(50)), "default": "NY", "frame": 3, "display": 0, "entry_method":"manual"},
-#     "me_zip_code": {"type": Column(String(20)), "default": "10001", "frame": 3, "display": 0, "entry_method":"manual"},
-#     "mechanical_contractor": {"type": Column(String(100)), "default": "", "frame": 4, "display": 1, "entry_method":"lookup", "table_ref":"MechCon"},
-#     "mc_address": {"type": Column(String(250)), "default": "", "frame": 4, "display": 0, "entry_method":"manual"},
-#     "mc_city": {"type": Column(String(100)), "default": "New York", "frame": 4, "display": 0, "entry_method":"manual"},
-#     "mc_state": {"type": Column(String(50)), "default": "NY", "frame": 4, "display": 0, "entry_method":"manual"},
-#     "mc_zip_code": {"type": Column(String(20)), "default": "10000", "frame": 4, "display": 0, "entry_method":"manual"},
-#     "mc_phone_number": {"type": Column(String(20)), "default": "10000", "frame": 4, "display": 0, "entry_method":"manual"},
-#     "design_engineer": {"type": Column(String(100)), "default": "Kevin Lee", "frame": 1, "display": 1, "entry_method":"dropdown", "table_ref":"DesignEng"},
-#     "sales_engineer": {"type": Column(String(100)), "default": "", "frame": 1, "display": 1, "entry_method":"dropdown", "table_ref":"SalesEng"}
+def add_mod_project(proj_info_entries,
+                    client_entries, me_entries,
+                    mc_entries, is_modify, selected_record=None):    
+    from sqlalchemy.exc import IntegrityError
     
-# }
+    #Data Validation
+    if validate_data():    
+        try:
+            new_client = Client(**get_entry_data(client_entries))
+            session.add(new_client)
+            session.commit()
 
-# # Dynamically create the Project class
-# class Project(Base):
-#     __tablename__ = 'tblProject'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     for field, meta in field_metadata.items():
-#         vars()[field] = meta["type"]
-        
+            pm_first_name, pm_last_name = proj_info_entries["pm_name"].get().split()
+            projectmanager_id = session.query(ProjectManager).filter_by(first_name=pm_first_name, last_name=pm_last_name).first().id
 
-# DATABASE_URL = 'sqlite:///workflows.db'
-# engine = create_engine(DATABASE_URL)
-# Base.metadata.create_all(engine)
-# Session = sessionmaker(bind=engine)
-# session = Session()
+            de_first_name, de_last_name = proj_info_entries["de_name"].get().split()
+            designengineer_id = session.query(DesignEngineer).filter_by(first_name=de_first_name, last_name=de_last_name).first().id
 
+            se_first_name, se_last_name = proj_info_entries["se_name"].get().split()
+            salesengineer_id = session.query(SalesEngineer).filter_by(first_name=se_first_name, last_name=se_last_name).first().id
+
+            new_me = MechanicalEngineer(**get_entry_data(me_entries))
+            session.add(new_me)
+            session.commit()
+
+            new_mc = MechanicalContractor(**get_entry_data(mc_entries))
+            session.add(new_mc)
+            session.commit()
+
+            project_data = {
+                "project_number": proj_info_entries["project_number"].get(),
+                "em_type": proj_info_entries["em_type"].get(),
+                "job_phase": proj_info_entries["job_phase"].get(),
+                "submit_date": proj_info_entries["submit_date"].get(),
+                "client_id": new_client.id,
+                "projectmanager_id": projectmanager_id,
+                "mechanicalengineer_id": new_me.id,
+                "mechanicalcontractor_id": new_mc.id,
+                "designengineer_id": designengineer_id,
+                "salesengineer_id": salesengineer_id
+            }
+
+            if is_modify:
+                existing_project = session.query(Project).filter_by(id=selected_record.id).first()
+                for key, value in project_data.items():
+                    setattr(existing_project, key, value)
+                session.commit()
+                messagebox.showinfo("Success", "Project and related entities modified successfully!")
+            else:
+                existing_project = session.query(Project).filter_by(project_number=project_data["project_number"]).first()
+                if existing_project:
+                    raise IntegrityError("Project number already exists", None, None)
+
+                new_project = Project(**project_data)
+                session.add(new_project)
+                session.commit()
+                messagebox.showinfo("Success", "Project and related entities added successfully!")
+
+        except IntegrityError as e:
+            session.rollback()
+            messagebox.showerror("Error", "Project number already exists. Please use a unique project number.")
+        except Exception as e:
+            session.rollback()
+            messagebox.showerror("Error", str(e))
+    else:
+        return

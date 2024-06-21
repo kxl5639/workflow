@@ -74,3 +74,6 @@ def set_entry_state(entry, state):
 def set_entry_text(entry_widget, text):
     entry_widget.delete(0, tk.END)
     entry_widget.insert(0, text)
+
+def validate_data(): # Validates data to be added or updated to database
+    return True

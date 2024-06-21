@@ -42,7 +42,7 @@ def create_standard_tree_but_frame(master, columns, session, model, add_command=
     tree_frame = create_tree_frame_from_db_table(tree_addmoddel_frame,columns, session, model)
     tree_frame.grid(row=0, padx=0, pady=(0,20), sticky="nsew")    
 
-    addmoddel_buttons_frame = create_dynamic_button_frame(tree_addmoddel_frame,[("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)])
+    addmoddel_buttons_frame = create_button_frame(tree_addmoddel_frame,[("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)])
     addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0)    
 
     tree_addmoddel_frame.tree_frame = tree_frame
@@ -494,7 +494,7 @@ def show_custom_confirmation_message(parent_window, title, message):
 
 #region Button Functions
 
-def create_dynamic_button_frame(master, button_info):
+def create_button_frame(master, button_info):
     # - button_info: A list of tuples, each containing the button label and command.
     #               Example: [("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)]
    
@@ -556,17 +556,17 @@ def create_add_modify_window(master, model, session, metadata, columns_to_displa
         # Adds an "Add Eng" button to the column of engineers
         mech_eng_frame = dividing_frame[3] # [3] represents the column that the mechanical engineer info is in
         butt_row = max_rows_in_dividing_frames[3]+1    
-        add_mech_eng_but = create_dynamic_button_frame(mech_eng_frame,[('Add Engineer', None)])
+        add_mech_eng_but = create_button_frame(mech_eng_frame,[('Add Engineer', None)])
         add_mech_eng_but.grid(row=butt_row,column=0,columnspan = 2, pady=(10,0))
 
         # Adds an "Add Eng" button to the column of engineers
         mech_con_frame = dividing_frame[4]
         butt_row = max_rows_in_dividing_frames[4]+1    
-        add_mech_con_but = create_dynamic_button_frame(mech_con_frame,[('Add Contractor', None)])
+        add_mech_con_but = create_button_frame(mech_con_frame,[('Add Contractor', None)])
         add_mech_con_but.grid(row=butt_row,column=0,columnspan = 2, pady=(10,0))
 
     # Creates the buttons at the bottom of the screen
-    button_frame = create_dynamic_button_frame(add_mod_window, [(button_text, lambda:add_mod_button_cmd(button_text)),
+    button_frame = create_button_frame(add_mod_window, [(button_text, lambda:add_mod_button_cmd(button_text)),
                                                             ('Cancel', add_mod_window.destroy)])
     button_frame.grid(row=1,column=0,padx=10,pady=(0,10))
     #Function that defines what the button click will do

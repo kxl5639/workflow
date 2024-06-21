@@ -46,7 +46,7 @@ def create_standard_tree_but_frame(master, table_data, column_map, add_command=N
     tree_frame = create_tree_frame_from_db_table(tree_addmoddel_frame,table_data, column_map)
     tree_frame.grid(row=0, padx=0, pady=(0,20), sticky="nsew")    
 
-    addmoddel_buttons_frame = create_dynamic_button_frame(tree_addmoddel_frame,[("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)])
+    addmoddel_buttons_frame = create_button_frame(tree_addmoddel_frame,[("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)])
     addmoddel_buttons_frame.grid(row=1, column=0, pady=0, padx=0)    
 
     tree_addmoddel_frame.tree_frame = tree_frame
@@ -89,6 +89,27 @@ def resize_max_width_of_tree_columns(tree, table_data, column_map):
     for col in columns:
         tree.column(col, width=column_widths[col])
 
+def only_one_record_selected(tree): #record refers to a record in a table.
+    selected_items = tree.selection()    
+    if len(selected_items) > 1:
+        return False
+    else:
+        return True
+
+def modify_record_properly_selected(tree,session,model):
+    selected_item = tree.selection()
+    if not selected_item:    
+        show_custom_error_message(tree, "Error", "Please select a record to modify.")
+        return None
+    if only_one_record_selected(tree) is True:
+        record_id = selected_item[0]  # The item identifier (iid) is the project ID
+        record = session.query(model).get(record_id)
+        return record
+    else:
+        show_custom_error_message(tree, "Error", "Only one record can be selected to modify.")
+        return None
+
+
 #endregion
 
 #region Model Functions
@@ -99,12 +120,12 @@ def resize_max_width_of_tree_columns(tree, table_data, column_map):
 #region msgbox Functions
 
 def show_custom_error_message(parent_window, title, message):
-    error_message_window = Toplevel()
+    error_message_window = tk.Toplevel()
     error_message_window.transient(parent_window)
     error_message_window.title(title)
     error_message_window.resizable(False, False)  # Make the window non-resizable
     #error_message_window.overrideredirect(True)  # Remove title bar and window controls
-    error_message_window.wm_attributes('-toolwindow', 'true')
+    # error_message_window.wm_attributes('-toolwindow', 'true')
 
     ttk.Label(error_message_window, text=message).pack(padx=10, pady=10)
     ttk.Button(error_message_window, text="OK", command=error_message_window.destroy).pack(pady=5)
@@ -116,11 +137,11 @@ def show_custom_error_message(parent_window, title, message):
     parent_window.wait_window(error_message_window)  # Wait until the error message window is closed
 
 def show_custom_confirmation_message(parent_window, title, message):
-    confirmation_window = Toplevel()
+    confirmation_window = tk.Toplevel()
     confirmation_window.transient(parent_window)
     confirmation_window.title(title)
     confirmation_window.resizable(False, False)  # Make the window non-resizable
-    confirmation_window.wm_attributes('-toolwindow', 'true')
+    # confirmation_window.wm_attributes('-toolwindow', 'true')
     #confirmation_window.overrideredirect(True)  # Remove title bar and window controls
     result = {'value': None}
 
@@ -151,7 +172,7 @@ def show_custom_confirmation_message(parent_window, title, message):
 
 #region Button Functions
 
-def create_dynamic_button_frame(master, button_info):
+def create_button_frame(master, button_info):
     # - button_info: A list of tuples, each containing the button label and command.
     #               Example: [("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)]
    
