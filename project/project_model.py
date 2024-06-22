@@ -98,7 +98,9 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
             messagebox.showerror("Error", str(e))
     
     if need_refresh:
-        refresh_tree(table_window_tree, column_map)
+        from project.project_controller import update_table_data    
+        table_data = update_table_data()
+        refresh_tree(table_window_tree, column_map, table_data)
         master.destroy()
         project_window.lift()
         project_window.focus_set()        
@@ -108,11 +110,13 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
 
 def delete_selected_projects(master, selected_records=None):
     table_window_tree = master.nametowidget('tree_addmoddel_frame').tree_frame.tree
-    from utils import delete_record    
+    from utils import delete_record 
+    from project.project_controller import update_table_data         
     for selected_record in selected_records:
         record = session.query(Project).get(selected_record)        
         delete_record(record, session)        
-        refresh_tree(table_window_tree, column_map)
+        table_data = update_table_data()  
+        refresh_tree(table_window_tree, column_map, table_data)
     
 
  

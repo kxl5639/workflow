@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from utils import center_window #type:ignore
+from utils import center_window
 from project.project_view import create_project_window
+from view import CRUDWindow
 
 def create_main_button(master, button_text, button_command=None):
     button = ttk.Button(master, text=button_text, command=button_command)
@@ -22,23 +23,26 @@ def create_main_window():
     projects_button = create_main_button(button_frame, "Projects", create_project_window)
     projects_button.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-    # design_engs_button = create_main_button(button_frame, "Design Engineers",create_design_eng_window)
-    # design_engs_button.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+    def open_crud_window(table_name):
+        CRUDWindow(main_window, table_name) 
+    
+    design_engs_button = create_main_button(button_frame, "Design Engineers", lambda:open_crud_window('designengineers'))
+    design_engs_button.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 
-    # sales_engs_button = create_main_button(button_frame, "Sales Engineers",create_sales_eng_window)
-    # sales_engs_button.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+    sales_engs_button = create_main_button(button_frame, "Sales Engineers", lambda:open_crud_window('salesengineers'))
+    sales_engs_button.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
 
-    # proj_managers_button = create_main_button(button_frame, "Project Managers",create_proj_manager_window)
-    # proj_managers_button.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
+    proj_managers_button = create_main_button(button_frame, "Project Managers", lambda:open_crud_window('projectmanagers'))
+    proj_managers_button.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
 
-    # client_button = create_main_button(button_frame, "Clients",create_client_window)
-    # client_button.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+    client_button = create_main_button(button_frame, "Clients", lambda:open_crud_window('clients'))
+    client_button.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
 
-    # mech_cons_button = create_main_button(button_frame, "Mechanical Contractors",create_mech_con_window)
-    # mech_cons_button.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
+    mech_cons_button = create_main_button(button_frame, "Mechanical Contractors", lambda:open_crud_window('mechanicalcontractors'))
+    mech_cons_button.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
 
-    # mech_engs_button = create_main_button(button_frame, "Mechanical Engineers",create_mech_eng_window)
-    # mech_engs_button.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
+    mech_engs_button = create_main_button(button_frame, "Mechanical Engineers", lambda:open_crud_window('mechanicalengineers'))
+    mech_engs_button.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
     
     
 

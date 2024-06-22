@@ -13,9 +13,12 @@ def create_project_window():
     project_window.title("Projects")
     project_window.grid_rowconfigure(0, weight=1)
     project_window.grid_columnconfigure(0, weight=1)
-   
+    
+    from project.project_controller import update_table_data    
+    table_data = update_table_data()
     tree_but_frame = create_tree_button_frame(project_window,                                                    
-                                                    column_map,                                                                                                        
+                                                    column_map,
+                                                    table_data,                                                                                                        
                                                     add_command=lambda: open_add_project_window(project_window),                                                    
                                                     modify_command=lambda: open_modify_project_window(project_window),                                                                                                                                                   
                                                     delete_command=lambda: open_delete_project_window(project_window))
