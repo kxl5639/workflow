@@ -25,9 +25,11 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
         # Init project_id to be used so that when add/modify is complete, the project window will have the updated/added record selected
         project_id = None
         try:
-            new_client = Client(**get_entry_data(client_entries))
-            session.add(new_client)
-            session.commit()
+            client_name = client_entries["client_name"].get()
+            existing_client = session.query(Client).filter_by(client_name=client_name).first()
+            if existing_client is None:
+                raise ValueError(f"Client {client_name} not found.")
+            client_id = existing_client.id
 
             pm_first_name, pm_last_name = proj_info_entries["pm_name"].get().split()            
             project_manager = session.query(ProjectManager).filter_by(first_name=pm_first_name, last_name=pm_last_name).first()
@@ -47,23 +49,27 @@ def add_mod_project(master,project_window, entry_dict, is_modify, selected_recor
                 raise ValueError(f"Sales Engineer {se_first_name} {se_last_name} not found.")
             salesengineer_id = sales_engineer.id
 
-            new_me = MechanicalEngineer(**get_entry_data(me_entries))
-            session.add(new_me)
-            session.commit()
+            me_name = me_entries["name"].get()
+            existing_me = session.query(MechanicalEngineer).filter_by(name=me_name).first()
+            if existing_me is None:
+                raise ValueError(f"Mechanical Engineer {me_name} not found.")
+            mechanicalengineer_id = existing_me.id
 
-            new_mc = MechanicalContractor(**get_entry_data(mc_entries))
-            session.add(new_mc)
-            session.commit()
+            mc_name = mc_entries["name"].get()
+            existing_mc = session.query(MechanicalContractor).filter_by(name=mc_name).first()
+            if existing_mc is None:
+                raise ValueError(f"Mechanical Contractor {mc_name} not found.")
+            mechanicalcontractor_id = existing_mc.id
 
             project_data = {
                 "project_number": proj_info_entries["project_number"].get(),
                 "em_type": proj_info_entries["em_type"].get(),
                 "job_phase": proj_info_entries["job_phase"].get(),
                 "submit_date": proj_info_entries["submit_date"].get(),
-                "client_id": new_client.id,
+                "client_id": client_id,
                 "projectmanager_id": projectmanager_id,
-                "mechanicalengineer_id": new_me.id,
-                "mechanicalcontractor_id": new_mc.id,
+                "mechanicalengineer_id": mechanicalengineer_id,
+                "mechanicalcontractor_id": mechanicalcontractor_id,
                 "designengineer_id": designengineer_id,
                 "salesengineer_id": salesengineer_id
             }
