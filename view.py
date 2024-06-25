@@ -63,3 +63,12 @@ class CRUDWindow:
         column_objects = [getattr(model_class, col.name) for col in columns]
         table_data = session.query(*column_objects).all()
         return table_data
+
+
+class BaseWindow:
+    def __init__(self, title, is_root=False):
+        self.root = tk.Tk() if is_root else tk.Toplevel()
+        self.root.title(title)
+        self.root.resizable(width=False, height=True)
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_rowconfigure(0, weight=1)

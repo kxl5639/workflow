@@ -25,6 +25,15 @@ class Project(Base):
     designengineer:Mapped['DesignEngineer'] = relationship(back_populates='projects')
     salesengineer_id:Mapped[int] = mapped_column(ForeignKey('salesengineers.id'),nullable=False)
     salesengineer:Mapped['SalesEngineer'] = relationship(back_populates='projects')
+    dwgtitles:Mapped[List['DwgTitle']] = relationship(back_populates='project')
+
+class DwgTitle(Base):
+    __tablename__ = 'dwgtitles'
+    id:Mapped[int] = mapped_column(primary_key=True)
+    title:Mapped[str] = mapped_column(nullable=False)
+    dwgno:Mapped[int] = mapped_column(nullable=False)
+    project_id:Mapped[int] = mapped_column(ForeignKey('projects.id'),nullable=False)
+    project:Mapped['Project'] = relationship(back_populates='dwgtitles')
 
 class Client(Base):
     __tablename__ = 'clients'
