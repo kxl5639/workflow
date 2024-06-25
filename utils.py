@@ -6,13 +6,13 @@ from configs import testing
 
 #region View Functions
 
-def center_window(window):        
+def center_window(window):
     window.update_idletasks()
     width = window.winfo_width()
     height = window.winfo_height()
     x = (window.winfo_screenwidth() // 2) - (width // 2)
     y = (window.winfo_screenheight() // 2) - (height // 2)
-    window.geometry(f'{width}x{height}+{x}+{y}')
+    window.geometry(f'+{x}+{y}')  # Only set the position, not the size
 
 def create_tree_frame_from_db_table(master,column_map, table_data):   
     columns = column_map_to_list(column_map)     
