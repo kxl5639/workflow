@@ -4,6 +4,7 @@ from utils import center_window, create_button_frame
 from project.project_view import create_project_window
 from view import CRUDWindow
 from titlemanager import open_title_manager_window
+from title_controller import TitleController
 
 def create_main_window():
     main_window = tk.Tk()
@@ -42,7 +43,8 @@ def create_main_window():
     mech_engs_button = create_button_frame(button_frame, [("Mechanical Engineers", lambda:open_crud_window('mechanicalengineers'))])
     mech_engs_button.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
     
-    dwgtitles_button = create_button_frame(button_frame, [("Title Manager", lambda:open_title_manager_window())])
+    # dwgtitles_button = create_button_frame(button_frame, [("Title Manager", lambda:open_title_manager_window())])
+    dwgtitles_button = create_button_frame(button_frame, [("Title Manager", lambda:TitleController(main_window))])
     dwgtitles_button.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
     
 

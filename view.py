@@ -34,6 +34,7 @@ class CRUDWindow:
         self.tree_button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')    
 
         center_window(self.window)
+        self.window.focus_force()
 
     def generate_column_map(self, table_name):
         # Reflect the table from the database
@@ -56,9 +57,11 @@ class CRUDWindow:
 
 
 class BaseWindow:
-    def __init__(self, title, is_root=False):
-        self.root = tk.Tk() if is_root else tk.Toplevel()
+    def __init__(self, title, parent, is_root=False):
+        self.root = tk.Tk() if is_root else tk.Toplevel(parent)
         self.root.title(title)
         self.root.resizable(width=False, height=True)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
+        center_window(self.root)
+        self.root.focus_force()
