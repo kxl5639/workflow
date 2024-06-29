@@ -23,24 +23,14 @@ class CRUDWindow:
         self.window.grid_rowconfigure(0, weight=1)
         self.window.resizable(width=True, height=False)
         
-                # Generate column map
+        # Generate column map
         self.column_map = self.generate_column_map(table_name)
 
         # Generate table_data
-        self.table_data = self.get_table_data(table_name)
-
-        # # Create the main frame
-        # self.main_frame = ttk.Frame(self.window)
-        # self.main_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
-        # self.main_frame.grid_columnconfigure(0, weight=1)
-        # self.main_frame.grid_rowconfigure(0, weight=1)
-
-        # # Create treeview
-        # self.tree = create_tree_frame_from_db_table(self.main_frame, self.column_map, self.table_data)
-        # self.tree.grid(row=0, column=0, sticky='nsew')        
+        self.table_data = self.get_table_data(table_name)    
 
         # Create the tree button frame
-        self.tree_button_frame = create_tree_button_frame(self.window, self.column_map,self.table_data)
+        self.tree_button_frame = create_tree_button_frame(self.window, self.column_map, self.table_data)
         self.tree_button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')    
 
         center_window(self.window)
