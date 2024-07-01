@@ -1,0 +1,104 @@
+{
+    "clients": [
+        {
+            "client_name": "UBS",
+            "scope": "32nd Floor",
+            "address": "123 Main St",
+            "city": "Anytown",
+            "state": "NY",
+            "zip_code": 11239
+        },
+        {
+            "client_name": "Tishman",
+            "scope": "18th Floor",
+            "address": "224 Brad St",
+            "city": "Bing",
+            "state": "NY",
+            "zip_code": 10019
+        }
+    ],
+    "projectmanagers": [
+        {
+            "first_name": "Rayan",
+            "last_name": "Zabib"
+        },
+        {
+            "first_name": "Phil",
+            "last_name": "Llave"
+        }
+    ],
+    "mechanicalengineers": [
+        {
+            "name": "Bob Smith",
+            "address": "456 Engineering Rd",
+            "city": "Engineertown",
+            "state": "NY",
+            "zip_code": 10001
+        }
+    ],
+    "mechanicalcontractors": [
+        {
+            "name": "XYZ Contractors",
+            "address": "789 Contractor St",
+            "city": "Buildtown",
+            "state": "TX",
+            "zip_code": 75001,
+            "telephone": "123-456-7890"
+        }
+    ],
+    "designengineers": [
+        {
+            "first_name": "Charlie",
+            "last_name": "Brown"
+        }
+    ],
+    "salesengineers": [
+        {
+            "first_name": "David",
+            "last_name": "Green"
+        }
+    ],
+    "projects": [
+        {
+            "project_number": "2265B",
+            "em_type": "B",
+            "job_phase": 1,
+            "submit_date": "XX/XX/XX",
+            "client_id": 1,
+            "projectmanager_id": 1,
+            "mechanicalengineer_id": 1,
+            "mechanicalcontractor_id": 1,
+            "designengineer_id": 1,
+            "salesengineer_id": 1
+        },
+        {
+            "project_number": "2278B",
+            "em_type": "B",
+            "job_phase": 1,
+            "submit_date": "XX/XX/XX",
+            "client_id": 2,
+            "projectmanager_id": 2,
+            "mechanicalengineer_id": 1,
+            "mechanicalcontractor_id": 1,
+            "designengineer_id": 1,
+            "salesengineer_id": 1
+        }
+    ],
+    "dwgtitles": [
+        {
+            "title": "Blueprint 1",
+            "dwgno": 1,
+            "project_id": 1
+        },
+        {
+            "title": "Blueprint 2",
+            "dwgno": 2,
+            "project_id": 1
+        },
+        {
+            "title": "Blueprint 3",
+            "dwgno": 3,
+            "project_id": 1
+        }
+    ]
+}

@@ -1,3 +1,5 @@
+import os
+import json
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 from sqlalchemy import ForeignKey, create_engine
 from typing import List
@@ -87,9 +89,59 @@ class SalesEngineer(Base):
     first_name:Mapped[str] = mapped_column(nullable=False)
     last_name:Mapped[str] = mapped_column(nullable=False)
     projects:Mapped[List['Project']] = relationship(back_populates='salesengineer')
-    
+
+
+def _db_exist():
+    if os.path.exists('workflow.db'):
+        return True
+    else:
+        return False
+
+exist_db = _db_exist()
 DATABASE_URL = 'sqlite:///workflow.db'
 engine = create_engine(DATABASE_URL)
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session() 
+
+# Check if the database exists
+if not exist_db:    
+    Base.metadata.create_all(engine)
+    # Load data from JSON file
+    with open('database_seed.json') as f:
+        data = json.load(f)
+        
+    # Seed the database
+    for client_data in data['clients']:
+        client = Client(**client_data)
+        session.add(client)
+    
+    for pm_data in data['projectmanagers']:
+        project_manager = ProjectManager(**pm_data)
+        session.add(project_manager)
+
+    for me_data in data['mechanicalengineers']:
+        mechanical_engineer = MechanicalEngineer(**me_data)
+        session.add(mechanical_engineer)
+        
+    for mc_data in data['mechanicalcontractors']:
+        mechanical_contractor = MechanicalContractor(**mc_data)
+        session.add(mechanical_contractor)
+        
+    for de_data in data['designengineers']:
+        design_engineer = DesignEngineer(**de_data)
+        session.add(design_engineer)
+        
+    for se_data in data['salesengineers']:
+        sales_engineer = SalesEngineer(**se_data)
+        session.add(sales_engineer)
+
+    for project_data in data['projects']:
+        project = Project(**project_data)
+        session.add(project)
+
+    for dwgtitle_data in data['dwgtitles']:
+        dwgtitle = DwgTitle(**dwgtitle_data)
+        session.add(dwgtitle)
+
+    session.commit()
