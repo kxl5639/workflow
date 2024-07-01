@@ -9,7 +9,7 @@ class TitleController:
         self.view.create_entry_widget(parent)
 
     def moveup_entry(self):
-        self.view.moveup_entry()
+        self.view.move_entry('up')
 
     def movedown_entry(self):
-        self.view.movedown_entry()
+        self.view.move_entry('down')
