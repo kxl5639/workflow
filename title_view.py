@@ -15,21 +15,16 @@ class TitleView:
         self.title_column_break = 10
         self.active_entry_widget = None  
         self.entry_frames_names = {} # Dictionary of names : entry frame widget. Used to destroy() blank entry frames
-
-        if __name__ == '__main__':
-            self.root = BaseWindow(self.title, self.parent, is_root=isroot).root
-        else:
-            self.root = BaseWindow(self.title, self.parent).root
-        
+        self.root = BaseWindow(self.title, self.parent).root
         self.root.resizable(width=True, height=True)
 
         # Create base frame where title entries and menu buttons will live
         self.base_frame = ttk.Frame(self.root)
         self.base_frame.grid(row=0, column=0, sticky='nsew')
-        self.base_frame.grid_columnconfigure(0, weight = 1)        
+        self.base_frame.grid_columnconfigure(0, weight = 1)
 
         # Create frame for Project Number
-        self.project_frame = ttk.LabelFrame(self.base_frame, text='Project EM')        
+        self.project_frame = ttk.LabelFrame(self.base_frame, text='Project EM')
         self.project_frame.grid(row=0, column=0, padx = (10,0), pady = (10,0), sticky='w')
         self.combo_project_number = tk.StringVar()
         self.project_combo = ttk.Combobox(self.project_frame,
@@ -42,8 +37,8 @@ class TitleView:
         self.list_project_numbers = self._get_project_numbers_list()
         
         # Create frame for title entries
-        self.titles_frame = ttk.LabelFrame(self.base_frame, text='Titles')        
-        self.titles_frame.grid(row=1, column=0, padx = (10,0), pady = (0,10), sticky='new')        
+        self.titles_frame = ttk.LabelFrame(self.base_frame, text='Titles')
+        self.titles_frame.grid(row=1, column=0, padx = (10,0), pady = (0,10), sticky='new')
 
         # Create frame for save button
         self.save_frame = ttk.LabelFrame(self.base_frame)
@@ -71,17 +66,17 @@ class TitleView:
         self._load_body(self.project_number)
 
         center_window(self.root)
-        self.root.focus_force()                       
+        self.root.focus_force()
 
     def _load_body(self, project_number):
         '''Loads the title entries dependent on project selection'''       
         if project_number is None:
-            # Prompt user to select a project number                            
+            # Prompt user to select a project number
             prompt_label = ttk.Label(self.titles_frame, text='Please select a project!')
             prompt_label.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
         else:
-            project_obj = self.controller.get_project_object(project_number)            
-            self._remove_title_widgets()            
+            project_obj = self.controller.get_project_object(project_number)
+            self._remove_title_widgets()
             # Get information of page numbers and titles from project object
             title_objs_list = self.controller.get_title_object(project_obj)
             if not title_objs_list: self._default_title_entries()
@@ -91,21 +86,21 @@ class TitleView:
                     entry_widget.insert(0, title_obj.title)
             
     def _remove_title_widgets(self):
-        '''Removes ALL title widgets and resizes the window'''        
+        '''Removes ALL title widgets and resizes the window'''
         self.root.withdraw()
         for widget in self.titles_frame.winfo_children():
             widget.destroy()
             self.title_entry_widgets_list = []
-            self.titles_frame.update_idletasks() # Restores title frame back to proper size after removing widgets                
-        self.root.geometry('')        
+            self.titles_frame.update_idletasks() # Restores title frame back to proper size after removing widgets
+        self.root.geometry('')
         self.root.deiconify()
         center_window(self.root)
 
-    def destroy_frames_if_labels_match(self, numbers):        
+    def destroy_frames_if_labels_match(self, numbers):
         entry_frame_to_be_popped = []
         for item in numbers:
             for page_number, entry_frame in self.entry_frames_names.items():
-                if page_number == item:                        
+                if page_number == item:
                     entry_frame_to_be_popped.append(page_number)
                     entry_frame.destroy()
         for item in entry_frame_to_be_popped:
@@ -122,19 +117,19 @@ class TitleView:
         self.title_entry_widgets_list[2].insert(0, 'MASTER CONTROL PANEL')
 
     def _get_project_numbers_list(self):
-        project_numbers_list = [project.project_number for project in session.query(Project).all()]        
+        project_numbers_list = [project.project_number for project in session.query(Project).all()]
         self.project_combo['values'] = project_numbers_list
         return project_numbers_list
         
     def on_project_selected(self):
-        selected_project_number = self.combo_project_number.get()      
-        ####### NEED TO CHECK IF VALUES CHANGED BEFORE SWITCHING TO NEW PROJECT INFOS    
+        selected_project_number = self.combo_project_number.get()
+        ####### NEED TO CHECK IF VALUES CHANGED BEFORE SWITCHING TO NEW PROJECT INFOS
         self._load_body(selected_project_number)        
 
     def create_entry_widget(self, parent):
         '''Creates entry widgets'''
         # Check how many existing entry widgets there are
-        entry_count = len(self.get_all_entry_widgets(self.root))        
+        entry_count = len(self.get_all_entry_widgets(self.root))
         in_column = entry_count // self.title_column_break
         in_row = entry_count - (in_column*self.title_column_break)
         entry_frame = ttk.Frame(parent)        
@@ -146,7 +141,7 @@ class TitleView:
         entry_label.grid(row=0, column=0, padx=(0,5))
         entry = ttk.Entry(entry_frame)
         entry.grid(row=0, column=1, sticky='nsew')
-        entry.bind("<FocusIn>", lambda event: self._get_active_entry_widget(entry))        
+        entry.bind("<FocusIn>", lambda event: self._get_active_entry_widget(entry))
         self.titles_frame.grid_columnconfigure(in_column, weight = 1)
         if entry_count % self.title_column_break == 0 or entry_count == self.title_column_break-1:
             center_window(self.root)
@@ -168,14 +163,14 @@ class TitleView:
             for child in widget.winfo_children():
                 find_entries(child)
         
-        find_entries(parent)        
+        find_entries(parent)
         return entry_widgets
 
     def move_entry(self, direction):
         self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
         if self.active_entry_widget:
             if (direction == 'up' and self.active_entry_widget != self.title_entry_widgets_list[0]) or \
-            (direction == 'down' and self.active_entry_widget != self.title_entry_widgets_list[-1]):                
+            (direction == 'down' and self.active_entry_widget != self.title_entry_widgets_list[-1]):
                 curr_idx = self.title_entry_widgets_list.index(self.active_entry_widget)
                 new_idx = curr_idx - 1 if direction == 'up' else curr_idx + 1
                 
@@ -190,13 +185,3 @@ class TitleView:
                 self.title_entry_widgets_list[new_idx].focus_set()
             else:
                 self.active_entry_widget.focus_set()
-
-if __name__ == '__main__':
-    if testing == 1:
-        isroot = True
-    else:
-        isroot = False
-    from title_controller import TitleController
-    controller = TitleController()
-    root = TitleView('Title Manager', None, controller).root
-    root.mainloop()
