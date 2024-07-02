@@ -29,7 +29,26 @@ class TitleController:
     def get_title_object(self, project_object):
         return self.model.get_title_object(project_object)
     
-    def commit_titles(self, project_number, entry_widget_list):
-        self.model.commit_titles(project_number, entry_widget_list)
+    def commit_titles(self, project_number, entry_widget_list):        
+        self.view._remove_selected_title_frames()
+        # project_obj = self.get_project_object(project_number)
+        # existing_title_objs = self.get_title_object(project_obj)
+        # existing_titles = [title_object.title for title_object in existing_title_objs]        
+        # new_titles = self.model._remove_end_blanks([title.get() for title in entry_widget_list])        
+        # existing_page_titleobj_dict = {existing_title_objs.index(title_obj)+1 : title_obj for title_obj in existing_title_objs}
+        # new_page_title_dict = {new_titles.index(title)+1 : title for title in new_titles}
+
+        # # Get list of title objects to be deleted as well as entry widgets that need to be popped
+        # title_obj_to_delete = []
+        # title_frame_to_delete = []
+        # for existing_page_number, existing_title_obj in existing_page_titleobj_dict.items():
+        #     if existing_page_number not in new_page_title_dict:
+        #         title_obj_to_delete.append(existing_title_obj)        
+        
+        # # Delete records from table (model)
+        
+        # # Pop those entry frames (view)
+        # # Continue to update/add new title records(model)
+        
 #endregion
     

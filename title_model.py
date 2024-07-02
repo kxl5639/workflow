@@ -9,6 +9,14 @@ class TitleModel:
         '''RETURNED TITLE OBJECT LIST IS SORTED BY DRAWING NUMBER'''
         return session.query(DwgTitle).filter_by(project_id=project_object.id).order_by(DwgTitle.dwgno).all() 
     
+
+    def delete_title_record(self, existing_page_titleobj_dict, new_page_title_dict):
+        for existing_page_number, existing_title_obj in existing_page_titleobj_dict.items():
+            if existing_page_number not in new_page_title_dict:
+                print(f'{existing_title_obj.title} to be deleted')
+                session.delete(existing_title_obj)
+
+
     def commit_titles(self, project_number, entry_widget_list):        
         project_obj = self.get_project_object(project_number)
         existing_title_objs = self.get_title_object(project_obj)
@@ -32,11 +40,7 @@ class TitleModel:
                 print(f'DWG-{new_page_number} title to be added: {new_title_name}')
                 new_title_record = DwgTitle(dwgno=new_page_number, title = new_title_name, project_id=project_obj.id)
                 session.add(new_title_record)
-        session.commit()
-
-
-
-        
+        session.commit()        
 
     def _remove_end_blanks(self, list_obj):
         '''Remove blank items at the end of a list. Retains blank items in middle of list.'''

@@ -91,7 +91,7 @@ class TitleView:
                     entry_widget.insert(0, title_obj.title)
             
     def _remove_title_widgets(self):
-        '''Removes title widgets and resizes the window'''        
+        '''Removes ALL title widgets and resizes the window'''        
         self.root.withdraw()
         for widget in self.titles_frame.winfo_children():
             widget.destroy()
@@ -99,7 +99,10 @@ class TitleView:
             self.titles_frame.update_idletasks() # Restores title frame back to proper size after removing widgets                
         self.root.geometry('')        
         self.root.deiconify()
-        center_window(self.root)        
+        center_window(self.root)
+
+
+
 
     def _default_title_entries(self):
         '''Creates title entries and default entries with GENERAL NOTES, COMM RISER, MASTER PANEL'''
@@ -122,8 +125,7 @@ class TitleView:
     def create_entry_widget(self, parent):
         '''Creates entry widgets'''
         # Check how many existing entry widgets there are
-        entry_count = len(self.get_all_entry_widgets(self.root))
-        print(entry_count)
+        entry_count = len(self.get_all_entry_widgets(self.root))        
         in_column = entry_count // self.title_column_break
         in_row = entry_count - (in_column*self.title_column_break)
         entry_frame = ttk.Frame(parent)
