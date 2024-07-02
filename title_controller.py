@@ -28,5 +28,8 @@ class TitleController:
     
     def get_title_object(self, project_object):
         return self.model.get_title_object(project_object)
+    
+    def commit_titles(self, project_number, entry_widget_list):
+        self.model.commit_titles(project_number, entry_widget_list)
 #endregion
     

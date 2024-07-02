@@ -32,7 +32,7 @@ class Project(Base):
 class DwgTitle(Base):
     __tablename__ = 'dwgtitles'
     id:Mapped[int] = mapped_column(primary_key=True)
-    title:Mapped[str] = mapped_column(nullable=False)
+    title:Mapped[str] = mapped_column(nullable=True)
     dwgno:Mapped[int] = mapped_column(nullable=False)
     project_id:Mapped[int] = mapped_column(ForeignKey('projects.id'),nullable=False)
     project:Mapped['Project'] = relationship(back_populates='dwgtitles')
