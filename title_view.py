@@ -13,14 +13,14 @@ class TitleView:
         self.controller = controller
         self.project_number = project_number
         self.title_column_break = 10
-        self.active_entry_widget = None
-        self.title_entry_widgets_list = []
+        self.active_entry_widget = None        
 
         if __name__ == '__main__':
             self.root = BaseWindow(self.title, self.parent, is_root=isroot).root
         else:
             self.root = BaseWindow(self.title, self.parent).root
 
+        self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
         self.root.resizable(width=True, height=True)
 
         # Create base frame where title entries and menu buttons will live
@@ -56,8 +56,10 @@ class TitleView:
         self.moveup_button = create_button_frame(self.menu_frame,[('Move Up',
                                                                    lambda:self.controller.moveup_entry())])
         self.moveup_button.grid(row=1, column=0, padx=(10), pady = (0,10))
+        # self.movedown_button = create_button_frame(self.menu_frame,[('Move Down',
+        #                                                              lambda:self.controller.movedown_entry())])        
         self.movedown_button = create_button_frame(self.menu_frame,[('Move Down',
-                                                                     lambda:self.controller.movedown_entry())])        
+                                                                     lambda:self.get_all_entry_widgets(self.root))])
         self.movedown_button.grid(row=2, column=0, padx=(10), pady = (0,10))
 
         # Load the main contents of the titles_frame
@@ -97,6 +99,7 @@ class TitleView:
     def _default_title_entries(self):
         '''Creates title entries and default entries with GENERAL NOTES, COMM RISER, MASTER PANEL'''
         for _ in range(self.title_column_break): self.create_entry_widget(self.titles_frame)
+        self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
         self.title_entry_widgets_list[0].insert(0, 'GENERAL NOTES')
         self.title_entry_widgets_list[1].insert(0, 'COMMUNICATION RISER')
         self.title_entry_widgets_list[2].insert(0, 'MASTER CONTROL PANEL')
@@ -114,7 +117,8 @@ class TitleView:
     def create_entry_widget(self, parent):
         '''Creates entry widgets'''
         # Check how many existing entry widgets there are
-        entry_count = len(self.title_entry_widgets_list)
+        entry_count = len(self.get_all_entry_widgets(self.root))
+        print(entry_count)
         in_column = entry_count // self.title_column_break
         in_row = entry_count - (in_column*self.title_column_break)
         entry_frame = ttk.Frame(parent)
@@ -125,8 +129,7 @@ class TitleView:
         entry_label.grid(row=0, column=0, padx=(0,5))
         entry = ttk.Entry(entry_frame)
         entry.grid(row=0, column=1, sticky='nsew')
-        entry.bind("<FocusIn>", lambda event: self._get_active_entry_widget(entry))
-        self.title_entry_widgets_list.append(entry) 
+        entry.bind("<FocusIn>", lambda event: self._get_active_entry_widget(entry))        
         self.titles_frame.grid_columnconfigure(in_column, weight = 1)
         if entry_count % self.title_column_break == 0 or entry_count == self.title_column_break-1:
             center_window(self.root)
@@ -139,7 +142,23 @@ class TitleView:
         entry_widget.delete(0, tk.END)
         entry_widget.insert(0, data)
 
+    def get_all_entry_widgets(self, parent):
+        entry_widgets = []
+        
+        def find_entries(widget):
+            if isinstance(widget, (tk.Entry, ttk.Entry)) and not isinstance(widget, ttk.Combobox):
+                entry_widgets.append(widget)
+            for child in widget.winfo_children():
+                find_entries(child)
+        
+        find_entries(parent)
+        print(entry_widgets)
+        return entry_widgets
+
+
+
     def move_entry(self, direction):
+        self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
         if self.active_entry_widget:
             if (direction == 'up' and self.active_entry_widget != self.title_entry_widgets_list[0]) or \
             (direction == 'down' and self.active_entry_widget != self.title_entry_widgets_list[-1]):                
