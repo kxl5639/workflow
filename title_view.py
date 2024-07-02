@@ -13,7 +13,8 @@ class TitleView:
         self.controller = controller
         self.project_number = project_number
         self.title_column_break = 10
-        self.active_entry_widget = None        
+        self.active_entry_widget = None  
+        self.entry_frames_names = {} # Dictionary of names : entry frame widget. Used to destroy() blank entry frames
 
         if __name__ == '__main__':
             self.root = BaseWindow(self.title, self.parent, is_root=isroot).root
@@ -101,14 +102,17 @@ class TitleView:
         self.root.deiconify()
         center_window(self.root)
 
-    def destroy_frames_if_labels_match(self, numbers):
-        for self.entry_frame in self.titles_frame.winfo_children():
-            for widget in self.entry_frame.winfo_children():
-                print(widget)
-                if isinstance(widget, ttk.Label) and widget.cget("text") in map(str, numbers):
-                    print(f'frames to be destroyed: {self.entry_frame}')
-                    # base_frame.destroy()
-                    break  # Exit the inner loop and move to the next base_frame
+    def destroy_frames_if_labels_match(self, numbers):        
+        entry_frame_to_be_popped = []
+        for item in numbers:
+            for page_number, entry_frame in self.entry_frames_names.items():
+                if page_number == item:                        
+                    entry_frame_to_be_popped.append(page_number)
+                    entry_frame.destroy()
+        for item in entry_frame_to_be_popped:
+            del self.entry_frames_names[item]
+        self.get_all_entry_widgets(self.root)
+        center_window(self.root)
 
     def _default_title_entries(self):
         '''Creates title entries and default entries with GENERAL NOTES, COMM RISER, MASTER PANEL'''
@@ -138,7 +142,7 @@ class TitleView:
         ypad = 10 if entry_count % self.title_column_break == 0 else (0,10) 
         entry_frame.grid(row=in_row, column=in_column, padx=10, pady=ypad, sticky='nsew')
         entry_frame.grid_columnconfigure(1, weight = 1)
-        print(entry_frame)
+        self.entry_frames_names[entry_count+1] = entry_frame
         entry_label = ttk.Label(entry_frame, text=entry_count+1)
         entry_label.grid(row=0, column=0, padx=(0,5))
         entry = ttk.Entry(entry_frame)

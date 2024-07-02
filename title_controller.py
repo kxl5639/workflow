@@ -29,31 +29,31 @@ class TitleController:
     def get_title_object(self, project_object):
         return self.model.get_title_object(project_object)
     
-    def commit_titles(self, project_number, entry_widget_list):                
+    def commit_titles(self, project_number): 
+        # Destroy the end title entry widgets that are blank (view)        
+        self.view.destroy_frames_if_labels_match(pages_to_be_deleted_from_screen)
+
         project_obj = self.get_project_object(project_number)
-        existing_title_objs = self.get_title_object(project_obj)
-        existing_titles = [title_object.title for title_object in existing_title_objs]        
+        existing_title_record_objs = self.get_title_object(project_obj)
+        existing_titles = [title_object.title for title_object in existing_title_record_objs]
+        entry_widget_list = self.view.get_all_entry_widgets()        
         new_titles, removed_indices = self.model._remove_end_blanks([title.get() for title in entry_widget_list])        
-        to_be_deleted_pages = [item+1 for item in removed_indices]
-        existing_page_titleobj_dict = {existing_title_objs.index(title_obj)+1 : title_obj for title_obj in existing_title_objs}
+        pages_to_be_deleted_from_screen = [item+1 for item in removed_indices]
+        existing_page_titleobj_dict = {existing_title_record_objs.index(title_obj)+1 : title_obj for title_obj in existing_title_record_objs}
         new_page_title_dict = {new_titles.index(title)+1 : title for title in new_titles}
 
-        # Destroy the end title entry widgets that are blank (view)
-        print(f'new titles: {new_titles}')
-        print(f'pages to be deleted: {to_be_deleted_pages}')
-        self.view.destroy_frames_if_labels_match(to_be_deleted_pages)
-
         # Get list of title objects to be deleted as well as entry widgets that need to be popped
-        title_obj_to_delete = []
-        
-        for existing_page_number, existing_title_obj in existing_page_titleobj_dict.items():
+        title_record_obj_to_delete = []        
+        for existing_page_number, existing_title_record_obj in existing_page_titleobj_dict.items():
             if existing_page_number not in new_page_title_dict:
-                title_obj_to_delete.append(existing_title_obj)                  
+                title_record_obj_to_delete.append(existing_title_record_obj)
         
-        # # Delete records from table (model)
+        # Delete records from table (model)
+        self.model.delete_record(title_record_obj_to_delete)        
         
-        # # Pop those entry frames (view)
         # # Continue to update/add new title records(model)
-        
+
+        # Commit changes
+        self.model.commit_changes()
 #endregion
     

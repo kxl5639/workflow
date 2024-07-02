@@ -16,6 +16,12 @@ class TitleModel:
                 print(f'{existing_title_obj.title} to be deleted')
                 session.delete(existing_title_obj)
 
+    def delete_record(self, object_list):
+        for obj in object_list:
+            session.delete(obj)
+
+    def commit_changes(self):
+        session.commit()
 
     def commit_titles(self, project_number, entry_widget_list):        
         project_obj = self.get_project_object(project_number)
@@ -40,7 +46,8 @@ class TitleModel:
                 print(f'DWG-{new_page_number} title to be added: {new_title_name}')
                 new_title_record = DwgTitle(dwgno=new_page_number, title = new_title_name, project_id=project_obj.id)
                 session.add(new_title_record)
-        session.commit()        
+        session.commit()    
+        
 
     def _remove_end_blanks(self, list_obj):
         '''Remove blank items at the end of a list. Retains blank items in middle of list.'''
