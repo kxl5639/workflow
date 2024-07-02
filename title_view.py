@@ -18,28 +18,42 @@ class TitleView:
         self.root = BaseWindow(self.title, self.parent).root
         self.root.resizable(width=True, height=True)
 
-        # Create base frame where title entries and menu buttons will live
+        self._create_base_frame()
+        self._create_project_number_frame()
+        self._create_titles_frame()
+        self._create_save_frame()
+        self._create_menu_frame()
+
+        # Load the main contents of the titles_frame
+        self._load_body(self.project_number)
+        center_window(self.root)
+        self.root.focus_force()
+
+    def _create_base_frame(self):
+        '''Create base frame where title entries and menu buttons will live'''
         self.base_frame = ttk.Frame(self.root)
         self.base_frame.grid(row=0, column=0, sticky='nsew')
         self.base_frame.grid_columnconfigure(0, weight = 1)
 
-        # Create frame for Project Number
+    def _create_project_number_frame(self):
+        '''Create frame for Project Number'''
         self.project_frame = ttk.LabelFrame(self.base_frame, text='Project EM')
         self.project_frame.grid(row=0, column=0, padx = (10,0), pady = (10,0), sticky='w')
         self.combo_project_number = tk.StringVar()
         self.project_combo = ttk.Combobox(self.project_frame,
-                                          textvariable=self.combo_project_number, state='readonly')
+                                        textvariable=self.combo_project_number, state='readonly')
         self.project_combo.bind('<<ComboboxSelected>>',
                                 lambda _:self.controller.on_project_combobox_selected())
         self.project_combo.grid(row=0, column=0, padx = 5, pady = 5, sticky='nsew')
-        
         # Load project numbers in combobox
         self.list_project_numbers = self._get_project_numbers_list()
-        
+
+    def _create_titles_frame(self):
         # Create frame for title entries
         self.titles_frame = ttk.LabelFrame(self.base_frame, text='Titles')
         self.titles_frame.grid(row=1, column=0, padx = (10,0), pady = (0,10), sticky='new')
 
+    def _create_save_frame(self):
         # Create frame for save button
         self.save_frame = ttk.LabelFrame(self.base_frame)
         self.save_frame.grid(row=0, column=1, padx = (10,10), pady = (10,0), sticky='nsew')
@@ -47,10 +61,10 @@ class TitleView:
                                       command=lambda:self.controller.commit_titles(self.combo_project_number.get()))
         self.save_button.grid(row=0, column=0, padx=10, pady=(0,10))
 
+    def _create_menu_frame(self):
         # Create frame for menu buttons
         self.menu_frame = ttk.LabelFrame(self.base_frame, text='Menu')
         self.menu_frame.grid(row=1, column=1, padx = 10, pady = (0,10), sticky='n')
-
         # Create button in menu frame
         self.add_button = create_button_frame(self.menu_frame,[('(+) Title',
                                                                 lambda:self.controller.add_entry(self.titles_frame))])
@@ -61,12 +75,6 @@ class TitleView:
         self.movedown_button = create_button_frame(self.menu_frame,[('Move Down',
                                                                      lambda:self.controller.movedown_entry())])
         self.movedown_button.grid(row=2, column=0, padx=(10), pady = (0,10))
-
-        # Load the main contents of the titles_frame
-        self._load_body(self.project_number)
-
-        center_window(self.root)
-        self.root.focus_force()
 
     def _load_body(self, project_number):
         '''Loads the title entries dependent on project selection'''       
