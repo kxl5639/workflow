@@ -46,11 +46,10 @@ class TitleView:
         self.titles_frame.grid(row=1, column=0, padx = (10,0), pady = (0,10), sticky='new')        
 
         # Create frame for save button
-        self.save_frame = ttk.LabelFrame(self.base_frame)        
+        self.save_frame = ttk.LabelFrame(self.base_frame)
         self.save_frame.grid(row=0, column=1, padx = (10,10), pady = (10,0), sticky='nsew')
         self.save_button = ttk.Button(self.save_frame, text='Save Titles',
-                                      command=lambda:self.controller.commit_titles(self.combo_project_number.get(),
-                                                                                   self.get_all_entry_widgets(self.root)))
+                                      command=lambda:self.controller.commit_titles(self.combo_project_number.get()))
         self.save_button.grid(row=0, column=0, padx=10, pady=(0,10))
 
         # Create frame for menu buttons
