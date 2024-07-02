@@ -44,7 +44,23 @@ class TitleModel:
 
     def _remove_end_blanks(self, list_obj):
         '''Remove blank items at the end of a list. Retains blank items in middle of list.'''
-        # Iterate from the end of the list_obj to the beginning
-        while list_obj and list_obj[-1] == '':
-            list_obj.pop()
-        return list_obj
+        
+        # Check if the last item is a blank
+        if list_obj and list_obj[-1] != '':
+            return list_obj, []  # If the last item is not a blank, return the original list and an empty list of removed indices
+        
+        # Find the first non-blank item from the end of the list
+        last_non_blank_index = len(list_obj)
+        
+        for index in range(len(list_obj) - 1, -1, -1):
+            if list_obj[index] != '':
+                last_non_blank_index = index + 1
+                break
+        
+        # Calculate the indices of the removed blank items
+        removed_indices = list(range(last_non_blank_index, len(list_obj)))
+        
+        # Slicing to remove trailing blanks
+        modified_list = list_obj[:last_non_blank_index]        
+        
+        return modified_list, removed_indices

@@ -101,8 +101,14 @@ class TitleView:
         self.root.deiconify()
         center_window(self.root)
 
-
-
+    def destroy_frames_if_labels_match(self, numbers):
+        for self.entry_frame in self.titles_frame.winfo_children():
+            for widget in self.entry_frame.winfo_children():
+                print(widget)
+                if isinstance(widget, ttk.Label) and widget.cget("text") in map(str, numbers):
+                    print(f'frames to be destroyed: {self.entry_frame}')
+                    # base_frame.destroy()
+                    break  # Exit the inner loop and move to the next base_frame
 
     def _default_title_entries(self):
         '''Creates title entries and default entries with GENERAL NOTES, COMM RISER, MASTER PANEL'''
@@ -128,10 +134,11 @@ class TitleView:
         entry_count = len(self.get_all_entry_widgets(self.root))        
         in_column = entry_count // self.title_column_break
         in_row = entry_count - (in_column*self.title_column_break)
-        entry_frame = ttk.Frame(parent)
+        entry_frame = ttk.Frame(parent)        
         ypad = 10 if entry_count % self.title_column_break == 0 else (0,10) 
         entry_frame.grid(row=in_row, column=in_column, padx=10, pady=ypad, sticky='nsew')
         entry_frame.grid_columnconfigure(1, weight = 1)
+        print(entry_frame)
         entry_label = ttk.Label(entry_frame, text=entry_count+1)
         entry_label.grid(row=0, column=0, padx=(0,5))
         entry = ttk.Entry(entry_frame)
