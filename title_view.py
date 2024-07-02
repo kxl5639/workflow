@@ -19,8 +19,7 @@ class TitleView:
             self.root = BaseWindow(self.title, self.parent, is_root=isroot).root
         else:
             self.root = BaseWindow(self.title, self.parent).root
-
-        self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
+        
         self.root.resizable(width=True, height=True)
 
         # Create base frame where title entries and menu buttons will live
@@ -45,6 +44,14 @@ class TitleView:
         self.titles_frame = ttk.LabelFrame(self.base_frame, text='Titles')        
         self.titles_frame.grid(row=1, column=0, padx = (10,0), pady = (0,10), sticky='new')        
 
+        # Create frame for save button
+        self.save_frame = ttk.LabelFrame(self.base_frame)        
+        self.save_frame.grid(row=0, column=1, padx = (10,10), pady = (10,0), sticky='nsew')
+        self.save_button = ttk.Button(self.save_frame, text='Save Titles',
+                                      command=lambda:self.controller.commit_titles(self.combo_project_number.get(),
+                                                                                   self.get_all_entry_widgets(self.root)))
+        self.save_button.grid(row=0, column=0, padx=10, pady=(0,10))
+
         # Create frame for menu buttons
         self.menu_frame = ttk.LabelFrame(self.base_frame, text='Menu')
         self.menu_frame.grid(row=1, column=1, padx = 10, pady = (0,10), sticky='n')
@@ -56,10 +63,8 @@ class TitleView:
         self.moveup_button = create_button_frame(self.menu_frame,[('Move Up',
                                                                    lambda:self.controller.moveup_entry())])
         self.moveup_button.grid(row=1, column=0, padx=(10), pady = (0,10))
-        # self.movedown_button = create_button_frame(self.menu_frame,[('Move Down',
-        #                                                              lambda:self.controller.movedown_entry())])        
         self.movedown_button = create_button_frame(self.menu_frame,[('Move Down',
-                                                                     lambda:self.get_all_entry_widgets(self.root))])
+                                                                     lambda:self.controller.movedown_entry())])
         self.movedown_button.grid(row=2, column=0, padx=(10), pady = (0,10))
 
         # Load the main contents of the titles_frame
@@ -151,11 +156,8 @@ class TitleView:
             for child in widget.winfo_children():
                 find_entries(child)
         
-        find_entries(parent)
-        print(entry_widgets)
+        find_entries(parent)        
         return entry_widgets
-
-
 
     def move_entry(self, direction):
         self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
