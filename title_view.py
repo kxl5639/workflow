@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from view import BaseWindow
-from utils import center_window, create_button_frame
+from utils import create_button_frame
 from model import session, Project
 
 class TitleView:

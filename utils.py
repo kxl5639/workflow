@@ -1,18 +1,9 @@
 import tkinter as tk
 from tkinter import Toplevel, ttk, Listbox, StringVar, messagebox, Entry, END
-from datetime import datetime
 from sqlalchemy.inspection import inspect
-from configs import testing
 from view import BaseWindow
 
 #region View Functions
-
-def create_base_frame(parent):
-    '''Create base frame'''
-    base_frame = ttk.Frame(parent)
-    base_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
-    base_frame.grid_columnconfigure(0, weight = 1)
-    return base_frame
 
 def create_tree_frame_from_db_table(master,column_map, table_data):   
     columns = column_map_to_list(column_map)     

@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from sqlalchemy.inspection import inspect
-from utils import create_tree_button_frame, create_base_frame
 from model import session, Base
+
 
 class CRUDWindow:
     def __init__(self, master, table_name):
@@ -63,7 +63,7 @@ class BaseWindow:
         self.root.resizable(width=False, height=True)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
-        self.base_frame = create_base_frame(self.root)
+        self.base_frame = self.create_base_frame(self.root)
     
     @staticmethod
     def center_window(window):
@@ -74,6 +74,14 @@ class BaseWindow:
         y = (window.winfo_screenheight() // 2) - (height // 2)
         window.geometry(f'+{x}+{y}')  # Only set the position, not the size
         window.focus_force()
+
+    @staticmethod
+    def create_base_frame(parent):
+        '''Create base frame'''
+        base_frame = ttk.Frame(parent)
+        base_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
+        base_frame.grid_columnconfigure(0, weight = 1)
+        return base_frame
        
 class TreeFrame:
     def __init__(self, parent, column_map, table_data) -> None:
