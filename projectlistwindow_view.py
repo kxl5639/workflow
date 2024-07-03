@@ -3,19 +3,28 @@ import tkinter as tk
 from tkinter import ttk
 
 class ProjectAddModifyWindow(BaseWindow):
-    def __init__(self, title, parent, is_root=False, is_modify=False):
+    def __init__(self, title, parent, controller, is_root=False, is_modify=False):
         super().__init__(title, parent.root, is_root)        
         self.title = title
         self.parent = parent
+        self.controller = controller
         self.is_modify = is_modify
         self.tree = self.parent.tree_frame.tree
 
-        self.create_project_section()
+        self.create_project_section()        
         self.create_client_section()
         self.create_me_section()    
-        self.create_mc_section()        
+        self.create_mc_section()
+        self.fill_combobox_options()
 
         BaseWindow.center_window(self.root)
+
+    def fill_combobox_options(self):
+        self.data = self.controller.fill_combobox_options()        
+        self.pm_name['values'] = self.data['projectmanagers']
+        self.de_name['values'] = self.data['designengineers']
+        self.se_name['values'] = self.data['salesengineers']
+
 
     def create_mc_section(self):
         self.mc_frame = self.create_section_frame("Mechanical Contractor", 0, 3)
