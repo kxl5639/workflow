@@ -23,7 +23,7 @@ def create_tree_frame_from_db_table(master,column_map, table_data):
     tree_frame.grid_columnconfigure(0,weight=1) 
     
     tree = ttk.Treeview(tree_frame,columns=columns, show='headings')
-    tree.grid(row=0,column=0, sticky='nsew')
+    tree.grid(row=0,column=0, sticky='nsew')    
     
     # Define the column headings and set a minimum width
     for col in columns:
@@ -53,8 +53,6 @@ def create_tree_button_frame(master, column_map, table_data, add_command=None, m
 def highlight_tree_item(master, tree, item_id):    
     tree.selection_set(item_id)
     tree.see(item_id)
-
-
 
 #endregion
 
@@ -251,12 +249,6 @@ def create_button_frame(master, button_info):
                           pady=0, sticky="nsew")
     
     return button_frame
-
-#endregion
-
-#region Create Window Functions
-
-
 
 #endregion
 

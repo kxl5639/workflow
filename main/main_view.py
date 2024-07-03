@@ -3,7 +3,6 @@ from tkinter import ttk, messagebox
 from utils import center_window, create_button_frame
 from project.project_view import create_project_window
 from view import CRUDWindow
-from titlemanager import open_title_manager_window
 from title_controller import TitleController
 
 def create_main_window():
@@ -12,13 +11,15 @@ def create_main_window():
     main_window.grid_rowconfigure((0), weight=1)
     main_window.grid_columnconfigure((0), weight=1)    
     main_window.resizable(width=False,height=False)
+    from projectlistwindow_controller import ProjectListWindowController
     
     button_frame=ttk.Frame(main_window)
     button_frame.grid(row=0, column=0, padx=10, pady=10)
     # button_frame.grid_rowconfigure((0,1,2), weight=1)
     # button_frame.grid_columnconfigure((0), weight=1)    
 
-    projects_button = create_button_frame(button_frame, [("Projects", create_project_window)])
+    # projects_button = create_button_frame(button_frame, [("Projects", create_project_window)])
+    projects_button = create_button_frame(button_frame, [("Projects", lambda: ProjectListWindowController(main_window))])
     projects_button.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
     def open_crud_window(table_name):

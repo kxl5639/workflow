@@ -48,8 +48,20 @@
     ],
     "designengineers": [
         {
-            "first_name": "Charlie",
-            "last_name": "Brown"
+            "first_name": "Kevin",
+            "last_name": "Lee"
+        },
+        {
+            "first_name": "Anthony",
+            "last_name": "Dituro"
+        },
+        {
+            "first_name": "Robert",
+            "last_name": "Froiseth"
+        },
+        {
+            "first_name": "Chris",
+            "last_name": "Veros"
         }
     ],
     "salesengineers": [
@@ -99,6 +111,33 @@
             "title": "Blueprint 3",
             "dwgno": 3,
             "project_id": 1
+        }
+    ],
+    "systems": [
+        {
+            "name": "AHU",
+            "project_id": 1
+        },
+        {
+            "name": "VAV",
+            "project_id": 1
+        }
+    ],
+    "diagrams": [
+        {
+            "type": "Flow Diagram 1",
+            "system_id": 1,
+            "dwgtitle_id": 1
+        },
+        {
+            "type": "Flow Diagram 2",
+            "system_id": 1,
+            "dwgtitle_id": 2
+        },
+        {
+            "type": "Control Panel",
+            "system_id": 1,
+            "dwgtitle_id": 3
         }
     ]
 }

@@ -58,10 +58,71 @@ class CRUDWindow:
 
 class BaseWindow:
     def __init__(self, title, parent, is_root=False):
-        self.root = tk.Tk() if is_root else tk.Toplevel(parent)
+        self.parent = parent
+        self.root = tk.Tk() if is_root else tk.Toplevel(self.parent)
         self.root.title(title)
         self.root.resizable(width=False, height=True)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
+        center_window(self.root)
+        self.root.focus_force()
+        
+
+class TreeFrame:
+    def __init__(self, parent, column_map, table_data) -> None:
+        self.parent = parent
+        self.column_map = column_map
+        self.table_data = table_data
+
+        self.columns_list = self.column_map_to_list()
+        self.tree_frame = self.create_tree_frame()
+        self.tree = self.create_tree()
+        self.populate_treeview()
+        self.resize_width_of_columns()
+
+    def resize_width_of_columns(self):
+        columns = self.columns_list 
+
+        # Determine the maximum width needed for each column
+        column_widths = {col: len(col) * 10 for col in columns}
+        for row in self.table_data:
+            values = [str(row[self.column_map[col]]) for col in columns]
+            for col, value in zip(columns, values):
+                column_widths[col] = max(column_widths[col], len(value) * 10)
+        for col in columns:
+            self.tree.column(col, width=column_widths[col])
+
+    def populate_treeview(self):
+        for row in self.table_data:
+            values = [row[self.column_map[col]] for col in self.tree["columns"]]        
+            self.tree.insert("", "end", iid=row[0], values=values)
+
+    def create_tree(self):
+        tree = ttk.Treeview(self.tree_frame, columns=self.columns_list, show='headings')
+        tree.grid(row=0,column=0, sticky='nsew') 
+        for col in self.columns_list:
+            tree.heading(col, text=col.replace("_", " ").title())   
+        return tree
+
+    def create_tree_frame(self):
+        tree_frame = ttk.Frame(self.parent)   
+        tree_frame.grid(row=0, column=0, sticky='nsew') 
+        tree_frame.grid_rowconfigure(0,weight=1) 
+        tree_frame.grid_columnconfigure(0,weight=1)
+        return tree_frame
+
+    def column_map_to_list(self):
+        # Sort the dictionary by the values (positions) and extract the keys (column names)
+        return [col for col, pos in sorted(self.column_map.items(), key=lambda item: item[1])]
+    
+class ListWindow(BaseWindow):
+    def __init__(self, title, parent, controller, is_root=False):
+        super().__init__(title, parent, is_root)
+        self.controller = controller
+        self.root.resizable(width=True, height=True)            
+
+        # Create Treeview
+        TreeFrame(self.parent, self.controller.column_map, self.controller.table_data)
+        
         center_window(self.root)
         self.root.focus_force()
