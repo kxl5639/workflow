@@ -3,16 +3,16 @@ from tkinter import Toplevel, ttk, Listbox, StringVar, messagebox, Entry, END
 from datetime import datetime
 from sqlalchemy.inspection import inspect
 from configs import testing
+from view import BaseWindow
 
 #region View Functions
 
-def center_window(window):
-    window.update_idletasks()
-    width = window.winfo_width()
-    height = window.winfo_height()
-    x = (window.winfo_screenwidth() // 2) - (width // 2)
-    y = (window.winfo_screenheight() // 2) - (height // 2)
-    window.geometry(f'+{x}+{y}')  # Only set the position, not the size
+def create_base_frame(parent):
+    '''Create base frame'''
+    base_frame = ttk.Frame(parent)
+    base_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
+    base_frame.grid_columnconfigure(0, weight = 1)
+    return base_frame
 
 def create_tree_frame_from_db_table(master,column_map, table_data):   
     columns = column_map_to_list(column_map)     
@@ -183,7 +183,7 @@ def show_custom_error_message(parent_window, title, message):
     ttk.Label(error_message_window, text=message).pack(padx=10, pady=10)
     ttk.Button(error_message_window, text="OK", command=error_message_window.destroy).pack(pady=5)
     
-    center_window(error_message_window)
+    BaseWindow.center_window(error_message_window)
 
     error_message_window.grab_set()  # Make the window modal
     error_message_window.focus_force()  # Focus on the error message window
@@ -214,7 +214,7 @@ def show_custom_confirmation_message(parent_window, title, message):
     # Bind the close button to on_no
     confirmation_window.protocol("WM_DELETE_WINDOW", on_no)
 
-    center_window(confirmation_window)
+    BaseWindow.center_window(confirmation_window)
     confirmation_window.grab_set()
     confirmation_window.focus_force()
     parent_window.wait_window(confirmation_window)

@@ -26,7 +26,7 @@ class TitleView:
 
         # Load the main contents of the titles_frame
         self._load_body(self.project_number)
-        center_window(self.root)
+        BaseWindow.center_window(self.root)
         self.root.focus_force()
 
     #region Creating widgets on screen
@@ -115,7 +115,7 @@ class TitleView:
 
         if project_number is None: _prompt_select_project()
         else: _load_project_titles(project_number)
-        center_window(self.root)
+        BaseWindow.center_window(self.root)
             
     def _remove_title_widgets(self):
         '''Removes ALL title widgets and resizes the window'''
@@ -126,7 +126,7 @@ class TitleView:
             self.titles_frame.update_idletasks() # Restores title frame back to proper size after removing widgets
         self.root.geometry('')
         self.root.deiconify()
-        center_window(self.root)
+        BaseWindow.center_window(self.root)
 
     def destroy_frames_if_labels_match(self, numbers):
         entry_frame_to_be_popped = []
@@ -138,7 +138,7 @@ class TitleView:
         for item in entry_frame_to_be_popped:
             del self.entry_frames_names[item]
         self.get_all_entry_widgets(self.root)
-        center_window(self.root)
+        BaseWindow.center_window(self.root)
 
     def _default_title_entries(self):
         '''Creates title entries and default entries with GENERAL NOTES, COMM RISER, MASTER PANEL'''
@@ -176,7 +176,7 @@ class TitleView:
         entry.bind("<FocusIn>", lambda event: self._get_active_entry_widget(entry))
         self.titles_frame.grid_columnconfigure(in_column, weight = 1)
         if entry_count % self.title_column_break == 0 or entry_count == self.title_column_break-1:
-            center_window(self.root)
+            BaseWindow.center_window(self.root)
         return entry
 
     def _get_active_entry_widget(self, entry):

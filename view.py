@@ -1,9 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from sqlalchemy.inspection import inspect
-from utils import center_window, create_tree_button_frame
+from utils import create_tree_button_frame, create_base_frame
 from model import session, Base
-
 
 class CRUDWindow:
     def __init__(self, master, table_name):
@@ -33,7 +32,7 @@ class CRUDWindow:
         self.tree_button_frame = create_tree_button_frame(self.window, self.column_map, self.table_data)
         self.tree_button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')    
 
-        center_window(self.window)
+        BaseWindow.center_window(self.window)
         self.window.focus_force()
 
     def generate_column_map(self, table_name):
@@ -64,10 +63,18 @@ class BaseWindow:
         self.root.resizable(width=False, height=True)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
-        center_window(self.root)
-        self.root.focus_force()
-        
-
+        self.base_frame = create_base_frame(self.root)
+    
+    @staticmethod
+    def center_window(window):
+        window.update_idletasks()
+        width = window.winfo_width()
+        height = window.winfo_height()
+        x = (window.winfo_screenwidth() // 2) - (width // 2)
+        y = (window.winfo_screenheight() // 2) - (height // 2)
+        window.geometry(f'+{x}+{y}')  # Only set the position, not the size
+        window.focus_force()
+       
 class TreeFrame:
     def __init__(self, parent, column_map, table_data) -> None:
         self.parent = parent
@@ -114,15 +121,45 @@ class TreeFrame:
     def column_map_to_list(self):
         # Sort the dictionary by the values (positions) and extract the keys (column names)
         return [col for col, pos in sorted(self.column_map.items(), key=lambda item: item[1])]
-    
+
 class ListWindow(BaseWindow):
+    
     def __init__(self, title, parent, controller, is_root=False):
         super().__init__(title, parent, is_root)
         self.controller = controller
         self.root.resizable(width=True, height=True)            
 
-        # Create Treeview
-        TreeFrame(self.parent, self.controller.column_map, self.controller.table_data)
+        # Create TreeFrame
+        self.tree_frame = TreeFrame(self.base_frame, self.controller.column_map, self.controller.table_data)
+        self.tree_frame.tree_frame.grid(row=0, padx=0, pady=(0,10), sticky="nsew")
+        # Create Button Frame
+        self.button_frame = ButtonsFrame(self.base_frame, self.controller.button_info)
+        self.button_frame.button_frame.grid(row=1, column=0, pady=0, padx=0)
+        # Center Window
+        BaseWindow.center_window(self.root)        
+    
+class ButtonsFrame:
+    def __init__(self, parent, button_info) -> None:
+        self.parent = parent
+        self.button_info = button_info
+        self.button_frame = self.create_button_frame()
+
+    def create_button_frame(self):
+        button_frame = ttk.Frame(self.parent)    
+        gen_pad = 10
         
-        center_window(self.root)
-        self.root.focus_force()
+        # Configure grid layout
+        button_frame.grid_rowconfigure(0, weight=1)
+        for i in range(len(self.button_info)):
+            button_frame.grid_columnconfigure(i, weight=1)
+        
+        # Create buttons based on button_info
+        for index, (label, command) in enumerate(self.button_info):
+            button = ttk.Button(button_frame, text=label, command=command)
+            button.grid(row=0, column=index,
+                        padx=(gen_pad if index != 0 else 0,
+                            gen_pad if index != len(self.button_info) - 1 else 0),
+                            pady=0, sticky="nsew")
+        
+        return button_frame
+        

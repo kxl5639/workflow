@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from utils import center_window, create_button_frame
+from utils import create_button_frame
 from project.project_view import create_project_window
-from view import CRUDWindow
+from view import CRUDWindow, BaseWindow
 from title_controller import TitleController
+
 
 def create_main_window():
     main_window = tk.Tk()
@@ -50,6 +51,6 @@ def create_main_window():
     
 
     # Center the window after adding widgets
-    center_window(main_window)
+    BaseWindow.center_window(main_window)
 
     main_window.mainloop()

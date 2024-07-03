@@ -2,10 +2,10 @@ import tkinter as tk
 from tkinter import ttk
 from project.project_controller import column_map, fetch_names, fetch_record_data, get_entry_data, set_entry_state, set_entry_text
 from project.project_model import delete_selected_projects
-from utils import center_window, create_tree_button_frame, create_button_frame
+from utils import create_tree_button_frame, create_button_frame
 from configs import testing
 from model import ProjectManager, DesignEngineer, SalesEngineer, Project, Client, MechanicalContractor, MechanicalEngineer, session
-
+from view import BaseWindow
 
 #region create project window
 def create_project_window():    
@@ -26,7 +26,7 @@ def create_project_window():
     tree_but_frame.grid(row=0, padx=20, pady=20, sticky="nsew")
 
     # Center the window after adding widgets
-    center_window(project_window)    
+    BaseWindow.center_window(project_window)    
     project_window.focus_force()
     
     return project_window
@@ -198,7 +198,7 @@ def create_add_modify_window(master, title='Add New _________', button_text='Add
                                                                 ('Cancel', add_mod_window.destroy)])
     button_frame.grid(row=1, column=0, padx=10, pady=(0, 10))
 
-    center_window(add_mod_window)
+    BaseWindow.center_window(add_mod_window)
     add_mod_window.grab_set()
     add_mod_window.focus_force()
     master.wait_window(add_mod_window)
