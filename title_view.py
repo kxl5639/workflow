@@ -2,9 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from view import BaseWindow
 from utils import center_window, create_button_frame
-from configs import testing
-from model import session, Project, DwgTitle
-
+from model import session, Project
 
 class TitleView:
     def __init__(self, title, parent, controller, project_number):
@@ -21,14 +19,17 @@ class TitleView:
         self._create_base_frame()
         self._create_project_number_frame()
         self._create_titles_frame()
+        self._create_right_toolbar_frame()
         self._create_save_frame()
         self._create_menu_frame()
+        self._create_autocad_src_frame()
 
         # Load the main contents of the titles_frame
         self._load_body(self.project_number)
         center_window(self.root)
         self.root.focus_force()
 
+    #region Creating widgets on screen
     def _create_base_frame(self):
         '''Create base frame where title entries and menu buttons will live'''
         self.base_frame = ttk.Frame(self.root)
@@ -55,15 +56,22 @@ class TitleView:
 
     def _create_save_frame(self):
         # Create frame for save button
-        self.save_frame = ttk.LabelFrame(self.base_frame)
+        self.save_frame = ttk.Frame(self.base_frame)
         self.save_frame.grid(row=0, column=1, padx = (10,10), pady = (10,0), sticky='nsew')
+        self.save_frame.grid_rowconfigure(0, weight=1)
+        self.save_frame.grid_columnconfigure(0, weight=1)
         self.save_button = ttk.Button(self.save_frame, text='Save Titles',
                                       command=lambda:self.controller.commit_titles(self.combo_project_number.get()))
-        self.save_button.grid(row=0, column=0, padx=10, pady=(0,10))
+        self.save_button.grid(row=0, column=0)
+
+    def _create_right_toolbar_frame(self):
+        # Create frame for title entries
+        self.right_toolbar_frame = ttk.Frame(self.base_frame)
+        self.right_toolbar_frame.grid(row=1, column=1, padx = (10,10), pady = (0,10), sticky='new')
 
     def _create_menu_frame(self):
         # Create frame for menu buttons
-        self.menu_frame = ttk.LabelFrame(self.base_frame, text='Menu')
+        self.menu_frame = ttk.LabelFrame(self.right_toolbar_frame, text='Menu')
         self.menu_frame.grid(row=1, column=1, padx = 10, pady = (0,10), sticky='n')
         # Create button in menu frame
         self.add_button = create_button_frame(self.menu_frame,[('(+) Title',
@@ -76,13 +84,25 @@ class TitleView:
                                                                      lambda:self.controller.movedown_entry())])
         self.movedown_button.grid(row=2, column=0, padx=(10), pady = (0,10))
 
+    def _create_autocad_src_frame(self):
+        # Create frame for scr button
+        self.scr_frame = ttk.LabelFrame(self.right_toolbar_frame, text='Generate SCR')
+        self.scr_frame.grid(row=2, column=1, padx = 10, pady = (0,10), sticky='n')
+        # Create button in scr frame
+        self.add_button = create_button_frame(self.scr_frame,[('Write SCR',
+                                                                lambda:self.controller.write_scr(self.project_number))])
+        self.add_button.grid(row=0, column=0, padx=(10), pady = 10)
+        
+    #endregion
+
     def _load_body(self, project_number):
-        '''Loads the title entries dependent on project selection'''       
-        if project_number is None:
-            # Prompt user to select a project number
+        '''Loads the title entries dependent on project selection'''     
+        def _prompt_select_project():
+            """Prompt user to select a project."""
             prompt_label = ttk.Label(self.titles_frame, text='Please select a project!')
             prompt_label.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
-        else:
+        def _load_project_titles(project_number):
+            """Load the titles for the selected project."""
             project_obj = self.controller.get_project_object(project_number)
             self._remove_title_widgets()
             # Get information of page numbers and titles from project object
@@ -92,6 +112,10 @@ class TitleView:
                 for title_obj in title_objs_list:
                     entry_widget = self.create_entry_widget(self.titles_frame)
                     entry_widget.insert(0, title_obj.title)
+
+        if project_number is None: _prompt_select_project()
+        else: _load_project_titles(project_number)
+        center_window(self.root)
             
     def _remove_title_widgets(self):
         '''Removes ALL title widgets and resizes the window'''
@@ -129,10 +153,10 @@ class TitleView:
         self.project_combo['values'] = project_numbers_list
         return project_numbers_list
         
-    def on_project_selected(self):
-        selected_project_number = self.combo_project_number.get()
+    def on_project_selected(self):        
+        self.project_number = self.combo_project_number.get()
         ####### NEED TO CHECK IF VALUES CHANGED BEFORE SWITCHING TO NEW PROJECT INFOS
-        self._load_body(selected_project_number)        
+        self._load_body(self.project_number)        
 
     def create_entry_widget(self, parent):
         '''Creates entry widgets'''
