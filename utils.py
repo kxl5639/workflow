@@ -84,7 +84,6 @@ def refresh_tree(tree, column_map, table_data):
 
     populate_treeview(tree, column_map, table_data)
 
-
 def resize_max_width_of_tree_columns(tree, column_map, table_data):
     columns =  column_map_to_list(column_map) 
 
@@ -109,6 +108,55 @@ def num_record_selected(tree): #record refers to a record in a table.
     selected_items = tree.selection()    
     num_record_selected = len(selected_items)
     return num_record_selected
+
+class MsgBox:    
+    def __init__(self, title, message, main_window, parent) -> None:
+        self.title = title
+        self.message = message
+        self.main_window = main_window
+        self.parent = parent
+        self.popup_count = 0        
+        self.msgbox_response = self.showmsgbox()
+
+    def disable_windows(self, window):
+        for child in window.winfo_children(): # Get all the child widgets of the window
+            if isinstance(child, tk.Tk) or isinstance(child, Toplevel): # Check if the child is a Tk or Toplevel window so that we can disable them
+                child.attributes('-disabled', True)
+                self.disable_windows(child)
+
+    def enable_windows(self, window):
+        for child in window.winfo_children(): # Get all the child widgets of the window
+            if isinstance(child , tk.Tk) or isinstance(child , Toplevel): # Check if the child is a Tk or Toplevel window so that we can enable them
+                child.attributes('-disabled' , False)
+                self.enable_windows(child)
+
+    def increase_popup_count(self):        
+        self.popup_count += 1
+        # if self.popup_count > 0: # Check if a popup is currently active so that we can disable the windows
+        #     # self.disable_windows(self.main_window)
+        #     self.disable_windows(self.parent)
+        # else: # Enable the windows if there is no active popup
+        #     # self.enable_windows(self.main_window)
+        #     # self.enable_windows(self.parent)
+        #     pass
+
+    def decrease_popup_count(self):        
+        self.popup_count -= 1
+        # if self.popup_count > 0: # Check if a popup is currently active so that we can disable the windows
+        #     # self.disable_windows(self.main_window)
+        #     self.disable_windows(self.parent)
+        # else: # Enable the windows if there is no active popup
+        #     # self.enable_windows(self.main_window)
+        #     # self.enable_windows(self.parent)
+        #     pass
+
+    def showmsgbox(self): # A custom showinfo funtion
+        self.increase_popup_count() # Increase the 'popup_count' when the messagebox shows up
+        response = messagebox.askyesno(self.title , self.message, parent=self.parent)
+        self.decrease_popup_count()
+        return response
+
+        
 
 #endregion
 
@@ -197,9 +245,10 @@ def create_button_frame(master, button_info):
     # Create buttons based on button_info
     for index, (label, command) in enumerate(button_info):
         button = ttk.Button(button_frame, text=label, command=command)
-        button.grid(row=0, column=index, padx=(gen_pad if index != 0 else 0,
-                                               gen_pad if index != len(button_info) - 1 else 0), pady=0, sticky="nsew")
-        # print(f'padx = ({gen_pad if index != 0 else 0},{gen_pad if index != len(button_info) - 1 else 0})')
+        button.grid(row=0, column=index,
+                    padx=(gen_pad if index != 0 else 0,
+                          gen_pad if index != len(button_info) - 1 else 0),
+                          pady=0, sticky="nsew")
     
     return button_frame
 

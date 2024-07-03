@@ -44,7 +44,7 @@ def create_main_window():
     mech_engs_button.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
     
     # dwgtitles_button = create_button_frame(button_frame, [("Title Manager", lambda:open_title_manager_window())])
-    dwgtitles_button = create_button_frame(button_frame, [("Title Manager", lambda:TitleController(main_window))])
+    dwgtitles_button = create_button_frame(button_frame, [("Title Manager", lambda:TitleController(parent=main_window))])
     dwgtitles_button.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
     
 

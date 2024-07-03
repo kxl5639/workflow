@@ -2,6 +2,7 @@ from title_view import TitleView
 from title_model import TitleModel, DwgTitle
 import tkinter as tk
 from tkinter import messagebox
+from utils import MsgBox
 
 class TitleController:
     def __init__(self, parent=None, project_number=None) -> None:
@@ -193,9 +194,11 @@ class TitleController:
         return lines
 
     def write_scr(self, project_number):
-        if messagebox.askokcancel('Save Titles',
-                                  'Tiltes must be saved before generating SCR script. Do you want to save titles now?') == True:
-            self.commit_titles(project_number)
+        # save_titles = MsgBox('Save Titles', 'Tiltes must be saved before generating SCR script.\nDo you want to save titles now?', main_window=self.parent, parent=self.view.root)
+        # MsgBox.decrease_popup_count(save_titles)        
+        save_titles = messagebox.askyesno('Save Titles', 'Tiltes must be saved before generating SCR script.\nDo you want to save titles now?', parent=self.view.root)
+        if save_titles == True:
+            self.commit_titles(self.view.project_number)
             project_obj = self.get_project_object(project_number)
             titles_objs = self.get_title_object(project_obj) 
             titles_list = [title_object.title for title_object in titles_objs]
