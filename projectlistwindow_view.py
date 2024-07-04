@@ -1,6 +1,7 @@
 from view import BaseWindow
 import tkinter as tk
 from tkinter import ttk
+from configs import testing
 
 class ProjectAddModifyWindow(BaseWindow):
     def __init__(self, title, parent, controller, is_root=False, is_modify=False):
@@ -11,20 +12,92 @@ class ProjectAddModifyWindow(BaseWindow):
         self.is_modify = is_modify
         self.tree = self.parent.tree_frame.tree
 
-        self.create_project_section()        
+        self.create_project_section()
+        self.load_combobox_options()
         self.create_client_section()
         self.create_me_section()    
         self.create_mc_section()
-        self.fill_combobox_options()
-
+        self.load_data()
+        
+        
         BaseWindow.center_window(self.root)
+        self.project_number_entry.focus_set()
 
-    def fill_combobox_options(self):
-        self.data = self.controller.fill_combobox_options()        
+    def load_data(self):
+        if self.is_modify:                        
+            self.load_tree_selection_data()
+        else:
+            self.load_default_data()        
+
+    def load_tree_selection_data(self):
+        self.selected_record_data = self.controller.fetch_record_data()
+        self.load_selected_project_data(self.selected_record_data)
+        self.load_selected_client_data(self.selected_record_data)
+        self.load_selected_me_data(self.selected_record_data)
+        self.load_selected_mc_data(self.selected_record_data)
+
+    def load_selected_mc_data(self, data):
+        mc_data = data['mc']        
+        self.set_entry_text(self.mc_name, mc_data.name)
+        self.set_entry_text(self.mc_address, mc_data.address)
+        self.set_entry_text(self.mc_city, mc_data.city)
+        self.set_entry_text(self.mc_state, mc_data.state)
+        self.set_entry_text(self.mc_zip_code, str(mc_data.zip_code))
+        self.set_entry_text(self.mc_telephone, mc_data.telephone)
+
+    def load_selected_me_data(self, data):
+        me_data = data['me']
+        self.set_entry_text(self.me_name, me_data.name)
+        self.set_entry_text(self.me_address, me_data.address)
+        self.set_entry_text(self.me_city, me_data.city)
+        self.set_entry_text(self.me_state, me_data.state)
+        self.set_entry_text(self.me_zip_code, str(me_data.zip_code))
+
+    def load_selected_client_data(self, data):
+        client_data = data['client']
+        self.set_entry_text(self.client_name, client_data.client_name)
+        self.set_entry_text(self.client_scope, client_data.scope)
+        self.set_entry_text(self.client_address, client_data.address)
+        self.set_entry_text(self.client_city, client_data.city)
+        self.set_entry_text(self.client_state, client_data.state)
+        self.set_entry_text(self.client_zip_code, str(client_data.zip_code))
+
+    def load_selected_project_data(self, data):
+        project_data = data['project']
+        pm_data = data['pm']
+        de_data = data['de']
+        se_data = data['se']
+        self.set_entry_text(self.project_number_entry, project_data.project_number)
+        self.project_number_entry.config(state='readonly')
+        self.set_entry_text(self.em_type_entry, project_data.em_type)
+        self.set_entry_text(self.job_phase_entry, project_data.job_phase)
+        self.set_entry_text(self.submit_date_entry, project_data.submit_date)
+        self.pm_name.set(f"{pm_data.first_name} {pm_data.last_name}")
+        self.de_name.set(f"{de_data.first_name} {de_data.last_name}")
+        self.se_name.set(f"{se_data.first_name} {se_data.last_name}")
+
+    def load_default_data(self):
+        if testing == 1:
+            def find_entries(widget):
+                if isinstance(widget, (tk.Entry, ttk.Entry)) and not isinstance(widget, ttk.Combobox):
+                    self.set_entry_text(widget,"TEST")
+                for child in widget.winfo_children():
+                    find_entries(child)
+            find_entries(self.root)            
+            self.set_entry_text(self.submit_date_entry, "XX/XX/XX")
+            self.pm_name.current(0)
+            self.de_name.current(0)
+            self.se_name.current(0)
+        else:
+            self.set_entry_text(self.em_type_entry, 'B')
+            self.set_entry_text(self.job_phase_entry, 1)
+            self.de_name.set(f'Kevin Lee')            
+
+    def load_combobox_options(self):
+        self.data = self.controller.get_combobox_options()        
         self.pm_name['values'] = self.data['projectmanagers']
         self.de_name['values'] = self.data['designengineers']
         self.se_name['values'] = self.data['salesengineers']
-
 
     def create_mc_section(self):
         self.mc_frame = self.create_section_frame("Mechanical Contractor", 0, 3)

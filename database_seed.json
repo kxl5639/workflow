@@ -1,6 +1,14 @@
 {
     "clients": [
         {
+            "client_name": "TEST",
+            "scope": "TEST",
+            "address": "TEST",
+            "city": "TEST",
+            "state": "TEST",
+            "zip_code": "TEST"
+        },
+        {
             "client_name": "UBS",
             "scope": "32nd Floor",
             "address": "123 Main St",
@@ -19,6 +27,10 @@
     ],
     "projectmanagers": [
         {
+            "first_name": "TEST",
+            "last_name": "TEST"
+        },
+        {
             "first_name": "Rayan",
             "last_name": "Zabib"
         },
@@ -26,8 +38,16 @@
             "first_name": "Phil",
             "last_name": "Llave"
         }
+
     ],
     "mechanicalengineers": [
+        {
+            "name": "TEST",
+            "address": "TEST",
+            "city": "TEST",
+            "state": "TEST",
+            "zip_code": "TEST"
+        },
         {
             "name": "Bob Smith",
             "address": "456 Engineering Rd",
@@ -38,6 +58,14 @@
     ],
     "mechanicalcontractors": [
         {
+            "name": "TEST",
+            "address": "TEST",
+            "city": "TEST",
+            "state": "TEST",
+            "zip_code": "TEST",
+            "telephone": "TEST"
+        },
+        {
             "name": "XYZ Contractors",
             "address": "789 Contractor St",
             "city": "Buildtown",
@@ -45,6 +73,7 @@
             "zip_code": 75001,
             "telephone": "123-456-7890"
         }
+
     ],
     "designengineers": [
         {
@@ -72,14 +101,26 @@
     ],
     "projects": [
         {
+            "project_number": "TEST",
+            "em_type": "TEST",
+            "job_phase": "TEST",
+            "submit_date": "XX/XX/XX",
+            "client_id": 2,
+            "projectmanager_id": 2,
+            "mechanicalengineer_id": 1,
+            "mechanicalcontractor_id": 1,
+            "designengineer_id": 1,
+            "salesengineer_id": 1
+        },
+        {
             "project_number": "2265B",
             "em_type": "B",
             "job_phase": 1,
             "submit_date": "XX/XX/XX",
             "client_id": 1,
             "projectmanager_id": 1,
-            "mechanicalengineer_id": 1,
-            "mechanicalcontractor_id": 1,
+            "mechanicalengineer_id": 2,
+            "mechanicalcontractor_id": 2,
             "designengineer_id": 1,
             "salesengineer_id": 1
         },
@@ -90,8 +131,8 @@
             "submit_date": "XX/XX/XX",
             "client_id": 2,
             "projectmanager_id": 2,
-            "mechanicalengineer_id": 1,
-            "mechanicalcontractor_id": 1,
+            "mechanicalengineer_id": 2,
+            "mechanicalcontractor_id": 2,
             "designengineer_id": 1,
             "salesengineer_id": 1
         }
@@ -100,27 +141,27 @@
         {
             "title": "Blueprint 1",
             "dwgno": 1,
-            "project_id": 1
+            "project_id": 2
         },
         {
             "title": "Blueprint 2",
             "dwgno": 2,
-            "project_id": 1
+            "project_id": 2
         },
         {
             "title": "Blueprint 3",
             "dwgno": 3,
-            "project_id": 1
+            "project_id": 2
         }
     ],
     "systems": [
         {
             "name": "AHU",
-            "project_id": 1
+            "project_id": 2
         },
         {
             "name": "VAV",
-            "project_id": 1
+            "project_id": 2
         }
     ],
     "diagrams": [
