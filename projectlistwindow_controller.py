@@ -2,6 +2,7 @@ from projectlistwindow_model import ProjectListWindowModel
 from projectlistwindow_view import ProjectAddModifyWindow
 from model import session, ProjectManager, DesignEngineer, SalesEngineer, Client, MechanicalContractor, MechanicalEngineer, Project
 from view import ListWindow
+from tkinter import messagebox
 
 class ProjectListWindowController:
     def __init__(self, parent=None) -> None:
@@ -21,7 +22,19 @@ class ProjectListWindowController:
         self.add_window = ProjectAddModifyWindow(title='Add New Project', parent=self.view, controller=self)
 
     def modify_button_command(self):
-        self.modify_window = ProjectAddModifyWindow(title='Modify Project', parent=self.view, controller=self,is_modify=True)
+        if self.validate_modify_selection():
+            self.modify_window = ProjectAddModifyWindow(title='Modify Project', parent=self.view, controller=self,is_modify=True)
+
+    def validate_modify_selection(self):
+        tree_selection = self.view.tree_frame.tree.selection()
+        if len(tree_selection) == 0:
+            messagebox.showinfo('Select Project','Select a project to be modified.',parent=self.view.root)
+            return False
+        elif len(tree_selection) > 1:
+            messagebox.showinfo('Select Project','Please select only (1) project to be modified.',parent=self.view.root)
+            return False
+        else:            
+            return True
 
     def get_combobox_options(self):        
         model_list = [ProjectManager, DesignEngineer, SalesEngineer]

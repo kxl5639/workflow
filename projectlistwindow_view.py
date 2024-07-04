@@ -1,4 +1,4 @@
-from view import BaseWindow
+from view import BaseWindow, ButtonsFrame
 import tkinter as tk
 from tkinter import ttk
 from configs import testing
@@ -11,6 +11,7 @@ class ProjectAddModifyWindow(BaseWindow):
         self.controller = controller
         self.is_modify = is_modify
         self.tree = self.parent.tree_frame.tree
+        self.base_frame.grid_rowconfigure(1, weight=1)
 
         self.create_project_section()
         self.load_combobox_options()
@@ -18,10 +19,20 @@ class ProjectAddModifyWindow(BaseWindow):
         self.create_me_section()    
         self.create_mc_section()
         self.load_data()
+        self.create_buttons()        
         
         
         BaseWindow.center_window(self.root)
         self.project_number_entry.focus_set()
+
+    def create_buttons(self):
+        button_text = 'Modify' if self.is_modify else 'Add'
+        # if self.is_modify: button_text = 'Modify'
+        # else: button_text = 'Add'
+        self.buttons_frame = ButtonsFrame(self.base_frame,
+                                          [(button_text, None),
+                                           ('Cancel', lambda: self.root.destroy())],)
+        self.buttons_frame.button_frame.grid(row=1, column=0, pady=(0), sticky='nsew')
 
     def load_data(self):
         if self.is_modify:                        
