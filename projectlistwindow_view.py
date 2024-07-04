@@ -28,9 +28,16 @@ class ProjectAddModifyWindow(BaseWindow):
     def create_buttons(self):
         button_text = 'Modify' if self.is_modify else 'Add'
         self.buttons_frame = ButtonsFrame(self.base_frame,
-                                          [(button_text, None),
+                                          [(button_text, lambda: self.add_or_modify_commit()),
                                            ('Cancel', lambda: self.root.destroy())],)
         self.buttons_frame.button_frame.grid(row=1, column=0)
+
+    def add_or_modify_commit(self):
+        data = {'project':self.get_project_data(),
+                'client':self.get_client_data(),
+                'me':self.get_me_data(),
+                'mc':self.get_mc_data()}
+        self.controller.add_or_mod_commit_button_command(self.is_modify, data)
 
     def load_data(self):
         if self.is_modify:                        
@@ -169,3 +176,49 @@ class ProjectAddModifyWindow(BaseWindow):
     def set_entry_text(self, entry_widget, text):
         entry_widget.delete(0, tk.END)
         entry_widget.insert(0, text)
+
+    def get_project_data(self):
+        pm_first_name, pm_last_name = self.pm_name.get().split(' ', 1)
+        de_first_name, de_last_name = self.de_name.get().split(' ', 1)
+        se_first_name, se_last_name = self.se_name.get().split(' ', 1)
+        return {
+            'project_number': self.project_number_entry.get(),
+            'em_type': self.em_type_entry.get(),
+            'job_phase': self.job_phase_entry.get(),
+            'submit_date': self.submit_date_entry.get(),
+            'pm_first_name': pm_first_name,
+            'pm_last_name' : pm_last_name,
+            'de_first_name': de_first_name,
+            'de_last_name' : de_last_name,
+            'se_first_name': se_first_name,
+            'se_last_name' : se_last_name            
+        }
+
+    def get_client_data(self):
+        return {
+            'client_name': self.client_name.get(),
+            'scope': self.client_scope.get(),
+            'address': self.client_address.get(),
+            'city': self.client_city.get(),
+            'state': self.client_state.get(),
+            'zip_code': self.client_zip_code.get(),
+        }
+
+    def get_me_data(self):
+        return {
+            'name': self.me_name.get(),
+            'address': self.me_address.get(),
+            'city': self.me_city.get(),
+            'state': self.me_state.get(),
+            'zip_code': self.me_zip_code.get(),
+        }
+
+    def get_mc_data(self):
+        return {
+            'name': self.mc_name.get(),
+            'address': self.mc_address.get(),
+            'city': self.mc_city.get(),
+            'state': self.mc_state.get(),
+            'zip_code': self.mc_zip_code.get(),
+            'telephone': self.mc_telephone.get(),
+        }

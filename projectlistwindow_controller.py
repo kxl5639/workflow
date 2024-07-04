@@ -12,11 +12,83 @@ class ProjectListWindowController:
         self.table_data = self.model.table_data
         self.button_info = [("Add", lambda: self.add_button_command()),
                     ("Modify", lambda: self.modify_button_command()),
-                    ("Delete", None)]        
-        # self.button_info = [("Add", lambda: open_add_project_window(self.parent)),
-        #                     ("Modify", lambda: open_modify_project_window(self.parent)),
-        #                     ("Delete", lambda: open_delete_project_window(self.parent))]        
-        self.view = ListWindow(title = 'Projects List', parent=self.parent, controller=self)
+                    ("Delete", None)]             
+        self.view = ListWindow(title = 'Projects List', parent=self.parent, controller=self)        
+
+    def add_or_mod_commit_button_command(self, is_modify, data):
+        project_data = data['project']        
+        client_data = data['client']
+        me_data = data['me']
+        mc_data = data['mc']
+        data= None
+        if is_modify:
+            pass
+        else:
+            records_to_add = [self.set_project_record(project_data, client_data,me_data,mc_data),
+                              self.set_client_record(client_data),
+                              self.set_pm_record(project_data),
+                              self.set_me_record(me_data),
+                              self.set_mc_record(mc_data),
+                              self.set_de_record(project_data),
+                              self.set_se_record(project_data)
+                              ]
+            for record in records_to_add:
+                self.model.add_record(record)
+            
+
+    def set_se_record(self, project_data):
+        return SalesEngineer(first_name = project_data['se_first_name'],
+                                  last_name = project_data['se_last_name']
+                                  )
+
+    def set_de_record(self, project_data):
+        return DesignEngineer(first_name = project_data['de_first_name'],
+                              last_name = project_data['de_last_name']
+                              )
+
+    def set_mc_record(self, mc_data):
+        return MechanicalContractor(name = mc_data['name'],
+                                  address = mc_data['address'],
+                                  city = mc_data['city'],
+                                  state = mc_data['state'],
+                                  zip_code = mc_data['zip_code'],
+                                  telephone = mc_data['telephone'],
+                                  )
+
+    def set_me_record(self, me_data):
+        return MechanicalEngineer(name = me_data['name'],
+                                  address = me_data['address'],
+                                  city = me_data['city'],
+                                  state = me_data['state'],
+                                  zip_code = me_data['zip_code']
+                                  )
+
+    def set_pm_record(self, project_data):
+        return ProjectManager(first_name = project_data['pm_first_name'],
+                              last_name = project_data['pm_last_name']
+                              )
+
+    def set_client_record(self, client_data): 
+        return Client(client_name = client_data['client_name'],
+                      scope = client_data['scope'],
+                      address = client_data['address'],
+                      city = client_data['city'],
+                      state = client_data['state'],
+                      zip_code = client_data['zip_code'],
+                      )       
+
+    def set_project_record(self, project_data, client_data,me_data,mc_data):        
+        return Project(project_number = project_data['project_number'],
+                       em_type = project_data['em_type'],
+                       job_phase = project_data['job_phase'],
+                       submit_date = project_data['submit_date'],
+                       client_id = session.query(Client).filter_by(client_name=client_data['client_name']).first().id,
+                       projectmanager_id = session.query(ProjectManager).filter_by(first_name=project_data['pm_first_name'],last_name=project_data['pm_last_name']).first().id,
+                       mechanicalengineer_id = session.query(MechanicalEngineer).filter_by(name=me_data['name']).first().id,
+                       mechanicalcontractor_id = session.query(MechanicalContractor).filter_by(name=mc_data['name']).first().id,
+                       designengineer_id = session.query(DesignEngineer).filter_by(first_name=project_data['de_first_name'],last_name=project_data['de_last_name']).first().id,
+                       salesengineer_id = session.query(SalesEngineer).filter_by(first_name=project_data['se_first_name'],last_name=project_data['se_last_name']).first().id,
+                       )
 
     def add_button_command(self):
         self.add_window = ProjectAddModifyWindow(title='Add New Project', parent=self.view, controller=self)

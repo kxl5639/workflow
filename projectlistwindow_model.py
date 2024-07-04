@@ -48,5 +48,14 @@ class ProjectListWindowModel:
                 f"{project[10]} {project[11]}", f"{project[12]} {project[13]}"
             ) for project in unformatted_table_data
         ]
-
         return table_data
+    
+    def delete_record(self, object_list):
+        for obj in object_list:
+            session.delete(obj)
+
+    def add_record(self, record_obj):
+        session.add(record_obj)
+
+    def commit_changes(self):
+        session.commit()
