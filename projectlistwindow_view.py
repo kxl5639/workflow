@@ -11,8 +11,9 @@ class ProjectAddModifyWindow(BaseWindow):
         self.controller = controller
         self.is_modify = is_modify
         self.tree = self.parent.tree_frame.tree
-        self.base_frame.grid_rowconfigure(1, weight=1)
-
+        self.root.resizable(width=False,height=False)
+        
+        self.data_frame = self.create_data_frame()
         self.create_project_section()
         self.load_combobox_options()
         self.create_client_section()
@@ -20,19 +21,16 @@ class ProjectAddModifyWindow(BaseWindow):
         self.create_mc_section()
         self.load_data()
         self.create_buttons()        
-        
-        
+                
         BaseWindow.center_window(self.root)
         self.project_number_entry.focus_set()
 
     def create_buttons(self):
         button_text = 'Modify' if self.is_modify else 'Add'
-        # if self.is_modify: button_text = 'Modify'
-        # else: button_text = 'Add'
         self.buttons_frame = ButtonsFrame(self.base_frame,
                                           [(button_text, None),
                                            ('Cancel', lambda: self.root.destroy())],)
-        self.buttons_frame.button_frame.grid(row=1, column=0, pady=(0), sticky='nsew')
+        self.buttons_frame.button_frame.grid(row=1, column=0)
 
     def load_data(self):
         if self.is_modify:                        
@@ -146,10 +144,14 @@ class ProjectAddModifyWindow(BaseWindow):
         self.de_name = self.create_combobox(self.project_frame, 'Design Engineer', 5, 0)
         self.se_name = self.create_combobox(self.project_frame, 'Sales Engineer', 6, 0)
 
+    def create_data_frame(self):
+        data_frame = ttk.Frame(self.base_frame)
+        data_frame.grid(row=0, column=0, sticky='nsew')
+        return data_frame
+    
     def create_section_frame(self, text, row, column):
-        frame = ttk.Labelframe(self.base_frame, text=text)
-        frame.grid(row=row, column=column, padx=10, pady=10, sticky='nsew')
-        frame.grid_columnconfigure(1, weight=1)
+        frame = ttk.Labelframe(self.data_frame, text=text)
+        frame.grid(row=row, column=column, padx=10, pady=10, sticky='n')
         return frame
     
     def create_label_entry(self, parent, label_text, row, column):

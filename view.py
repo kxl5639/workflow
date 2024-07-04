@@ -79,8 +79,7 @@ class BaseWindow:
     def create_base_frame(parent):
         '''Create base frame'''
         base_frame = ttk.Frame(parent)
-        base_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
-        base_frame.grid_columnconfigure(0, weight = 1)
+        base_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')        
         return base_frame
        
 class TreeFrame:
@@ -167,7 +166,7 @@ class ButtonsFrame:
             button.grid(row=0, column=index,
                         padx=(gen_pad if index != 0 else 0,
                             gen_pad if index != len(self.button_info) - 1 else 0),
-                            pady=0, sticky="nsew")
+                            pady=0)
         
         return button_frame
         
