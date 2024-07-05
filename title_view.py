@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from class_collection import BaseWindow
-from utils import create_button_frame
+from class_collection import BaseWindow, ButtonsFrame
 from model import session, Project
 
 class TitleView:
@@ -74,24 +73,24 @@ class TitleView:
         self.menu_frame = ttk.LabelFrame(self.right_toolbar_frame, text='Menu')
         self.menu_frame.grid(row=1, column=1, padx = 10, pady = (0,10), sticky='n')
         # Create button in menu frame
-        self.add_button = create_button_frame(self.menu_frame,[('(+) Title',
+        self.add_button = ButtonsFrame(self.menu_frame,[('(+) Title',
                                                                 lambda:self.controller.add_entry(self.titles_frame))])
-        self.add_button.grid(row=0, column=0, padx=(10), pady = 10)
-        self.moveup_button = create_button_frame(self.menu_frame,[('Move Up',
+        self.add_button.button_frame.grid(row=0, column=0, padx=(10), pady = 10)
+        self.moveup_button = ButtonsFrame(self.menu_frame,[('Move Up',
                                                                    lambda:self.controller.moveup_entry())])
-        self.moveup_button.grid(row=1, column=0, padx=(10), pady = (0,10))
-        self.movedown_button = create_button_frame(self.menu_frame,[('Move Down',
+        self.moveup_button.button_frame.grid(row=1, column=0, padx=(10), pady = (0,10))
+        self.movedown_button = ButtonsFrame(self.menu_frame,[('Move Down',
                                                                      lambda:self.controller.movedown_entry())])
-        self.movedown_button.grid(row=2, column=0, padx=(10), pady = (0,10))
+        self.movedown_button.button_frame.grid(row=2, column=0, padx=(10), pady = (0,10))
 
     def _create_autocad_src_frame(self):
         # Create frame for scr button
         self.scr_frame = ttk.LabelFrame(self.right_toolbar_frame, text='Generate SCR')
         self.scr_frame.grid(row=2, column=1, padx = 10, pady = (0,10), sticky='n')
         # Create button in scr frame
-        self.add_button = create_button_frame(self.scr_frame,[('Write SCR',
+        self.add_button = ButtonsFrame(self.scr_frame,[('Write SCR',
                                                                 lambda:self.controller.write_scr(self.project_number))])
-        self.add_button.grid(row=0, column=0, padx=(10), pady = 10)
+        self.add_button.button_frame.grid(row=0, column=0, padx=(10), pady = 10)
         
     #endregion
 

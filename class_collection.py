@@ -37,8 +37,12 @@ class TreeFrame:
         self.columns_list = self.column_map_to_list()
         self.tree_frame = self.create_tree_frame()
         self.tree = self.create_tree()
+        self.tree.bind("<Double-1>", self.on_double_click)
         self.populate_treeview(self.table_data)
         self.resize_width_of_columns()
+
+    def on_double_click(self):
+        print('Double Clicked')
 
     def refresh_tree(self, table_data): 
         for item in self.tree.get_children():
@@ -93,7 +97,7 @@ class ListWindow(BaseWindow):
         self.tree_frame.tree_frame.grid(row=0, padx=0, pady=(0,10), sticky="nsew")
         # Create Button Frame
         self.button_frame = ButtonsFrame(self.base_frame, self.controller.button_info)
-        self.button_frame.button_frame.grid(row=1, column=0, pady=0, padx=0)        
+        self.button_frame.button_frame.grid(row=1, column=0, pady=0, padx=0)
         # Center Window
         BaseWindow.center_window(self.root)  
 
@@ -121,6 +125,6 @@ class ButtonsFrame:
             button.grid(row=0, column=index,
                         padx=(gen_pad if index != 0 else 0,
                             gen_pad if index != len(self.button_info) - 1 else 0),
-                            pady=0)
+                            pady=0, sticky="nsew")
         
         return button_frame
