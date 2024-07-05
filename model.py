@@ -119,7 +119,7 @@ def _db_exist():
 
 exist_db = _db_exist()
 DATABASE_URL = 'sqlite:///workflow.db'
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session() 

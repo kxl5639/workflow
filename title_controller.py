@@ -2,7 +2,6 @@ from title_view import TitleView
 from title_model import TitleModel, DwgTitle
 import tkinter as tk
 from tkinter import messagebox
-from utils import MsgBox
 
 class TitleController:
     def __init__(self, parent=None, project_number=None) -> None:
@@ -193,9 +192,7 @@ class TitleController:
                 lines.extend([f'%%u{titles[i]}\n'])
         return lines
 
-    def write_scr(self, project_number):
-        # save_titles = MsgBox('Save Titles', 'Tiltes must be saved before generating SCR script.\nDo you want to save titles now?', main_window=self.parent, parent=self.view.root)
-        # MsgBox.decrease_popup_count(save_titles)        
+    def write_scr(self, project_number):        
         save_titles = messagebox.askyesno('Save Titles', 'Tiltes must be saved before generating SCR script.\nDo you want to save titles now?', parent=self.view.root)
         if save_titles == True:
             self.commit_titles(self.view.project_number)
