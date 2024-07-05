@@ -26,10 +26,27 @@ class ProjectListWindowController:
             if is_modify:
                 pass
             else:
-                self.commit_add()
-                parent.destroy()
-                self.view.refresh_tree()
+                if self.check_project_unique(parent):                    
+                    self.commit_add()
+                    parent.destroy()
+                    self.view.refresh_tree()
     
+    def check_project_unique(self, parent):
+        print('Executed check')
+        data = self.project_data        
+        proj_num_to_add = data['project_number']
+        existing_proj_nums = self.model.query_proj_nums()
+        print(existing_proj_nums)
+        for existing_proj_num in existing_proj_nums:
+            if proj_num_to_add in existing_proj_num:
+                print('Fond a duplicate')
+                messagebox.showwarning('Duplicate Project',
+                                       f'Cannot add project. {proj_num_to_add} already exists.',
+                                       parent=parent)
+                return False
+        return True
+        
+
     def update_table_data(self):
         return self.model.update_table_data()
 

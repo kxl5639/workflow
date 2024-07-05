@@ -94,7 +94,7 @@ class TreeFrame:
         self.populate_treeview(self.table_data)
         self.resize_width_of_columns()
 
-    def refresh_tree(self, table_data=None): 
+    def refresh_tree(self, table_data): 
         for item in self.tree.get_children():
             self.tree.delete(item)
         self.populate_treeview(table_data)

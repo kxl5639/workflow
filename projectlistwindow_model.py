@@ -1,4 +1,5 @@
 from model import Client, Project, ProjectManager, DesignEngineer, SalesEngineer, MechanicalContractor, MechanicalEngineer, session
+import sqlalchemy
 
 class ProjectListWindowModel:
     def __init__(self) -> None:
@@ -59,3 +60,7 @@ class ProjectListWindowModel:
 
     def commit_changes(self):
         session.commit()
+
+    def query_proj_nums(self):
+        return session.query(Project.project_number).all()
+ 
