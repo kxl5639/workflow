@@ -1,6 +1,4 @@
 from model import Client, Project, ProjectManager, DesignEngineer, SalesEngineer, MechanicalContractor, MechanicalEngineer, session
-from sqlalchemy.exc import IntegrityError
-from tkinter import messagebox
 
 class ProjectListWindowModel:
     def __init__(self, controller) -> None:
@@ -61,18 +59,8 @@ class ProjectListWindowModel:
         session.add(record_obj)
 
     def commit_changes(self):
-        try:
             session.commit()
-        except IntegrityError as e:
-            session.rollback()
-            messagebox.showinfo('Error',
-                                'Error occured. Action has not been performed',
-                                parent = self.controller.view.parent)
-        except Exception as e:
-            session.rollback()
-            messagebox.showinfo('Error',
-                                'Error occured. Action has not been performed',
-                                parent=self.controller.view.root)
+
 
     def query_proj_nums(self):
         return session.query(Project.project_number).all()

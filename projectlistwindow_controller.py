@@ -31,13 +31,15 @@ class ProjectListWindowController:
             self.model.commit_changes()
         except IntegrityError as e:
             session.rollback()
+            print(f"IntegrityError: {e}")
             messagebox.showinfo('Error',
-                                'Error occured. Action has not been performed',
+                                'Error occured. Action has not been performed. (Integrity)',
                                 parent=self.view.root)
         except Exception as e:
             session.rollback()
+            print(f"Error: {e}")
             messagebox.showinfo('Error',
-                                'Error occured. Action has not been performed',
+                                'Error occured. Action has not been performed (Exception)',
                                 parent=self.view.root)
         # Refresh Tree
         self.view.refresh_tree() 
@@ -78,8 +80,7 @@ class ProjectListWindowController:
         for rec in selected_recs:
             rec_iid = rec[0]
             rec_obj = session.query(model).filter_by(id=rec_iid).first()
-            column_data.append(getattr(rec_obj,column_name))
-        print(column_data)
+            column_data.append(getattr(rec_obj,column_name))        
         return column_data
 
     def validate_delete_selection(self, selected_recs):        

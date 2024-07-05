@@ -27,7 +27,7 @@ class Project(Base):
     designengineer:Mapped['DesignEngineer'] = relationship(back_populates='projects')
     salesengineer_id:Mapped[int] = mapped_column(ForeignKey('salesengineers.id'),nullable=False)
     salesengineer:Mapped['SalesEngineer'] = relationship(back_populates='projects')
-    dwgtitles:Mapped[List['DwgTitle']] = relationship(back_populates='project')
+    dwgtitles:Mapped[List['DwgTitle']] = relationship(back_populates='project', cascade="all, delete-orphan")
     systems:Mapped[List['System']] = relationship(back_populates='project')
 
 class System(Base):
@@ -119,7 +119,7 @@ def _db_exist():
 
 exist_db = _db_exist()
 DATABASE_URL = 'sqlite:///workflow.db'
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=True)
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session() 
