@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from view import BaseWindow
+from class_collection import BaseWindow
 from utils import create_button_frame
 from model import session, Project
 

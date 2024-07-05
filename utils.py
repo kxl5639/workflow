@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import Toplevel, ttk, Listbox, StringVar, messagebox, Entry, END
 from sqlalchemy.inspection import inspect
-from view import BaseWindow
+from class_collection import BaseWindow
 
 # #region View Functions
 

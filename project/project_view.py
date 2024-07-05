@@ -5,7 +5,7 @@
 # from utils import create_tree_button_frame, create_button_frame
 # from configs import testing
 # from model import ProjectManager, DesignEngineer, SalesEngineer, Project, Client, MechanicalContractor, MechanicalEngineer, session
-# from view import BaseWindow
+# from class_collection import BaseWindow
 
 # #region create project window
 # def create_project_window():    

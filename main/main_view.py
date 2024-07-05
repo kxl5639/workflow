@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from utils import create_button_frame
 # from project.project_view import create_project_window
-from view import BaseWindow
+from class_collection import BaseWindow
 from title_controller import TitleController
 
 

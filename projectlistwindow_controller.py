@@ -1,7 +1,7 @@
 from projectlistwindow_model import ProjectListWindowModel
 from projectlistwindow_view import ProjectAddModifyWindow
 from model import session, ProjectManager, DesignEngineer, SalesEngineer, Client, MechanicalContractor, MechanicalEngineer, Project
-from view import ListWindow
+from class_collection import ListWindow
 from tkinter import messagebox
 from sqlalchemy.exc import IntegrityError
 

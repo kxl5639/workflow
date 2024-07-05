@@ -1,4 +1,4 @@
-from view import BaseWindow, ButtonsFrame
+from class_collection import BaseWindow, ButtonsFrame
 import tkinter as tk
 from tkinter import ttk
 from configs import testing
