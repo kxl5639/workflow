@@ -26,19 +26,25 @@ class ProjectListWindowController:
             if is_modify:
                 pass
             else:
-                self.commit_add
+                self.commit_add()
+                parent.destroy()
+                self.view.refresh_tree()
+    
+    def update_table_data(self):
+        return self.model.update_table_data()
 
     def commit_add(self):
-        records_to_add = [self.set_project_record(self.project_data, self.client_data, self.me_data, self.mc_data),
-                self.set_client_record(self.client_data),
-                self.set_pm_record(self.project_data),
-                self.set_me_record(self.me_data),
-                self.set_mc_record(self.mc_data),
-                self.set_de_record(self.project_data),
-                self.set_se_record(self.project_data)
+        records_to_add = [self.set_project_record(),
+                self.set_client_record(),
+                self.set_pm_record(),
+                self.set_me_record(),
+                self.set_mc_record(),
+                self.set_de_record(),
+                self.set_se_record()
                 ]
         for record in records_to_add:
             self.model.add_record(record)
+        self.model.commit_changes()        
 
     def check_for_blanks(self, data, parent):
         empty_entries = self.check_empty(data)
@@ -124,45 +130,45 @@ class ProjectListWindowController:
                 empty_entries[section_replacements[section]] = empty_entries.pop(section)        
         return empty_entries
 
-    def set_se_record(self, project_data):
-        return SalesEngineer(first_name = project_data['se_first_name'],
-                                  last_name = project_data['se_last_name']
+    def set_se_record(self):
+        return SalesEngineer(first_name = self.project_data['se_first_name'],
+                                  last_name = self.project_data['se_last_name']
                                   )
 
-    def set_de_record(self, project_data):
-        return DesignEngineer(first_name = project_data['de_first_name'],
-                              last_name = project_data['de_last_name']
+    def set_de_record(self):
+        return DesignEngineer(first_name = self.project_data['de_first_name'],
+                              last_name = self.project_data['de_last_name']
                               )
 
-    def set_mc_record(self, mc_data):
-        return MechanicalContractor(name = mc_data['name'],
-                                  address = mc_data['address'],
-                                  city = mc_data['city'],
-                                  state = mc_data['state'],
-                                  zip_code = mc_data['zip_code'],
-                                  telephone = mc_data['telephone'],
+    def set_mc_record(self):
+        return MechanicalContractor(name = self.mc_data['name'],
+                                  address = self.mc_data['address'],
+                                  city = self.mc_data['city'],
+                                  state = self.mc_data['state'],
+                                  zip_code = self.mc_data['zip_code'],
+                                  telephone = self.mc_data['telephone'],
                                   )
 
-    def set_me_record(self, me_data):
-        return MechanicalEngineer(name = me_data['name'],
-                                  address = me_data['address'],
-                                  city = me_data['city'],
-                                  state = me_data['state'],
-                                  zip_code = me_data['zip_code']
+    def set_me_record(self):
+        return MechanicalEngineer(name = self.me_data['name'],
+                                  address = self.me_data['address'],
+                                  city = self.me_data['city'],
+                                  state = self.me_data['state'],
+                                  zip_code = self.me_data['zip_code']
                                   )
 
-    def set_pm_record(self, project_data):
-        return ProjectManager(first_name = project_data['pm_first_name'],
-                              last_name = project_data['pm_last_name']
+    def set_pm_record(self):
+        return ProjectManager(first_name = self.project_data['pm_first_name'],
+                              last_name = self.project_data['pm_last_name']
                               )
 
-    def set_client_record(self, client_data): 
-        return Client(client_name = client_data['client_name'],
-                      scope = client_data['scope'],
-                      address = client_data['address'],
-                      city = client_data['city'],
-                      state = client_data['state'],
-                      zip_code = client_data['zip_code'],
+    def set_client_record(self): 
+        return Client(client_name = self.client_data['client_name'],
+                      scope = self.client_data['scope'],
+                      address = self.client_data['address'],
+                      city = self.client_data['city'],
+                      state = self.client_data['state'],
+                      zip_code = self.client_data['zip_code'],
                       )       
 
     def set_project_record(self):        

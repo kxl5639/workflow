@@ -91,8 +91,14 @@ class TreeFrame:
         self.columns_list = self.column_map_to_list()
         self.tree_frame = self.create_tree_frame()
         self.tree = self.create_tree()
-        self.populate_treeview()
+        self.populate_treeview(self.table_data)
         self.resize_width_of_columns()
+
+    def refresh_tree(self, table_data=None): 
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        self.populate_treeview(table_data)
+        self.resize_width_of_columns()        
 
     def resize_width_of_columns(self):
         columns = self.columns_list 
@@ -106,8 +112,8 @@ class TreeFrame:
         for col in columns:
             self.tree.column(col, width=column_widths[col])
 
-    def populate_treeview(self):
-        for row in self.table_data:
+    def populate_treeview(self, table_data):
+        for row in table_data:
             values = [row[self.column_map[col]] for col in self.tree["columns"]]        
             self.tree.insert("", "end", iid=row[0], values=values)
 
@@ -141,9 +147,12 @@ class ListWindow(BaseWindow):
         self.tree_frame.tree_frame.grid(row=0, padx=0, pady=(0,10), sticky="nsew")
         # Create Button Frame
         self.button_frame = ButtonsFrame(self.base_frame, self.controller.button_info)
-        self.button_frame.button_frame.grid(row=1, column=0, pady=0, padx=0)
+        self.button_frame.button_frame.grid(row=1, column=0, pady=0, padx=0)        
         # Center Window
-        BaseWindow.center_window(self.root)        
+        BaseWindow.center_window(self.root)  
+
+    def refresh_tree(self):
+        self.tree_frame.refresh_tree(self.controller.update_table_data())
     
 class ButtonsFrame:
     def __init__(self, parent, button_info) -> None:
