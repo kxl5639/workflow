@@ -180,14 +180,7 @@ class ProjectListWindowController:
         return self.model.update_table_data()
 
     def commit_add(self):
-        records_to_add = [self.set_project_record(),
-                self.set_client_record(),
-                self.set_pm_record(),
-                self.set_me_record(),
-                self.set_mc_record(),
-                self.set_de_record(),
-                self.set_se_record()
-                ]
+        records_to_add = [self.set_project_record()]
         for record in records_to_add:
             self.model.add_record(record)
         self.model.commit_changes()        
