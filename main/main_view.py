@@ -1,9 +1,10 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 # from utils import create_button_frame
 # from project.project_view import create_project_window
 from class_collection import BaseWindow, ButtonsFrame
-from title_controller import TitleController
+from title.title_controller import TitleController
+from project_list.projectlistwindow_controller import ProjectListWindowController
 
 
 def create_main_window():
@@ -12,7 +13,6 @@ def create_main_window():
     main_window.grid_rowconfigure((0), weight=1)
     main_window.grid_columnconfigure((0), weight=1)    
     main_window.resizable(width=False,height=False)
-    from projectlistwindow_controller import ProjectListWindowController
     
     button_frame=ttk.Frame(main_window)
     button_frame.grid(row=0, column=0, padx=10, pady=10)
