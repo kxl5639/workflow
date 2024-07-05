@@ -16,21 +16,71 @@ class ProjectListWindowController:
         self.view = ListWindow(title = 'Projects List', parent=self.parent, controller=self)        
 
     def add_or_mod_commit_button_command(self, is_modify, data, parent):        
-        if self.check_for_blanks(data, parent):
-            self.project_data = data['project']        
-            self.client_data = data['client']
-            self.me_data = data['me']
-            self.mc_data = data['mc']
-            data= None
+        if not self.check_for_blanks(data, parent):
+            return False
+        
+        self.project_data = data['project']        
+        self.client_data = data['client']
+        self.me_data = data['me']
+        self.mc_data = data['mc']
+        data= None
 
-            if is_modify:
-                pass
-            else:
-                if self.check_project_unique(parent):                    
-                    self.commit_add()
-                    parent.destroy()
-                    self.view.refresh_tree()
+        if is_modify:
+            tree_selection = self.view.tree_frame.tree.selection()        
+            selected_record_iid = tree_selection[0] # The item identifier (iid) is the project ID        
+            self.update_existing_record_obj()
+            self.model.commit_changes()
+            parent.destroy()
+            self.view.refresh_tree()
+            self.view.tree_frame.tree.selection_set(selected_record_iid)
+            self.view.tree_frame.tree.focus(selected_record_iid)
+            self.view.tree_frame.tree.see(selected_record_iid) 
+            # existing_page_titleobj_dict[new_page_number].title = new_title_name                
+        else:
+            if self.check_project_unique(parent):                    
+                self.commit_add()
+                parent.destroy()
+                self.view.refresh_tree()    
     
+    def update_existing_record_obj(self):
+        print('about to modify')
+        proj_data_dict = self.project_data
+        pm_first_name = proj_data_dict['pm_first_name']
+        pm_last_name = proj_data_dict['pm_last_name']
+        se_first_name = proj_data_dict['se_first_name']
+        se_last_name = proj_data_dict['se_last_name']
+        de_first_name = proj_data_dict['de_first_name']
+        de_last_name = proj_data_dict['de_last_name']
+        # Gets id so that we can compare it to the record object dict
+        projectmanager_id = session.query(ProjectManager).filter_by(first_name=pm_first_name,last_name=pm_last_name).first().id
+        designengineer_id = session.query(DesignEngineer).filter_by(first_name=de_first_name,last_name=de_last_name).first().id
+        salesengineer_id = session.query(SalesEngineer).filter_by(first_name=se_first_name,last_name=se_last_name).first().id
+        client_id = session.query(Client).filter_by(client_name=self.client_data['client_name']).first().id
+        mechanicalengineer_id = session.query(MechanicalEngineer).filter_by(name=self.me_data['name']).first().id
+        mechanicalcontractor_id = session.query(MechanicalContractor).filter_by(name=self.mc_data['name']).first().id
+        # Deletes keys that doesn't match with record object dict
+        del proj_data_dict['pm_first_name']
+        del proj_data_dict['pm_last_name']
+        del proj_data_dict['se_first_name']
+        del proj_data_dict['se_last_name']
+        del proj_data_dict['de_first_name']
+        del proj_data_dict['de_last_name']
+        # Insert keys with the values as ids so that we can compare it with the record obj dict
+        proj_data_dict['client_id'] = client_id
+        proj_data_dict['mechanicalengineer_id'] = mechanicalengineer_id
+        proj_data_dict['mechanicalcontractor_id'] = mechanicalcontractor_id
+        proj_data_dict['projectmanager_id'] = projectmanager_id
+        proj_data_dict['designengineer_id'] = designengineer_id
+        proj_data_dict['salesengineer_id'] = salesengineer_id
+        proj_num = self.project_data['project_number']
+        proj_obj = self.model.get_project_object(proj_num)
+        print(f'new info: {proj_data_dict}')
+        # record_obj_dict = {key: value for key, value in proj_obj.__dict__.items() if not key.startswith('_')}
+        # print(f'old info: {record_obj_dict}')
+        for key, value in proj_data_dict.items():
+            if getattr(proj_obj, key) != value:
+                setattr(proj_obj, key, value)        
+
     def check_project_unique(self, parent):
         print('Executed check')
         data = self.project_data        
@@ -44,8 +94,7 @@ class ProjectListWindowController:
                                        f'Cannot add project. {proj_num_to_add} already exists.',
                                        parent=parent)
                 return False
-        return True
-        
+        return True        
 
     def update_table_data(self):
         return self.model.update_table_data()

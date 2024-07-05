@@ -64,3 +64,13 @@ class ProjectListWindowModel:
     def query_proj_nums(self):
         return session.query(Project.project_number).all()
  
+    def query_proj(self):
+        return session.query(Project).all()
+    
+    def get_project_object(self, project_number):
+        """Retrieve a project object based on the project number."""
+        return session.query(Project).filter_by(project_number=project_number).first()
+
+if __name__ == '__main__':
+    proj_model = ProjectListWindowModel()
+    records = proj_model.query_proj()
