@@ -36,8 +36,8 @@ class ProjectAddModifyWindow(BaseWindow):
         data = {'project':self.get_project_data(),
                 'client':self.get_client_data(),
                 'me':self.get_me_data(),
-                'mc':self.get_mc_data()}
-        self.controller.add_or_mod_commit_button_command(self.is_modify, data)
+                'mc':self.get_mc_data()}        
+        self.controller.add_or_mod_commit_button_command(self.is_modify, data, self.root)
 
     def load_data(self):
         if self.is_modify:                        
@@ -178,9 +178,21 @@ class ProjectAddModifyWindow(BaseWindow):
         entry_widget.insert(0, text)
 
     def get_project_data(self):
-        pm_first_name, pm_last_name = self.pm_name.get().split(' ', 1)
-        de_first_name, de_last_name = self.de_name.get().split(' ', 1)
-        se_first_name, se_last_name = self.se_name.get().split(' ', 1)
+        pm_first_name, pm_last_name = '', ''
+        de_first_name, de_last_name = '', ''
+        se_first_name, se_last_name = '', ''
+        # Check and split the project manager name
+        pm_name = self.pm_name.get()
+        if pm_name:
+            pm_first_name, pm_last_name = pm_name.split(' ', 1)
+        # Check and split the design engineer name
+        de_name = self.de_name.get()
+        if de_name:
+            de_first_name, de_last_name = de_name.split(' ', 1)
+        # Check and split the structural engineer name
+        se_name = self.se_name.get()
+        if se_name:
+            se_first_name, se_last_name = se_name.split(' ', 1)
         return {
             'project_number': self.project_number_entry.get(),
             'em_type': self.em_type_entry.get(),

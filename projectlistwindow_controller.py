@@ -15,26 +15,114 @@ class ProjectListWindowController:
                     ("Delete", None)]             
         self.view = ListWindow(title = 'Projects List', parent=self.parent, controller=self)        
 
-    def add_or_mod_commit_button_command(self, is_modify, data):
-        project_data = data['project']        
-        client_data = data['client']
-        me_data = data['me']
-        mc_data = data['mc']
-        data= None
-        if is_modify:
-            pass
-        else:
-            records_to_add = [self.set_project_record(project_data, client_data,me_data,mc_data),
-                              self.set_client_record(client_data),
-                              self.set_pm_record(project_data),
-                              self.set_me_record(me_data),
-                              self.set_mc_record(mc_data),
-                              self.set_de_record(project_data),
-                              self.set_se_record(project_data)
-                              ]
-            for record in records_to_add:
-                self.model.add_record(record)
-            
+    def add_or_mod_commit_button_command(self, is_modify, data, parent):        
+        if self.check_for_blanks(data, parent):
+            self.project_data = data['project']        
+            self.client_data = data['client']
+            self.me_data = data['me']
+            self.mc_data = data['mc']
+            data= None
+
+            if is_modify:
+                pass
+            else:
+                self.commit_add
+
+    def commit_add(self):
+        records_to_add = [self.set_project_record(self.project_data, self.client_data, self.me_data, self.mc_data),
+                self.set_client_record(self.client_data),
+                self.set_pm_record(self.project_data),
+                self.set_me_record(self.me_data),
+                self.set_mc_record(self.mc_data),
+                self.set_de_record(self.project_data),
+                self.set_se_record(self.project_data)
+                ]
+        for record in records_to_add:
+            self.model.add_record(record)
+
+    def check_for_blanks(self, data, parent):
+        empty_entries = self.check_empty(data)
+        if empty_entries != {}:
+            cln_empty_entries = self._clean_for_readability(empty_entries)
+            self._produce_error_message(cln_empty_entries, parent)
+            return False
+        else: return True
+
+    def check_empty(self, data):        
+        empty_entries = {}
+        for section, entry_dict in data.items():            
+            for label, entry in entry_dict.items():                
+                if entry == '':
+                    if section in empty_entries:
+                        empty_entries[section].append(label)
+                    else:
+                        empty_entries[section] = []
+                        empty_entries[section].append(label)
+        return(empty_entries)
+
+    def _produce_error_message(self, cln_empty_entries, parent):
+        message_lines = ['The following field(s) are missing.\n']
+        for section, entries in cln_empty_entries.items():
+            message_lines.append(f"{section.capitalize()}:")
+            for entry in entries:
+                message_lines.append(f" - {entry}")
+            message_lines.append("")  # Add a blank line for spacing
+        messagebox.showinfo('Missing Fields',"\n".join(message_lines),parent=parent)        
+
+    def _clean_for_readability(self, empty_entries):         
+        section_replacements = {'project': 'Project Info',
+                                'client': 'Client',
+                                'me': 'Mechanical Engineer',
+                                'mc': 'Mechanical Contractor',
+                                }
+        field_replacements = {'project_number': 'Project Number',
+                              'em_type': 'EM Type',
+                              'job_phase': 'Job Phase',
+                              'submit_date': 'Submit Date',
+                              'pm_first_name' : 'Project Manager',
+                              'pm_last_name' : '',
+                              'de_first_name' : 'Design Engineer',
+                              'de_last_name' : '',
+                              'se_first_name' : 'Sales Engineer',
+                              'se_last_name' : '',
+                              'client_name': 'Client Name',
+                              'scope': 'Scope',
+                              'name': 'Name',
+                              'address': 'Address',
+                              'city': 'City',
+                              'state': 'State',
+                              'zip_code': 'Zip Code',
+                              'telephone': 'Telephone'}
+        de_se_remove = {}
+        section_remove = []
+        for section, entry_list in empty_entries.items():
+            idx = -1
+            if section in section_replacements:
+                section_remove.append(section)
+            for entry in entry_list:                    
+                if entry in field_replacements:
+                    idx += 1                    
+                    if 'last_name' in entry.lower():
+                        if section in de_se_remove:
+                            de_se_remove[section].append(entry)
+                        else:
+                            de_se_remove[section] = []
+                            de_se_remove[section].append(entry)
+                    else:                        
+                        try:
+                            empty_entries[section][idx] = field_replacements[entry]                
+                            # empty_entries[section][idx] = section_replacements[entry]
+                        except:
+                            empty_entries[section][idx] = field_replacements[entry]
+        if de_se_remove:
+            for section, entries in de_se_remove.items():                
+                for entry in entries:
+                    if entry in empty_entries.get(section, []):
+                        empty_entries[section].remove(entry)                    
+        if section_remove:
+            for section in section_remove:
+                empty_entries[section_replacements[section]] = empty_entries.pop(section)        
+        return empty_entries
 
     def set_se_record(self, project_data):
         return SalesEngineer(first_name = project_data['se_first_name'],
@@ -77,17 +165,17 @@ class ProjectListWindowController:
                       zip_code = client_data['zip_code'],
                       )       
 
-    def set_project_record(self, project_data, client_data,me_data,mc_data):        
-        return Project(project_number = project_data['project_number'],
-                       em_type = project_data['em_type'],
-                       job_phase = project_data['job_phase'],
-                       submit_date = project_data['submit_date'],
-                       client_id = session.query(Client).filter_by(client_name=client_data['client_name']).first().id,
-                       projectmanager_id = session.query(ProjectManager).filter_by(first_name=project_data['pm_first_name'],last_name=project_data['pm_last_name']).first().id,
-                       mechanicalengineer_id = session.query(MechanicalEngineer).filter_by(name=me_data['name']).first().id,
-                       mechanicalcontractor_id = session.query(MechanicalContractor).filter_by(name=mc_data['name']).first().id,
-                       designengineer_id = session.query(DesignEngineer).filter_by(first_name=project_data['de_first_name'],last_name=project_data['de_last_name']).first().id,
-                       salesengineer_id = session.query(SalesEngineer).filter_by(first_name=project_data['se_first_name'],last_name=project_data['se_last_name']).first().id,
+    def set_project_record(self):        
+        return Project(project_number = self.project_data['project_number'],
+                       em_type = self.project_data['em_type'],
+                       job_phase = self.project_data['job_phase'],
+                       submit_date = self.project_data['submit_date'],
+                       client_id = session.query(Client).filter_by(client_name=self.client_data['client_name']).first().id,
+                       projectmanager_id = session.query(ProjectManager).filter_by(first_name=self.project_data['pm_first_name'],last_name=self.project_data['pm_last_name']).first().id,
+                       mechanicalengineer_id = session.query(MechanicalEngineer).filter_by(name=self.me_data['name']).first().id,
+                       mechanicalcontractor_id = session.query(MechanicalContractor).filter_by(name=self.mc_data['name']).first().id,
+                       designengineer_id = session.query(DesignEngineer).filter_by(first_name=self.project_data['de_first_name'],last_name=self.project_data['de_last_name']).first().id,
+                       salesengineer_id = session.query(SalesEngineer).filter_by(first_name=self.project_data['se_first_name'],last_name=self.project_data['se_last_name']).first().id,
                        )
 
     def add_button_command(self):
