@@ -14,8 +14,6 @@ class ProjectListWindowController:
                     ("Modify", lambda: self.modify_button_command()),
                     ("Delete", lambda: self.delete_button_command())]             
         self.view = ProjectList(title = 'Projects List', parent=self.parent, controller=self)
-    
-
 
     def delete_button_command(self):
         # Get selected record(s)
