@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from abc import ABC, abstractmethod
 
-class BaseWindow:
+class BaseWindow(ABC):
     def __init__(self, title, parent, is_root=False):
         self.parent = parent
         self.root = tk.Tk() if is_root else tk.Toplevel(self.parent)

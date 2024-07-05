@@ -1,6 +1,5 @@
-from title_view import TitleView
-from title_model import TitleModel, DwgTitle
-import tkinter as tk
+from title.title_view import TitleView
+from title.title_model import TitleModel, DwgTitle
 from tkinter import messagebox
 
 class TitleController:

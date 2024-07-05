@@ -32,11 +32,25 @@ class Project(Base):
 
 class System(Base):
     __tablename__ = 'systems'
-    id:Mapped[int] = mapped_column(primary_key=True)
-    name:Mapped[str] = mapped_column(nullable=True)    
-    project_id:Mapped[int] = mapped_column(ForeignKey('projects.id'),nullable=False)
-    project:Mapped['Project'] = relationship(back_populates='systems')
-    diagrams:Mapped[List['Diagram']] = relationship(back_populates='system')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(nullable=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey('projects.id'), nullable=False)
+    project: Mapped['Project'] = relationship(back_populates='systems')
+    diagrams: Mapped[list['Diagram']] = relationship(back_populates='system')
+    devices: Mapped[list['SystemDevice']] = relationship('SystemDevice', back_populates='system')
+
+class Device(Base):
+    __tablename__ = 'devices'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(nullable=False)
+    systems: Mapped[list['SystemDevice']] = relationship('SystemDevice', back_populates='device')
+
+class SystemDevice(Base):
+    __tablename__ = 'system_devices'
+    system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'), primary_key=True)
+    device_id: Mapped[int] = mapped_column(ForeignKey('devices.id'), primary_key=True)
+    system: Mapped['System'] = relationship('System', back_populates='devices')
+    device: Mapped['Device'] = relationship('Device', back_populates='systems')
 
 class Diagram(Base):
     __tablename__ = 'diagrams'
@@ -46,7 +60,6 @@ class Diagram(Base):
     system:Mapped['System'] = relationship(back_populates='diagrams')
     dwgtitle_id:Mapped[int] = mapped_column(ForeignKey('dwgtitles.id'),nullable=False)
     dwgtitle:Mapped['DwgTitle'] = relationship(back_populates='diagrams')
-    
 
 class DwgTitle(Base):
     __tablename__ = 'dwgtitles'
@@ -109,7 +122,6 @@ class SalesEngineer(Base):
     first_name:Mapped[str] = mapped_column(nullable=False)
     last_name:Mapped[str] = mapped_column(nullable=False)
     projects:Mapped[List['Project']] = relationship(back_populates='salesengineer')
-
 
 def _db_exist():
     if os.path.exists('workflow.db'):

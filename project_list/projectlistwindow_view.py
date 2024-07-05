@@ -2,15 +2,17 @@ from class_collection import BaseWindow, ButtonsFrame, ListWindow
 import tkinter as tk
 from tkinter import ttk
 from configs import testing
+from project_detail.projectdetail_controller import ProjectDetailController
 
 class ProjectList(ListWindow):
     def __init__(self, title, parent, controller, is_root=False):
         super().__init__(title, parent, controller, is_root)
         
-    def on_double_click(self):
+    def on_double_click(self):        
         item_id = self.tree_frame.tree.selection()[0]
         item = self.tree_frame.tree.item(item_id)
-        print(f"Double-clicked on item with ID: {item_id}, values: {item['values']}")
+        project_number = item['values'][0]
+        ProjectDetailController(self.parent, project_number)
 
 class ProjectAddModifyWindow(BaseWindow):
     def __init__(self, title, parent, controller, is_root=False, is_modify=False):

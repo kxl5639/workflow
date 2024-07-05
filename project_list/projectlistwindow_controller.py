@@ -1,5 +1,5 @@
-from projectlistwindow_model import ProjectListWindowModel
-from projectlistwindow_view import ProjectList, ProjectAddModifyWindow
+from project_list.projectlistwindow_model import ProjectListWindowModel
+from project_list.projectlistwindow_view import ProjectList, ProjectAddModifyWindow
 from model import session, ProjectManager, DesignEngineer, SalesEngineer, Client, MechanicalContractor, MechanicalEngineer, Project
 from tkinter import messagebox
 from sqlalchemy.exc import IntegrityError
