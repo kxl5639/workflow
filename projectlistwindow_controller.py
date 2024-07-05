@@ -3,19 +3,97 @@ from projectlistwindow_view import ProjectAddModifyWindow
 from model import session, ProjectManager, DesignEngineer, SalesEngineer, Client, MechanicalContractor, MechanicalEngineer, Project
 from view import ListWindow
 from tkinter import messagebox
+from sqlalchemy.exc import IntegrityError
 
 class ProjectListWindowController:
     def __init__(self, parent=None) -> None:
         self.parent = parent        
-        self.model = ProjectListWindowModel()
+        self.model = ProjectListWindowModel(controller=self)
         self.column_map = self.model.colump_map
         self.table_data = self.model.table_data
         self.button_info = [("Add", lambda: self.add_button_command()),
                     ("Modify", lambda: self.modify_button_command()),
-                    ("Delete", None)]             
-        self.view = ListWindow(title = 'Projects List', parent=self.parent, controller=self)        
+                    ("Delete", lambda: self.delete_button_command())]             
+        self.view = ListWindow(title = 'Projects List', parent=self.parent, controller=self)
 
-    def add_or_mod_commit_button_command(self, is_modify, data, parent):        
+    def delete_button_command(self):
+        # Get selected record(s)
+        selected_recs = self.get_selected_records_from_tree()
+        # Validate at least 1 selection is made
+        if not self.validate_delete_selection(selected_recs):
+            return False
+        # Display confirmation messageboxes
+        if not self.delete_records_confirmation(selected_recs):
+            return False
+        # Delete record
+        try:
+            self.delete_selected_records(selected_recs)
+            self.model.commit_changes()
+        except IntegrityError as e:
+            session.rollback()
+            messagebox.showinfo('Error',
+                                'Error occured. Action has not been performed',
+                                parent=self.view.root)
+        except Exception as e:
+            session.rollback()
+            messagebox.showinfo('Error',
+                                'Error occured. Action has not been performed',
+                                parent=self.view.root)
+        # Refresh Tree
+        self.view.refresh_tree() 
+
+    def delete_selected_records(self, selected_recs):
+        # Get record objs
+        rec_obs = []        
+        for selected_rec in selected_recs:
+            rec_iid = selected_rec[0]
+            rec_obj = session.query(Project).filter_by(id=rec_iid).first()
+            rec_obs.append(rec_obj)
+        self.model.delete_record(rec_obs)
+
+    def delete_records_confirmation(self, selected_recs):        
+        if len(selected_recs) == 1:      
+            proj_num = self.get_column_data_from_tree_selection(Project, selected_recs, 'project_number')
+            if messagebox.askyesno('Confirm Deletion',
+                                   f'Are you sure you want to delete {proj_num[0]}?',
+                                   parent=self.view.root):
+                return True
+        elif len(selected_recs) > 1:
+            proj_nums = self.get_column_data_from_tree_selection(Project, selected_recs, 'project_number')            
+            message_str = []
+            for proj_num in proj_nums:
+                message_str.append(f"{proj_num}")
+            proj_list =  "\n".join(message_str)            
+            if messagebox.askyesno('Missing Deletion',
+                                   f'Are you sure you want to delete:\n\n{proj_list}',
+                                   parent=self.view.root):
+                if messagebox.askyesno('Missing Deletion',
+                                       f'FINAL CHANCE! Are you sure you want to delete:\n\n{proj_list}\n\n This action cannot be undone!',
+                                       parent=self.view.root):
+                    return True
+        return False
+
+    def get_column_data_from_tree_selection(self, model, selected_recs, column_name):        
+        column_data = []
+        for rec in selected_recs:
+            rec_iid = rec[0]
+            rec_obj = session.query(model).filter_by(id=rec_iid).first()
+            column_data.append(getattr(rec_obj,column_name))
+        print(column_data)
+        return column_data
+
+    def validate_delete_selection(self, selected_recs):        
+        if len(selected_recs) == 0:
+            messagebox.showinfo('Select Project','Select at least (1) project to be deleted.',parent=self.view.root)
+            return False        
+        else:            
+            return True
+
+    def get_selected_records_from_tree(self):
+        return self.view.tree_frame.tree.selection()
+
+    def add_or_mod_commit_button_command(self, is_modify, data, parent):
+        '''Command for buttons on the add or modify window.'''  
         if not self.check_for_blanks(data, parent):
             return False
         
@@ -26,22 +104,26 @@ class ProjectListWindowController:
         data= None
 
         if is_modify:
-            tree_selection = self.view.tree_frame.tree.selection()        
+            tree_selection = self.get_selected_records_from_tree()
             selected_record_iid = tree_selection[0] # The item identifier (iid) is the project ID        
             self.update_existing_record_obj()
             self.model.commit_changes()
             parent.destroy()
             self.view.refresh_tree()
-            self.view.tree_frame.tree.selection_set(selected_record_iid)
-            self.view.tree_frame.tree.focus(selected_record_iid)
-            self.view.tree_frame.tree.see(selected_record_iid) 
-            # existing_page_titleobj_dict[new_page_number].title = new_title_name                
+            self.set_focus_selected_record(selected_record_iid)
+
         else:
-            if self.check_project_unique(parent):                    
+            if self.check_project_unique(parent):
                 self.commit_add()
                 parent.destroy()
                 self.view.refresh_tree()    
-    
+
+    def set_focus_selected_record(self, selected_record_iid):
+        self.view.tree_frame.tree.selection_set(selected_record_iid)
+        self.view.tree_frame.tree.focus(selected_record_iid)
+        self.view.tree_frame.tree.see(selected_record_iid)
+
+
     def update_existing_record_obj(self):
         print('about to modify')
         proj_data_dict = self.project_data
@@ -73,10 +155,7 @@ class ProjectListWindowController:
         proj_data_dict['designengineer_id'] = designengineer_id
         proj_data_dict['salesengineer_id'] = salesengineer_id
         proj_num = self.project_data['project_number']
-        proj_obj = self.model.get_project_object(proj_num)
-        print(f'new info: {proj_data_dict}')
-        # record_obj_dict = {key: value for key, value in proj_obj.__dict__.items() if not key.startswith('_')}
-        # print(f'old info: {record_obj_dict}')
+        proj_obj = self.model.get_project_object(proj_num)        
         for key, value in proj_data_dict.items():
             if getattr(proj_obj, key) != value:
                 setattr(proj_obj, key, value)        
