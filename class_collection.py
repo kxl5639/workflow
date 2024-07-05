@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from abc import ABC, abstractmethod
 
 class BaseWindow:
     def __init__(self, title, parent, is_root=False):
@@ -36,13 +37,9 @@ class TreeFrame:
 
         self.columns_list = self.column_map_to_list()
         self.tree_frame = self.create_tree_frame()
-        self.tree = self.create_tree()
-        self.tree.bind("<Double-1>", self.on_double_click)
+        self.tree = self.create_tree()        
         self.populate_treeview(self.table_data)
         self.resize_width_of_columns()
-
-    def on_double_click(self):
-        print('Double Clicked')
 
     def refresh_tree(self, table_data): 
         for item in self.tree.get_children():
@@ -95,15 +92,20 @@ class ListWindow(BaseWindow):
         # Create TreeFrame
         self.tree_frame = TreeFrame(self.base_frame, self.controller.column_map, self.controller.table_data)
         self.tree_frame.tree_frame.grid(row=0, padx=0, pady=(0,10), sticky="nsew")
+        self.tree_frame.tree.bind("<Double-1>", lambda event:self.on_double_click())
         # Create Button Frame
         self.button_frame = ButtonsFrame(self.base_frame, self.controller.button_info)
         self.button_frame.button_frame.grid(row=1, column=0, pady=0, padx=0)
         # Center Window
         BaseWindow.center_window(self.root)  
 
+    @abstractmethod
+    def on_double_click(self):
+        pass
+
     def refresh_tree(self):
         self.tree_frame.refresh_tree(self.controller.update_table_data())
-    
+
 class ButtonsFrame:
     def __init__(self, parent, button_info) -> None:
         self.parent = parent

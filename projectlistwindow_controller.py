@@ -1,7 +1,6 @@
 from projectlistwindow_model import ProjectListWindowModel
-from projectlistwindow_view import ProjectAddModifyWindow
+from projectlistwindow_view import ProjectList, ProjectAddModifyWindow
 from model import session, ProjectManager, DesignEngineer, SalesEngineer, Client, MechanicalContractor, MechanicalEngineer, Project
-from class_collection import ListWindow
 from tkinter import messagebox
 from sqlalchemy.exc import IntegrityError
 
@@ -14,7 +13,9 @@ class ProjectListWindowController:
         self.button_info = [("Add", lambda: self.add_button_command()),
                     ("Modify", lambda: self.modify_button_command()),
                     ("Delete", lambda: self.delete_button_command())]             
-        self.view = ListWindow(title = 'Projects List', parent=self.parent, controller=self)
+        self.view = ProjectList(title = 'Projects List', parent=self.parent, controller=self)
+    
+
 
     def delete_button_command(self):
         # Get selected record(s)
@@ -123,7 +124,6 @@ class ProjectListWindowController:
         self.view.tree_frame.tree.selection_set(selected_record_iid)
         self.view.tree_frame.tree.focus(selected_record_iid)
         self.view.tree_frame.tree.see(selected_record_iid)
-
 
     def update_existing_record_obj(self):
         print('about to modify')
