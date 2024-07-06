@@ -30,7 +30,10 @@ class ProjectDetailController:
     def get_max_devices_data_char(self, systems_devices_data_dict, system_key):        
         for cat in systems_devices_data_dict[system_key].keys():
             if cat not in self.max_device_data_char_dict:
-                self.max_device_data_char_dict[cat] = 0
+                if cat == 'devices_models':
+                    self.max_device_data_char_dict[cat] = 6
+                else:
+                    self.max_device_data_char_dict[cat] = 0
             for next in systems_devices_data_dict[system_key][cat]['data']:
                 if cat == 'devices_qtys':
                     self.max_device_data_char_dict[cat] = 5

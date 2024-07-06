@@ -14,7 +14,6 @@ class ProjectDetailWindow(BaseWindow):
         self.systems_devices_data_dict = self.controller.get_systems_devices_data()
         self.iter_generate_system_frame()
         
-
         BaseWindow.center_window(self.root)
     
     def create_project_label(self):
@@ -38,7 +37,8 @@ class ProjectDetailWindow(BaseWindow):
 
     def create_system_frame(self, row_idx, system_key):
         system_name = system_key[1]
-        system_frame = ttk.LabelFrame(self.system_base_frame, text=system_name)
+        system_frame = ttk.LabelFrame(self.system_base_frame, text=system_name,
+                                      relief= 'solid')
         ypad = 10 if row_idx == 0 else (0,10)
         system_frame.grid(row=row_idx, column=0, padx=10, pady=ypad, sticky='nsew')        
         system_frame.columnconfigure(0, weight=1)
@@ -64,14 +64,12 @@ class ProjectDetailWindow(BaseWindow):
         device_add_label.grid(row=0,column=0,padx=10,pady=ypad)
 
     def iter_generate_device_frame(self, parent, system_key):
-        
-        if self.systems_devices_data_dict[system_key]:
-            manufs_list = self.systems_devices_data_dict[system_key]['devices_manfs']['data']
+        manufs_list = self.systems_devices_data_dict[system_key]['devices_manfs']['data']
+        if manufs_list:
             num_devices = len(manufs_list)
             for row_idx in range(num_devices):
                 self.create_device_frame(parent, row_idx, system_key)
-        else:
-            print('add emptyness')
+        else:            
             self.create_add_device_frame(parent, 0)
 
     def create_device_frame(self, parent, row_idx, system_key):
