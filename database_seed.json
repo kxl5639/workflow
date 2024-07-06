@@ -187,16 +187,16 @@
     ],
     "devices": [
         {
-            "name": "Test Device 1",
-            "description": "Desc 1",
-            "manufacturer": "Manufacturer 1",
-            "model": "Model 1"
+            "name": "Static Pressure Transmitter",
+            "description": "Static Pressure Transmitter",
+            "manufacturer": "Senva",
+            "model": "P4-XXX"
         },
         {
-            "name": "Test Device 2",
-            "description": "Desc 2",
-            "manufacturer": "Manufacturer 2",
-            "model": "Model 2"
+            "name": "Current Switch",
+            "description": "Current Switch",
+            "manufacturer": "Functional Devices",
+            "model": "H-600"
         }
     ],
     "systemdevices": [

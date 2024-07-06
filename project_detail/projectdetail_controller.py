@@ -12,21 +12,53 @@ class ProjectDetailController:
     
     def get_systems_names_ids_list(self):
         proj_id = self.model.get_id_from_model_column_data(Project, 'project_number', self.project_number)
-        systems_names = self.get_child_names_list(System, proj_id, 'project_id')
+        systems_names = self.get_child_names_list(System, proj_id, 'project_id')        
         systems_ids = self.get_child_ids_list(System, proj_id, 'project_id')
         return systems_names, systems_ids
 
-    def get_devices_ids_list(self, system_id):
+    def get_system_devices_data(self, system_id):
+        
+        def get_max_char(devices_data_dict):
+            max_char_dict = {}
+            for cat in devices_data_dict.keys():
+                print(f'\nmax char dict is now: {max_char_dict}')
+                if cat in max_char_dict:
+                    print(f'max_char_dict[{cat}] already exists')
+                    pass
+                else:
+                    print(f'adding {cat} to dictionary')
+                    max_char_dict[cat] = 0
+                    print(max_char_dict)
+                    for next in devices_data_dict[cat]['data']:
+                        if len(next) > max_char_dict[cat]:
+                            max_char_dict[cat] = len(next)
+            # print(max_char_dict)
+                    
         systemdevices_ids = self.get_child_ids_list(SystemDevice, system_id, 'system_id')
-        devices_ids = []
-        for systemdevice_id in systemdevices_ids:
-            device_id = self.model.get_target_col_val_by_known_col_val(SystemDevice,'id', systemdevice_id, 'device_id')
-            devices_ids.append(device_id)
-        devices_names = []
-        for device_id in devices_ids:
-            device_name = self.model.get_target_col_val_by_known_col_val(Device,'id',device_id,'name')
-            devices_names.append(device_name)
-        return devices_names, devices_ids
+        devices_ids = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'device_id')
+        devices_tags = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'tag')
+        devices_descs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'description')
+        devices_manfs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'manufacturer')
+        devices_models = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'model')
+        devices_data_dict = {'devices_tags' : {'data':devices_tags, 'max_char':0},
+                             'devices_descs' : {'data':devices_descs, 'max_char':0},
+                             'devices_manfs' : {'data':devices_manfs, 'max_char':0},
+                             'devices_models' : {'data':devices_models, 'max_char':0}
+                             }
+        get_max_char(devices_data_dict)
+        return devices_data_dict
+    
+    
+
+    def get_target_col_vals_list_by_known_col_val(self, model, known_col, known_vals, target_col):
+        '''
+        Gets target attribute value from the same table if a attribute value in that record is known
+        '''
+        target_attributes = []
+        for known_val in known_vals:
+            target_attr = self.model.get_target_col_val_by_known_col_val(model,known_col, known_val, target_col)
+            target_attributes.append(target_attr)
+        return target_attributes
     
     def get_child_names_list(self, child_model, parent_id, child_col_of_parent_id):
         '''
