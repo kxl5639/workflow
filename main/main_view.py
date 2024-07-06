@@ -20,10 +20,6 @@ def create_main_window():
     projects_button = ButtonsFrame(button_frame, [("Projects", lambda: ProjectListWindowController(main_window))])
     projects_button.button_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-    # def open_crud_window(table_name):
-    #     '''Takes the table name arg to generate treeview'''
-    #     CRUDWindow(main_window, table_name)
-
     design_engs_button = ButtonsFrame(button_frame, [("Design Engineers", lambda:None)])
     design_engs_button.button_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 

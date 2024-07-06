@@ -46,7 +46,7 @@ class Device(Base):
     systems: Mapped[list['SystemDevice']] = relationship('SystemDevice', back_populates='device')
 
 class SystemDevice(Base):
-    __tablename__ = 'system_devices'
+    __tablename__ = 'systemdevices'
     system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'), primary_key=True)
     device_id: Mapped[int] = mapped_column(ForeignKey('devices.id'), primary_key=True)
     system: Mapped['System'] = relationship('System', back_populates='devices')
@@ -175,5 +175,9 @@ if not exist_db:
     for dwgtitle_data in data['dwgtitles']:
         dwgtitle = DwgTitle(**dwgtitle_data)
         session.add(dwgtitle)
+    
+    for system_data in data['systems']:
+        system = System(**system_data)
+        session.add(system)
 
     session.commit()

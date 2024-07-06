@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 
 class BaseWindow(ABC):
     def __init__(self, title, parent, is_root=False):
+        import tkinter as tk
+        from tkinter import ttk
         self.parent = parent
         self.root = tk.Tk() if is_root else tk.Toplevel(self.parent)
         self.root.title(title)
