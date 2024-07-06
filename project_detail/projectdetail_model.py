@@ -13,5 +13,10 @@ class ProjectDetailModel:
         col_attr = getattr(model, col_name)
         return session.query(model).filter(col_attr == col_val).all()
 
-testobj = session.query(SystemDevice).filter_by(system_id = 1).all()
-print(f'Model Test: {testobj}')
+    def get_target_col_val_by_known_col_val(self, model, known_col, known_val, target_col):
+        known_col_attr = getattr(model, known_col)        
+        record_obj = session.query(model).filter(known_col_attr==known_val).first()        
+        target_val = getattr(record_obj, target_col)
+        return target_val
+
+

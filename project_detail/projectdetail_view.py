@@ -42,19 +42,15 @@ class ProjectDetailWindow(BaseWindow):
         device_base_frame.grid(row=0,column=0,padx=10,pady=10)
         return device_base_frame
 
-    def create_device_frame(self, parent, row_idx, device_name=None):
+    def create_device_frame(self, parent, row_idx, device_name):
         device_frame = ttk.Frame(parent, relief='solid')
         ypad = 10 if row_idx == 0 else (0,10)
         device_frame.grid(row=row_idx,column=0,padx=10,pady=ypad)
         device_label = ttk.Label(device_frame, text=device_name)
         device_label.grid(row=0,column=0)
 
-    # def iter_generate_device_frame(self, parent, system_id):
-    #     devices_names, devices_ids = self.controller.get_devices_names_ids_list(system_id)
-    #     for idx, (device_name, device_id) in enumerate(zip(devices_names, devices_ids)):
-    #         self.create_device_frame(parent, idx, device_name, device_id)
-
     def iter_generate_device_frame(self, parent, system_id):
-        devices_ids = self.controller.get_devices_ids_list(system_id)
-        for idx, device_id in enumerate(devices_ids):
-            self.create_device_frame(parent, idx, device_id)
+        devices_names, devices_ids = self.controller.get_devices_ids_list(system_id)
+        for idx, (device_name, device_id) in enumerate(zip(devices_names, devices_ids)):
+            self.create_device_frame(parent, idx, device_name)
+
