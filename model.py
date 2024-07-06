@@ -47,8 +47,9 @@ class Device(Base):
 
 class SystemDevice(Base):
     __tablename__ = 'systemdevices'
-    system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'), primary_key=True)
-    device_id: Mapped[int] = mapped_column(ForeignKey('devices.id'), primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'), primary_key=False)
+    device_id: Mapped[int] = mapped_column(ForeignKey('devices.id'), primary_key=False)
     system: Mapped['System'] = relationship('System', back_populates='devices')
     device: Mapped['Device'] = relationship('Device', back_populates='systems')
 
@@ -179,5 +180,17 @@ if not exist_db:
     for system_data in data['systems']:
         system = System(**system_data)
         session.add(system)
+
+    for systemdevice_data in data['systemdevices']:
+        systemdevice = SystemDevice(**systemdevice_data)
+        session.add(systemdevice)
+
+    for device_data in data['devices']:
+        device = Device(**device_data)
+        session.add(device)
+    
+    for diagram_data in data['diagrams']:
+        diagram = Diagram(**diagram_data)
+        session.add(diagram)
 
     session.commit()

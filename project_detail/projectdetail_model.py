@@ -1,4 +1,4 @@
-from model import session, Project, System
+from model import session, Project, System, SystemDevice
 
 class ProjectDetailModel:
     def __init__(self, controller, project_number) -> None:
@@ -12,4 +12,6 @@ class ProjectDetailModel:
     def get_objs_from_column_data(self, model, col_name, col_val):
         col_attr = getattr(model, col_name)
         return session.query(model).filter(col_attr == col_val).all()
-        
+
+testobj = session.query(SystemDevice).filter_by(system_id = 1).all()
+print(f'Model Test: {testobj}')
