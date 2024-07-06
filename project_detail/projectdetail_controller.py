@@ -7,7 +7,7 @@ class ProjectDetailController:
         self.parent = parent
         self.project_number = project_number
         self.max_device_data_char_dict = {}
-        self.devices_data_dict = {}
+        self.systems_devices_data_dict = {}
         self.model = ProjectDetailModel(self, project_number)
         self.view = ProjectDetailWindow(f'{project_number} Project Detail',
                                         parent, self, project_number)
@@ -18,31 +18,55 @@ class ProjectDetailController:
         systems_ids = self.get_child_ids_list(System, proj_id, 'project_id')
         return systems_names, systems_ids
 
-    # def get_max_char(devices_data_dict, system_id):
-    #     if system_id not in devices_data_dict:
-    #         devices_data_dict[system_id] = {}
-    #         for cat in devices_data_dict[system_id].keys():
-    #             if cat not in self.max_device_data_char_dict:
-    #                 self.max_device_data_char_dict[cat] = 0
-    #             for next in self.devices_data_dict[cat]['data']:
-    #                 if len(next) > self.max_device_data_char_dict[cat]:
-    #                     self.max_device_data_char_dict[cat] = len(next)
+    def get_max_devices_data_char(self, systems_devices_data_dict, system_id):
+        # print(f'\n\n\nsystem_id is {system_id}')
+        for cat in systems_devices_data_dict[system_id].keys():
+            if cat not in self.max_device_data_char_dict:
+                # print(f'{cat} is not in self.max_device_data_char_dict')
+                self.max_device_data_char_dict[cat] = 0
+            for next in systems_devices_data_dict[system_id][cat]['data']:
+                if cat == 'devices_qtys':
+                    self.max_device_data_char_dict[cat] = 4
+                else:
+                    if len(next) > self.max_device_data_char_dict[cat]:
+                        self.max_device_data_char_dict[cat] = len(next)
+    
+    def get_systems_devices_data(self):
+        # Gets all systems ids of the project number
+        systems_ids = self.get_systems_ids_from_proj_num()
+        # Gets all the device data (tag, desc, manf, etc...) for each system_id
+            # Also gets the max character length for each device data
+        for system_id in systems_ids:
+            self.get_devices_data(system_id)
+            self.get_max_devices_data_char(self.systems_devices_data_dict, system_id)
+        # Update max char for each systems_devices_data_dict
+        for system_id in systems_ids:
+            for device_prop_key in self.systems_devices_data_dict[system_id]:
+                self.systems_devices_data_dict[system_id][device_prop_key]['max_char'] = self.max_device_data_char_dict[device_prop_key]
+        print(f'\n{self.systems_devices_data_dict[1]}')
+        print(f'\n{self.systems_devices_data_dict[2]}')
 
-    def get_system_devices_data(self, system_id):
+    def get_systems_ids_from_proj_num(self):
+        proj_id = self.model.get_id_from_model_column_data(Project, 'project_number', self.project_number)
+        systems_objs = self.model.get_objs_from_column_data(System, 'project_id', proj_id)
+        systems_ids = []
+        for system_obj in systems_objs:
+            systems_ids.append(system_obj.id)
+        return systems_ids
 
-        systemdevices_ids = self.get_child_ids_list(SystemDevice, system_id, 'system_id')
-        devices_ids = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'device_id')
-        devices_tags = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'tag')
-        devices_descs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'description')
-        devices_manfs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'manufacturer')
-        devices_models = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'model')
-        self.devices_data_dict = {system_id : {'devices_tags' : {'data':devices_tags, 'max_char':0},
-                                            'devices_descs' : {'data':devices_descs, 'max_char':0},
-                                            'devices_manfs' : {'data':devices_manfs, 'max_char':0},
-                                            'devices_models' : {'data':devices_models, 'max_char':0}
-                                            }
-                             }
-        return self.devices_data_dict
+    def get_devices_data(self, system_id):
+            systemdevices_ids = self.get_child_ids_list(SystemDevice, system_id, 'system_id')
+            devices_ids = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'device_id')
+            devices_tags = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'tag')
+            devices_qtys = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'qty')
+            devices_descs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'description')
+            devices_manfs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'manufacturer')
+            devices_models = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'model')
+            self.systems_devices_data_dict[system_id] = {'devices_tags' : {'data':devices_tags, 'max_char':0},
+                                                         'devices_qtys' : {'data':devices_qtys, 'max_char':0},
+                                                          'devices_descs' : {'data':devices_descs, 'max_char':0},
+                                                          'devices_manfs' : {'data':devices_manfs, 'max_char':0},
+                                                          'devices_models' : {'data':devices_models, 'max_char':0}}
 
     def get_target_col_vals_list_by_known_col_val(self, model, known_col, known_vals, target_col):
         '''
