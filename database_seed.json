@@ -162,6 +162,10 @@
         {
             "name": "VAV",
             "project_id": 2
+        },
+        {
+            "name": "RTU",
+            "project_id": 1
         }
     ],
     "diagrams": [
@@ -183,24 +187,37 @@
     ],
     "devices": [
         {
-            "name": "Test Device 1"
+            "name": "Test Device 1",
+            "description": "Desc 1",
+            "manufacturer": "Manufacturer 1",
+            "model": "Model 1"
         },
         {
-            "name": "Test Device 2"
+            "name": "Test Device 2",
+            "description": "Desc 2",
+            "manufacturer": "Manufacturer 2",
+            "model": "Model 2"
         }
     ],
     "systemdevices": [
         {
             "system_id": 1,
-            "device_id": 1
+            "device_id": 1,
+            "tag": "SPT",
+            "qty": 10
         },
         {
             "system_id": 1,
-            "device_id": 2
+            "device_id": 2,
+            "tag": "CS",
+            "qty": 5
         },
         {
             "system_id": 2,
-            "device_id": 1
+            "device_id": 1,
+            "tag": "",
+            "qty": ""
+            
         }
     ]
 }

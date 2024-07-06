@@ -43,6 +43,9 @@ class Device(Base):
     __tablename__ = 'devices'
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=False)
+    description: Mapped[str] = mapped_column(nullable=False)
+    manufacturer: Mapped[str] = mapped_column(nullable=False)
+    model: Mapped[str] = mapped_column(nullable=False)
     systems: Mapped[list['SystemDevice']] = relationship('SystemDevice', back_populates='device')
 
 class SystemDevice(Base):
@@ -50,6 +53,8 @@ class SystemDevice(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'), primary_key=False)
     device_id: Mapped[int] = mapped_column(ForeignKey('devices.id'), primary_key=False)
+    tag:Mapped[str] = mapped_column(nullable=True)    
+    qty:Mapped[int] = mapped_column(nullable=True)  
     system: Mapped['System'] = relationship('System', back_populates='devices')
     device: Mapped['Device'] = relationship('Device', back_populates='systems')
 
