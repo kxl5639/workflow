@@ -9,7 +9,7 @@ class BaseWindow(ABC):
         self.parent = parent
         self.root = tk.Tk() if is_root else tk.Toplevel(self.parent)
         self.root.title(title)
-        self.root.resizable(width=False, height=True)
+        self.root.resizable(width=True, height=True)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
         self.base_frame = self.create_base_frame(self.root)
