@@ -66,12 +66,12 @@ class ProjectDetailController:
             devices_tags = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'tag')
             devices_qtys = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'qty')
             devices_descs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'description')
-            devices_manfs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'manufacturer')
+            devices_manufs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'manufacturer')
             devices_models = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'model')
             self.systems_devices_data_dict[system_key] = {'devices_tags' : {'data':devices_tags, 'max_char':0},
                                                          'devices_qtys' : {'data':devices_qtys, 'max_char':0},
                                                           'devices_descs' : {'data':devices_descs, 'max_char':0},
-                                                          'devices_manfs' : {'data':devices_manfs, 'max_char':0},
+                                                          'devices_manufs' : {'data':devices_manufs, 'max_char':0},
                                                           'devices_models' : {'data':devices_models, 'max_char':0}}
 
     def get_target_col_vals_list_by_known_col_val(self, model, known_col, known_vals, target_col):
