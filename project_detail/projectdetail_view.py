@@ -61,27 +61,30 @@ class ProjectDetailWindow(BaseWindow):
         device_add_label = ttk.Label(parent, text='Click here to add a new device.')      
         device_add_label.grid(row=0,column=0,padx=10,pady=ypad)
 
-    def iter_generate_device_frame(self, parent, system_id):
+    def iter_generate_device_frame(self, parent, system_id):        
         devices_data_dict = self.controller.get_system_devices_data(system_id)
+        print(f'\n{devices_data_dict}')
+        print(system_id)
         if devices_data_dict:
-            num_devices = len(devices_data_dict['devices_models']['data'])            
+            num_devices = len(devices_data_dict[system_id]['devices_models']['data'])            
             for row_idx in range(num_devices):
-                self.create_device_frame(parent, row_idx, devices_data_dict)
+                self.create_device_frame(parent, row_idx, system_id, devices_data_dict)
         else:
             self.create_add_device_frame(parent, 0)
 
-    def create_device_frame(self, parent, row_idx, devices_data_dict):
+    def create_device_frame(self, parent, row_idx, system_id, devices_data_dict):
+        print(f'\n{system_id}')
         device_frame = ttk.Frame(parent, relief='solid')
         ypad = 10 if row_idx == 0 else (0,10)
         device_frame.grid(row=row_idx,column=0,padx=10,pady=ypad,sticky='nsew')
         device_frame.grid_columnconfigure((1,2,3), weight=1)
-        tag_data = devices_data_dict['devices_tags']['data'][row_idx]
+        tag_data = devices_data_dict[system_id]['devices_tags']['data'][row_idx]
         self.create_device_tag_entry(device_frame, tag_data)
-        desc_data = devices_data_dict['devices_descs']['data'][row_idx]
+        desc_data = devices_data_dict[system_id]['devices_descs']['data'][row_idx]
         self.create_device_label(device_frame, desc_data, 1)
-        manf_data = devices_data_dict['devices_manfs']['data'][row_idx]
+        manf_data = devices_data_dict[system_id]['devices_manfs']['data'][row_idx]
         self.create_device_label(device_frame, manf_data, 2)
-        model_data = devices_data_dict['devices_models']['data'][row_idx]
+        model_data = devices_data_dict[system_id]['devices_models']['data'][row_idx]
         self.create_device_label(device_frame, model_data, 3)
 
     def create_device_tag_entry(self, parent, device_tag_data):

@@ -4,9 +4,11 @@ from model import session, Project, SystemDevice, System, Device
 
 class ProjectDetailController:
     def __init__(self, parent, project_number) -> None:
-        self.model = ProjectDetailModel(self, project_number)
         self.parent = parent
         self.project_number = project_number
+        self.max_device_data_char_dict = {}
+        self.devices_data_dict = {}
+        self.model = ProjectDetailModel(self, project_number)
         self.view = ProjectDetailWindow(f'{project_number} Project Detail',
                                         parent, self, project_number)
     
@@ -16,39 +18,31 @@ class ProjectDetailController:
         systems_ids = self.get_child_ids_list(System, proj_id, 'project_id')
         return systems_names, systems_ids
 
+    # def get_max_char(devices_data_dict, system_id):
+    #     if system_id not in devices_data_dict:
+    #         devices_data_dict[system_id] = {}
+    #         for cat in devices_data_dict[system_id].keys():
+    #             if cat not in self.max_device_data_char_dict:
+    #                 self.max_device_data_char_dict[cat] = 0
+    #             for next in self.devices_data_dict[cat]['data']:
+    #                 if len(next) > self.max_device_data_char_dict[cat]:
+    #                     self.max_device_data_char_dict[cat] = len(next)
+
     def get_system_devices_data(self, system_id):
-        
-        def get_max_char(devices_data_dict):
-            max_char_dict = {}
-            for cat in devices_data_dict.keys():
-                print(f'\nmax char dict is now: {max_char_dict}')
-                if cat in max_char_dict:
-                    print(f'max_char_dict[{cat}] already exists')
-                    pass
-                else:
-                    print(f'adding {cat} to dictionary')
-                    max_char_dict[cat] = 0
-                    print(max_char_dict)
-                    for next in devices_data_dict[cat]['data']:
-                        if len(next) > max_char_dict[cat]:
-                            max_char_dict[cat] = len(next)
-            # print(max_char_dict)
-                    
+
         systemdevices_ids = self.get_child_ids_list(SystemDevice, system_id, 'system_id')
         devices_ids = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'device_id')
         devices_tags = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'tag')
         devices_descs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'description')
         devices_manfs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'manufacturer')
         devices_models = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'model')
-        devices_data_dict = {'devices_tags' : {'data':devices_tags, 'max_char':0},
-                             'devices_descs' : {'data':devices_descs, 'max_char':0},
-                             'devices_manfs' : {'data':devices_manfs, 'max_char':0},
-                             'devices_models' : {'data':devices_models, 'max_char':0}
+        self.devices_data_dict = {system_id : {'devices_tags' : {'data':devices_tags, 'max_char':0},
+                                            'devices_descs' : {'data':devices_descs, 'max_char':0},
+                                            'devices_manfs' : {'data':devices_manfs, 'max_char':0},
+                                            'devices_models' : {'data':devices_models, 'max_char':0}
+                                            }
                              }
-        get_max_char(devices_data_dict)
-        return devices_data_dict
-    
-    
+        return self.devices_data_dict
 
     def get_target_col_vals_list_by_known_col_val(self, model, known_col, known_vals, target_col):
         '''
