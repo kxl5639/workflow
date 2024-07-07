@@ -183,6 +183,16 @@
             "type": "Control Panel",
             "system_id": 1,
             "dwgtitle_id": 3
+        },
+        {
+            "type": "Sys 2 - Flow Diagram 1",
+            "system_id": 2,
+            "dwgtitle_id": 1
+        },
+        {
+            "type": "Sys 2 - Flow Diagram 2",
+            "system_id": 2,
+            "dwgtitle_id": 2
         }
     ],
     "devices": [

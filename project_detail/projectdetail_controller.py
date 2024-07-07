@@ -116,3 +116,11 @@ class ProjectDetailController:
             childs_ids.append(child_obj.id)
         return childs_ids
     
+    def add_system_to_db(self, entry_widget):
+        new_system = entry_widget.get()
+        if new_system:
+            proj_id = self.model.get_id_from_model_column_data(Project,'project_number', self.project_number)
+            new_system_record = System(name=new_system, project_id=proj_id)
+            self.model.add_record(new_system_record)
+            self.model.commit_changes()
+            return True
