@@ -19,18 +19,18 @@ class TitleModel(Model):
             if existing_page_number not in new_page_title_dict:                
                 session.delete(existing_title_obj)
 
-def _remove_end_blanks(self, list_obj):
-        '''Remove blank items at the end of a list. Retains blank items in middle of list.'''        
-        # Check if the last item is a blank
-        if list_obj and list_obj[-1] != '':
-            return list_obj, []  # If the last item is not a blank, return the original list and an empty list of removed indices                
-        last_non_blank_index = len(list_obj) # Find the first non-blank item from the end of the list
-        for index in range(len(list_obj) - 1, -1, -1):
-            if list_obj[index] != '':
-                last_non_blank_index = index + 1
-                break        
-        # Calculate the indices of the removed blank items
-        removed_indices = list(range(last_non_blank_index, len(list_obj)))        
-        # Slicing to remove trailing blanks
-        modified_list = list_obj[:last_non_blank_index]
-        return modified_list, removed_indices
+    def _remove_end_blanks(self, list_obj):
+            '''Remove blank items at the end of a list. Retains blank items in middle of list.'''        
+            # Check if the last item is a blank
+            if list_obj and list_obj[-1] != '':
+                return list_obj, []  # If the last item is not a blank, return the original list and an empty list of removed indices                
+            last_non_blank_index = len(list_obj) # Find the first non-blank item from the end of the list
+            for index in range(len(list_obj) - 1, -1, -1):
+                if list_obj[index] != '':
+                    last_non_blank_index = index + 1
+                    break        
+            # Calculate the indices of the removed blank items
+            removed_indices = list(range(last_non_blank_index, len(list_obj)))        
+            # Slicing to remove trailing blanks
+            modified_list = list_obj[:last_non_blank_index]
+            return modified_list, removed_indices

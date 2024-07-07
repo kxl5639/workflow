@@ -42,8 +42,8 @@ class ProjectDetailWindow(BaseWindow):
             return self.system_base_frame
         
         def create_system_data_frame():
-            self.system_data_frame = ttk.Frame(self.system_base_frame, relief='solid')
-            self.system_data_frame.grid(row=0, column=0,padx=10,pady=10, sticky='nsew')
+            self.system_data_frame = ttk.Frame(self.system_base_frame)
+            self.system_data_frame.grid(row=0, column=0, sticky='nsew')
             self.system_data_frame.columnconfigure(0, weight=1)
             return self.system_data_frame
         
@@ -66,11 +66,15 @@ class ProjectDetailWindow(BaseWindow):
                 return ypad
             
             system_name: str = system_key[1]
-            system_frame = ttk.LabelFrame(self.system_data_frame, text=system_name,
-                                        relief= 'solid')
+            system_frame = ttk.Frame(self.system_data_frame, relief= 'solid')
             ypad = pady_config(row_idx)
             system_frame.grid(row=row_idx, column=0, padx=10, pady=ypad, sticky='nsew')        
             system_frame.columnconfigure(0, weight=1)
+            
+            system_name_label = ttk.Label(system_frame, text=system_name,
+                                          font=("Helvetica", 10, "bold"))
+            system_name_label.grid(row=0,column=0,padx=10,pady=(10,0),sticky='w')
+
             self.system_frames_collec_dict[system_key] = system_frame
         #endregion
 
@@ -82,7 +86,7 @@ class ProjectDetailWindow(BaseWindow):
         #region Functions
         def create_device_base_frame(parent):
             device_base_frame = ttk.LabelFrame(parent, text='Devices')
-            device_base_frame.grid(row=0,column=0,padx=10,pady=10,sticky='nsew')
+            device_base_frame.grid(row=1,column=0,padx=10,pady=(0,10),sticky='nsew')
             device_base_frame.grid_columnconfigure(0, weight=1)
             return device_base_frame
         

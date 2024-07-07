@@ -33,5 +33,5 @@ class AddSystemWindow(BaseWindow):
             self.parent.destroy()
             self.controller.open_ProjectDetailWindow()
         else:
-            messagebox.showerror('Bad Entry', 'Please enter a system to be added.',
+            messagebox.showerror('Enter System', 'Please enter a system to be added.',
                                  parent = self.root)
