@@ -1,11 +1,11 @@
 from class_collection import BaseWindow, ButtonsFrame
+from project_detail.projectdetailchild_view import AddSystemWindow
 import tkinter as tk
 from tkinter import ttk, IntVar
 
 class ProjectDetailWindow(BaseWindow):
     def __init__(self, title, parent, controller, project_number, is_root=False):
-        super().__init__(title, parent, is_root)
-        self.controller = controller
+        super().__init__(title, parent, controller, is_root)
         self.project_number = project_number
         self.systems_devices_data_dict = self.controller.get_systems_devices_data()
         self.number_of_systems = len(self.systems_devices_data_dict)
@@ -20,10 +20,11 @@ class ProjectDetailWindow(BaseWindow):
         BaseWindow.center_window(self.root)
     
     def create_add_system_button_frame(self):
-        
-        system_add_button_frame = ButtonsFrame(self.system_data_frame, [('Add System', None)])
+        system_add_button_frame = ButtonsFrame(self.system_data_frame, [('Add System', lambda: self.add_system_button_cmd())])
         system_add_button_frame.button_frame.grid(row=self.number_of_systems,column=0,
                                                   padx=(10),pady=(10), sticky='e')
+    def add_system_button_cmd(self):
+        self.add_system_window = AddSystemWindow('Add New System', self.root, controller=self)
 
     def create_project_label(self):
         self.project_label = ttk.Label(self.base_frame,
@@ -69,23 +70,11 @@ class ProjectDetailWindow(BaseWindow):
         device_data_frame.grid(row=0,column=0,padx=10,pady=(0,10),sticky='nsew')
         self.iter_generate_device_frame(device_data_frame, system_key)
 
-    # def create_add_system_frame(self, row_idx):
-    #     system_frame = ttk.LabelFrame(self.system_base_frame, text='Add System')
-    #     ypad = 10 if row_idx == 0 else (0,10)
-    #     system_frame.grid(row=row_idx, column=0, padx=10, pady=ypad)
-    #     system_add_label = ttk.Label(system_frame, text='Click here to add a new system.')      
-    #     system_add_label.grid(row=0,column=0,padx=10,pady=(0,10))
-
     def create_device_base_frame(self, parent):
         device_base_frame = ttk.LabelFrame(parent, text='Devices')
         device_base_frame.grid(row=0,column=0,padx=10,pady=10,sticky='nsew')
         device_base_frame.grid_columnconfigure(0, weight=1)
         return device_base_frame
-
-    def create_add_device_frame(self, parent, row_idx):        
-        ypad = 10 if row_idx == 0 else (0,10)
-        device_add_label = ttk.Label(parent, text='Click here to add a new device.')      
-        device_add_label.grid(row=0,column=0,padx=10,pady=ypad)
 
     def iter_generate_device_frame(self, parent, system_key):
         # parent is device_data_frame
@@ -95,8 +84,6 @@ class ProjectDetailWindow(BaseWindow):
             self.create_device_header(parent)
             for row_idx in range(num_devices):
                 self.create_device_frame(parent, row_idx, system_key)
-        # else:            
-        #     self.create_add_device_frame(parent, 0)
 
     def create_device_frame(self, parent, row_idx, system_key):
         self.create_device_tag_entry(parent, row_idx, system_key)

@@ -16,10 +16,9 @@ class ProjectList(ListWindow):
 
 class ProjectAddModifyWindow(BaseWindow):
     def __init__(self, title, parent, controller, is_root=False, is_modify=False):
-        super().__init__(title, parent.root, is_root)        
+        super().__init__(title, parent.root, controller, is_root)
         self.title = title
         self.parent = parent
-        self.controller = controller
         self.is_modify = is_modify
         self.tree = self.parent.tree_frame.tree
         self.root.resizable(width=False,height=False)

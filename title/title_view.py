@@ -12,7 +12,7 @@ class TitleView:
         self.title_column_break = 10
         self.active_entry_widget = None  
         self.entry_frames_names = {} # Dictionary of names : entry frame widget. Used to destroy() blank entry frames
-        self.root = BaseWindow(self.title, self.parent).root
+        self.root = BaseWindow(self.title, self.parent, controller=self.controller).root
         self.root.resizable(width=True, height=True)
 
         self._create_base_frame()

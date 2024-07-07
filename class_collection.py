@@ -3,10 +3,11 @@ from tkinter import ttk
 from abc import ABC, abstractmethod
 
 class BaseWindow(ABC):
-    def __init__(self, title, parent, is_root=False):
+    def __init__(self, title, parent, controller=None, is_root=False):
         import tkinter as tk
         from tkinter import ttk
         self.parent = parent
+        self.controller = controller
         self.root = tk.Tk() if is_root else tk.Toplevel(self.parent)
         self.root.title(title)
         self.root.resizable(width=True, height=True)
@@ -87,8 +88,7 @@ class TreeFrame:
 class ListWindow(BaseWindow):
     
     def __init__(self, title, parent, controller, is_root=False):
-        super().__init__(title, parent, is_root)
-        self.controller = controller
+        super().__init__(title, parent, controller, is_root)        
         self.root.resizable(width=True, height=True)            
 
         # Create TreeFrame

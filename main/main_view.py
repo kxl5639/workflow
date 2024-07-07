@@ -13,7 +13,11 @@ def create_main_window():
     main_window.grid_rowconfigure((0), weight=1)
     main_window.grid_columnconfigure((0), weight=1)    
     main_window.resizable(width=False,height=False)
-    
+    main_window.bind("<Key>", lambda event: on_keypress(event, main_window))
+    def on_keypress(event, window):
+        if event.char == 'q':
+            window.destroy()
+
     button_frame=ttk.Frame(main_window)
     button_frame.grid(row=0, column=0, padx=10, pady=10)
 
