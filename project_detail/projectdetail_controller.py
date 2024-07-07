@@ -8,7 +8,7 @@ class ProjectDetailController(Controller):
         super().__init__(parent, project_number)
         self.max_device_data_char_dict = {}
         self.systems_devices_data_dict = {}
-        self.model = ProjectDetailModel(self, self.project_number)
+        self.model = ProjectDetailModel(self.project_number, self)
         self.view = ProjectDetailWindow(f'{self.project_number} Project Detail',
                                         self.parent, self, self.project_number)
     
