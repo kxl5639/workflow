@@ -1,6 +1,9 @@
 from model import session, Project, DwgTitle
+from class_collection import Model
 
-class TitleModel:
+class TitleModel(Model):
+    def __init__(self, controller=None) -> None:
+        super().__init__(controller)
 
     def get_project_object(self, project_number):
         """Retrieve a project object based on the project number."""
@@ -16,17 +19,7 @@ class TitleModel:
             if existing_page_number not in new_page_title_dict:                
                 session.delete(existing_title_obj)
 
-    def delete_record(self, object_list):
-        for obj in object_list:
-            session.delete(obj)
-
-    def add_record(self, record_obj):
-        session.add(record_obj)
-
-    def commit_changes(self):
-        session.commit()
-
-    def _remove_end_blanks(self, list_obj):
+def _remove_end_blanks(self, list_obj):
         '''Remove blank items at the end of a list. Retains blank items in middle of list.'''        
         # Check if the last item is a blank
         if list_obj and list_obj[-1] != '':

@@ -1,8 +1,9 @@
 from model import Client, Project, ProjectManager, DesignEngineer, SalesEngineer, MechanicalContractor, MechanicalEngineer, session
+from class_collection import Model
 
-class ProjectListWindowModel:
-    def __init__(self, controller) -> None:
-        self.controller = controller
+class ProjectListWindowModel(Model):
+    def __init__(self, controller=None) -> None:
+        super().__init__(controller)
         self.colump_map = {"project_number": 1,
                            "submit_date": 2,
                            "client": 3,
@@ -51,17 +52,6 @@ class ProjectListWindowModel:
         ]
         return table_data
     
-    def delete_record(self, object_list):
-        for obj in object_list:
-            session.delete(obj)
-
-    def add_record(self, record_obj):
-        session.add(record_obj)
-
-    def commit_changes(self):
-            session.commit()
-
-
     def query_proj_nums(self):
         return session.query(Project.project_number).all()
  

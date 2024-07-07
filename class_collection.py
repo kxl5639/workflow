@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from abc import ABC, abstractmethod
+from model import session
 
 class BaseWindow(ABC):
     def __init__(self, title, parent, controller=None, is_root=False):
@@ -144,6 +145,15 @@ class Controller:
         self.project_number = project_number
 
 class Model:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, controller=None) -> None:
+        self.controller = controller
 
+    def delete_record(self, object_list):
+        for obj in object_list:
+            session.delete(obj)
+
+    def add_record(self, record_obj):
+        session.add(record_obj)
+
+    def commit_changes(self):
+        session.commit()
