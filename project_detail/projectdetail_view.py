@@ -24,7 +24,7 @@ class ProjectDetailWindow(BaseWindow):
         system_add_button_frame.button_frame.grid(row=self.number_of_systems,column=0,
                                                   padx=(10),pady=(10), sticky='e')
     def add_system_button_cmd(self):
-        self.add_system_window = AddSystemWindow('Add New System', self.root, controller=self)
+        self.add_system_window = AddSystemWindow('Add New System', self.root, controller=self.controller)
 
     def create_project_label(self):
         self.project_label = ttk.Label(self.base_frame,

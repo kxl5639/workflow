@@ -8,10 +8,14 @@ class ProjectDetailController:
         self.project_number = project_number
         self.max_device_data_char_dict = {}
         self.systems_devices_data_dict = {}
-        self.model = ProjectDetailModel(self, project_number)
-        self.view = ProjectDetailWindow(f'{project_number} Project Detail',
-                                        parent, self, project_number)
+        self.model = ProjectDetailModel(self, self.project_number)
+        self.view = ProjectDetailWindow(f'{self.project_number} Project Detail',
+                                        self.parent, self, self.project_number)
     
+    def open_ProjectDetailWindow(self):
+        self.view = ProjectDetailWindow(f'{self.project_number} Project Detail',
+                                        self.parent, self, self.project_number)
+
     def get_systems_devices_data(self):
         # Gets all systems keys of the project number
         systems_keys = self.get_systems_keys()

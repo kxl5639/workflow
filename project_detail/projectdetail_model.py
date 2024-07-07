@@ -18,3 +18,9 @@ class ProjectDetailModel:
         record_obj = session.query(model).filter(known_col_attr==known_val).first()        
         target_val = getattr(record_obj, target_col)
         return target_val
+    
+    def add_record(self, record_obj):
+        session.add(record_obj)
+
+    def commit_changes(self):
+        session.commit()

@@ -9,7 +9,7 @@ class TitleView:
         self.parent = parent
         self.controller = controller
         self.project_number = project_number
-        self.title_column_break = 10
+        self.title_column_break = 15
         self.active_entry_widget = None  
         self.entry_frames_names = {} # Dictionary of names : entry frame widget. Used to destroy() blank entry frames
         self.root = BaseWindow(self.title, self.parent, controller=self.controller).root
@@ -141,7 +141,8 @@ class TitleView:
 
     def _default_title_entries(self):
         '''Creates title entries and default entries with GENERAL NOTES, COMM RISER, MASTER PANEL'''
-        for _ in range(self.title_column_break): self.create_entry_widget(self.titles_frame)
+        for _ in range(self.title_column_break):
+            self.create_entry_widget(self.titles_frame)
         self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
         self.title_entry_widgets_list[0].insert(0, 'GENERAL NOTES')
         self.title_entry_widgets_list[1].insert(0, 'COMMUNICATION RISER')
@@ -170,7 +171,7 @@ class TitleView:
         self.entry_frames_names[entry_count+1] = entry_frame
         entry_label = ttk.Label(entry_frame, text=entry_count+1)
         entry_label.grid(row=0, column=0, padx=(0,5))
-        entry = ttk.Entry(entry_frame)
+        entry = ttk.Entry(entry_frame, width=50)
         entry.grid(row=0, column=1, sticky='nsew')
         entry.bind("<FocusIn>", lambda event: self._get_active_entry_widget(entry))
         self.titles_frame.grid_columnconfigure(in_column, weight = 1)
