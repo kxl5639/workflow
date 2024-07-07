@@ -9,13 +9,13 @@ class ProjectDetailWindow(BaseWindow):
         self.project_number = project_number
         self.systems_devices_data_dict = self.controller.get_systems_devices_data()
         self.number_of_systems = len(self.systems_devices_data_dict)
+        self.system_frames_collec_dict = {}
 
         self.base_frame.columnconfigure(0, weight=1)
         self.create_project_label()
-        self.create_system_base_frame()
-        self.create_system_data_frame()
+        self.create_systems()
         self.create_add_system_button_frame()
-        self.iter_generate_system_frame() # Also generates the device frames
+        self.create_devices()
         
         BaseWindow.center_window(self.root)
     
@@ -32,47 +32,73 @@ class ProjectDetailWindow(BaseWindow):
         self.project_label.grid(row=0,column=0,padx=10,pady=(0,10),sticky='w')
         return self.project_label
     
-    def create_system_base_frame(self):
-        self.system_base_frame = ttk.Frame(self.base_frame, relief='solid')
-        self.system_base_frame.grid(row=1, column=0,padx=10,pady=10, sticky='nsew')
-        self.system_base_frame.columnconfigure(0, weight=1)
-        return self.system_base_frame
+    def create_systems(self):
+        #region Functions
+        def create_system_base_frame():
+            self.system_base_frame = ttk.Frame(self.base_frame, relief='solid')
+            self.system_base_frame.grid(row=1, column=0,padx=10,pady=10, sticky='nsew')
+            self.system_base_frame.columnconfigure(0, weight=1)
+            return self.system_base_frame
+        
+        def create_system_data_frame():
+            self.system_data_frame = ttk.Frame(self.system_base_frame, relief='solid')
+            self.system_data_frame.grid(row=0, column=0,padx=10,pady=10, sticky='nsew')
+            self.system_data_frame.columnconfigure(0, weight=1)
+            return self.system_data_frame
+        
+        def iter_generate_system_frame():        
+            if self.systems_devices_data_dict:
+                for idx, system_key in enumerate(self.systems_devices_data_dict.keys()):
+                    create_system_frame(idx, system_key)
 
-    def create_system_data_frame(self):
-        self.system_data_frame = ttk.Frame(self.system_base_frame, relief='solid')
-        self.system_data_frame.grid(row=0, column=0,padx=10,pady=10, sticky='nsew')
-        self.system_data_frame.columnconfigure(0, weight=1)
-        return self.system_data_frame
+        def create_system_frame(row_idx, system_key):
+            def pady_config(row_idx):
+                if self.number_of_systems == 1:
+                    ypad = (10,0)
+                elif self.number_of_systems == 0 or row_idx==self.number_of_systems-1:
+                    ypad = 0
+                elif row_idx == 0:
+                    ypad = (10,0)
+                elif row_idx == 1:
+                    ypad = (10,10)
+                else: ypad = (0,10)
+                return ypad
+            
+            system_name: str = system_key[1]
+            system_id: int = system_key[0]
+            system_frame = ttk.LabelFrame(self.system_data_frame, text=system_name,
+                                        relief= 'solid')
+            ypad = pady_config(row_idx)
+            system_frame.grid(row=row_idx, column=0, padx=10, pady=ypad, sticky='nsew')        
+            system_frame.columnconfigure(0, weight=1)
+            self.system_frames_collec_dict[system_id] = system_frame
 
-    def iter_generate_system_frame(self):        
-        if self.systems_devices_data_dict:
-            for idx, system_key in enumerate(self.systems_devices_data_dict.keys()):
-                self.create_system_frame(idx, system_key)
 
-    def create_system_frame(self, row_idx, system_key):
-        system_name = system_key[1]
-        system_frame = ttk.LabelFrame(self.system_data_frame, text=system_name,
-                                      relief= 'solid')
-        if self.number_of_systems == 1:
-            ypad = (10,0)
-        elif self.number_of_systems == 0 or row_idx==self.number_of_systems-1:
-            ypad = 0
-        elif row_idx == 0:
-            ypad = (10,0)
-        elif row_idx == 1:
-            ypad = (10,10)
-        else: ypad = (0,10)
-        system_frame.grid(row=row_idx, column=0, padx=10, pady=ypad, sticky='nsew')        
-        system_frame.columnconfigure(0, weight=1)
-        self.device_base_frame = self.create_device_base_frame(system_frame)
+
+            # self.device_base_frame = self.create_device_base_frame(system_frame)
+            # if self.number_of_systems != 0:
+            #     device_add_button_frame = ButtonsFrame(self.device_base_frame, [('Add Device',
+            #                                                                     None)])
+            #     device_add_button_frame.button_frame.grid(row=1, column=0, padx=10, pady=(0,10),
+            #                                             sticky='e')
+            # device_data_frame = ttk.Frame(self.device_base_frame)
+            # device_data_frame.grid(row=0,column=0,padx=10,pady=(0,10),sticky='nsew')
+            # self.iter_generate_device_frame(device_data_frame, system_key)
+
+        #endregion
+
+        create_system_base_frame()
+        create_system_data_frame()
+        iter_generate_system_frame()
+
+    def create_devices(self):
         if self.number_of_systems != 0:
-            device_add_button_frame = ButtonsFrame(self.device_base_frame, [('Add Device',
-                                                                             None)])
-            device_add_button_frame.button_frame.grid(row=1, column=0, padx=10, pady=(0,10),
-                                                      sticky='e')
-        device_data_frame = ttk.Frame(self.device_base_frame)
-        device_data_frame.grid(row=0,column=0,padx=10,pady=(0,10),sticky='nsew')
-        self.iter_generate_device_frame(device_data_frame, system_key)
+            for sys_frame in self.system_frames_collec_dict.values():
+                print(sys_frame)
+                device_base_frame = self.create_device_base_frame(sys_frame)
+                
+        
+
 
     def create_device_base_frame(self, parent):
         device_base_frame = ttk.LabelFrame(parent, text='Devices')
