@@ -109,6 +109,11 @@ class ListWindow(BaseWindow):
         self.tree_frame.refresh_tree(self.controller.update_table_data())
 
 class ButtonsFrame:
+    '''
+    button_info: A list of tuples, each containing the button label and command.
+    Example: [("Add", add_command), ("Modify", modify_command), ("Delete", delete_command)]
+    Outside padding of the returned frame is all 0. There is only padding in between the buttons.
+    '''
     def __init__(self, parent, button_info) -> None:
         self.parent = parent
         self.button_info = button_info

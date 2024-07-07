@@ -18,5 +18,3 @@ class ProjectDetailModel:
         record_obj = session.query(model).filter(known_col_attr==known_val).first()        
         target_val = getattr(record_obj, target_col)
         return target_val
-
-
