@@ -3,10 +3,11 @@ from project_list.projectlistwindow_view import ProjectList, ProjectAddModifyWin
 from model import session, ProjectManager, DesignEngineer, SalesEngineer, Client, MechanicalContractor, MechanicalEngineer, Project
 from tkinter import messagebox
 from sqlalchemy.exc import IntegrityError
+from class_collection import Controller
 
-class ProjectListWindowController:
-    def __init__(self, parent=None) -> None:
-        self.parent = parent        
+class ProjectListWindowController(Controller):
+    def __init__(self, parent=None, project_number=None) -> None:
+        super().__init__(parent, project_number)
         self.model = ProjectListWindowModel(controller=self)
         self.column_map = self.model.colump_map
         self.table_data = self.model.table_data

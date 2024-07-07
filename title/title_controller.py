@@ -1,11 +1,11 @@
 from title.title_view import TitleView
 from title.title_model import TitleModel, DwgTitle
 from tkinter import messagebox
+from class_collection import Controller
 
-class TitleController:
+class TitleController(Controller):
     def __init__(self, parent=None, project_number=None) -> None:
-        self.parent = parent
-        self.project_number = project_number
+        super().__init__(parent, project_number)
         self.view = TitleView('Title Manager', self.parent, self, project_number=None)
         self.model = TitleModel()
 

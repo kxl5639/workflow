@@ -1,11 +1,11 @@
 from project_detail.projectdetail_view import ProjectDetailWindow
 from project_detail.projectdetail_model import ProjectDetailModel
 from model import session, Project, SystemDevice, System, Device
+from class_collection import Controller
 
-class ProjectDetailController:
-    def __init__(self, parent, project_number) -> None:
-        self.parent = parent
-        self.project_number = project_number
+class ProjectDetailController(Controller):
+    def __init__(self, parent=None, project_number=None) -> None:
+        super().__init__(parent, project_number)
         self.max_device_data_char_dict = {}
         self.systems_devices_data_dict = {}
         self.model = ProjectDetailModel(self, self.project_number)

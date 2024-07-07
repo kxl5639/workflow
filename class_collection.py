@@ -137,3 +137,13 @@ class ButtonsFrame:
                             pady=0, sticky="nsew")
         
         return button_frame
+    
+class Controller:
+    def __init__(self, parent=None, project_number = None) -> None:
+        self.parent = parent
+        self.project_number = project_number
+
+class Model:
+    def __init__(self) -> None:
+        pass
+
