@@ -56,18 +56,5 @@ class AddSystemWindow(BaseWindow):
         self.model.commit_changes()
         self.root.destroy()
         self.parent.destroy()
-        self.controller.open_ProjectDetailWindow()
-        
-
         # {(3, 'RTU'): {'devices_tags': {'data': [], 'max_char': 0}, 'devices_qtys': {'data': [], 'max_char': 0}, 'devices_descs': {'data': [], 'max_char': 0}, 'devices_manufs': {'data': [], 'max_char': 0}, 'devices_models': {'data': [], 'max_char': 6}}}
-        
-
-
-if __name__ == '__main__':
-    root = tk.Tk()
-
-    new_window = AddSystemWindow('title', root)
-
-    BaseWindow.center_window(root)
-    BaseWindow.center_window(new_window.root)
-    root.mainloop()
+        self.controller.open_ProjectDetailWindow()

@@ -53,10 +53,14 @@ class ProjectDetailWindow(BaseWindow):
         system_name = system_key[1]
         system_frame = ttk.LabelFrame(self.system_data_frame, text=system_name,
                                       relief= 'solid')
-        if self.number_of_systems == 0 or row_idx==self.number_of_systems-1:
+        if self.number_of_systems == 1:
+            ypad = (10,0)
+        elif self.number_of_systems == 0 or row_idx==self.number_of_systems-1:
             ypad = 0
         elif row_idx == 0:
             ypad = (10,0)
+        elif row_idx == 1:
+            ypad = (10,10)
         else: ypad = (0,10)
         system_frame.grid(row=row_idx, column=0, padx=10, pady=ypad, sticky='nsew')        
         system_frame.columnconfigure(0, weight=1)
