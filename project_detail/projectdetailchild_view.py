@@ -32,5 +32,6 @@ class AddSystemWindow(BaseWindow):
         if not error_msg:
             self.controller.view.refresh_systems_data_view()
             self.root.destroy()
+            BaseWindow.center_window(self.controller.view.root)
         else:
             messagebox.showerror('Error', error_msg, parent=self.root)
