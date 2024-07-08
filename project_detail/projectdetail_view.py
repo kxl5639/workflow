@@ -18,6 +18,8 @@ class ProjectDetailWindow(BaseWindow):
         
         BaseWindow.center_window(self.root)
 
+#####################################################################################
+
     def create_project_label(self):
         self.project_label = ttk.Label(self.base_frame,
                                        text = f'EM Number: {self.project_number}')
@@ -29,10 +31,12 @@ class ProjectDetailWindow(BaseWindow):
             for system_frame in self.system_frames_collec_dict.values():
                 system_frame[0].destroy()
             self.system_frames_collec_dict = {}
-
+            
+        self.systems_devices_data_dict, self.number_of_systems = self.controller.get_systems_devices_data()
         destroy_frames()
         self.iter_generate_system_frame()
         self.create_devices()
+        BaseWindow.center_window(self.root)
     
     def create_add_system_button_frame(self):
         def add_system_button_cmd():
@@ -107,7 +111,8 @@ class ProjectDetailWindow(BaseWindow):
                                              f'Are you sure you want to delete system {system_name} and all its associated drawings and devices?\n\nThis action cannot be undone.',
                                              parent=self.root)
                 if confirm:
-                    self.controller.delete_system()
+                    self.controller.delete_system(system_name)
+                    self.refresh_systems_data_view()
 
             def create_system_delete_button(parent, system_name):
                 system_delete_button = ButtonsFrame(parent, [('Delete System', lambda: delete_system_button_cmd(system_name))])
@@ -119,7 +124,6 @@ class ProjectDetailWindow(BaseWindow):
             system_device_frame = create_system_device_frame(system_frame)
             create_system_name_label(system_header_frame, system_name)
             create_system_delete_button(system_header_frame, system_name)
-
             self.system_frames_collec_dict[system_key] = [system_frame, system_device_frame]
 
         if self.controller.systems_devices_data_dict:
