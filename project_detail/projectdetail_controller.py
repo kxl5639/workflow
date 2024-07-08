@@ -151,3 +151,8 @@ class ProjectDetailController(Controller):
             return None
         return error_msg
     #endregion
+
+    #region Delete system
+    def delete_system(self):
+        print('we delete')
+    #endregion

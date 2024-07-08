@@ -102,11 +102,15 @@ class ProjectDetailWindow(BaseWindow):
                 system_name_label.grid(row=0,column=0,padx=10,pady=0,sticky='w')
                 return system_name_label
             
-            def delete_system_button_cmd():
-                me
+            def delete_system_button_cmd(system_name):
+                confirm = messagebox.askyesno('Confirm Delete',
+                                             f'Are you sure you want to delete system {system_name} and all its associated drawings and devices?\n\nThis action cannot be undone.',
+                                             parent=self.root)
+                if confirm:
+                    self.controller.delete_system()
 
-            def create_system_delete_button(parent):
-                system_delete_button = ButtonsFrame(parent, [('Delete System', lambda: delete_system_button_cmd())])
+            def create_system_delete_button(parent, system_name):
+                system_delete_button = ButtonsFrame(parent, [('Delete System', lambda: delete_system_button_cmd(system_name))])
                 system_delete_button.button_frame.grid(row=0,column=1,padx=10,pady=0,sticky='nse')
 
             system_name: str = system_key[1]
@@ -114,7 +118,7 @@ class ProjectDetailWindow(BaseWindow):
             system_header_frame = create_system_header_frame(system_frame)
             system_device_frame = create_system_device_frame(system_frame)
             create_system_name_label(system_header_frame, system_name)
-            create_system_delete_button(system_header_frame)
+            create_system_delete_button(system_header_frame, system_name)
 
             self.system_frames_collec_dict[system_key] = [system_frame, system_device_frame]
 
