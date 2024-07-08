@@ -5,7 +5,7 @@ from tkinter import messagebox
 
 class AddSystemWindow(BaseWindow):
     def __init__(self, title, parent, controller=None, is_root=False):
-        super().__init__(title, parent.root, controller, is_root)
+        super().__init__(title, parent, controller, is_root)
         self.model = self.controller.model
         self.systems_devices_data_dict = self.controller.get_systems_devices_data()
         self.number_of_systems = len(self.systems_devices_data_dict)

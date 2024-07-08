@@ -9,7 +9,7 @@ class BaseWindow(ABC):
         from tkinter import ttk
         self.parent = parent
         self.controller = controller
-        self.root = tk.Tk() if is_root else tk.Toplevel(self.parent)
+        self.root = tk.Tk() if is_root else tk.Toplevel(self.parent.root)
         self.root.title(title)
         self.root.resizable(width=True, height=True)
         self.root.grid_columnconfigure(0, weight=1)

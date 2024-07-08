@@ -11,11 +11,8 @@ def install_requirements():
 
 if __name__ == '__main__':    
     # Install requirements if in production mode
-    if testing == 0:pass
-        # install_requirements()
+    if testing == 0:
+        install_requirements()
     
-    # from home.home_controller import main  # Import after installation
-    # main()
-
-    from main.main_view import create_main_window  # Import after installation
-    create_main_window()
+    from main.main_view import MainWindow  # Import after installation
+    MainWindow('Main Window', None, is_root=True)
