@@ -8,6 +8,7 @@ class ProjectDetailController(Controller):
         super().__init__(parent, project_number)
         self.max_device_data_char_dict = {}
         self.systems_devices_data_dict = {}
+        self.number_of_systems = None
         self.model = ProjectDetailModel(self.project_number, self)
         self.view = ProjectDetailWindow(f'{self.project_number} Project Detail',
                                         self.parent, self, self.project_number)
@@ -29,7 +30,9 @@ class ProjectDetailController(Controller):
             # system_id = system_key[0]
             for device_prop_key in self.systems_devices_data_dict[system_key]:
                 self.systems_devices_data_dict[system_key][device_prop_key]['max_char']=self.max_device_data_char_dict[device_prop_key]
-        return self.systems_devices_data_dict
+        # Update number of systems as well
+        self.number_of_systems = len(self.systems_devices_data_dict)
+        return self.systems_devices_data_dict, self.number_of_systems
     
     def get_max_devices_data_char(self, systems_devices_data_dict, system_key):        
         for cat in systems_devices_data_dict[system_key].keys():
@@ -116,11 +119,35 @@ class ProjectDetailController(Controller):
             childs_ids.append(child_obj.id)
         return childs_ids
     
-    def add_system_to_db(self, entry_widget):
-        new_system = entry_widget.get()
-        if new_system:
-            proj_id = self.model.get_id_from_model_column_data(Project,'project_number', self.project_number)
-            new_system_record = System(name=new_system, project_id=proj_id)
-            self.model.add_record(new_system_record)
-            self.model.commit_changes()
-            return True
+    #region Add new system window
+    def add_new_system(self, entry_widget):
+        def data_validation(new_system_name):
+            if not new_system_name:
+                error_msg = 'Please enter a system name to be added.'
+                return error_msg
+            return None
+            
+        def add_new_system_db(new_system_rec_obj) -> bool:
+            if new_system_rec_obj:
+                self.model.add_record(new_system_rec_obj)
+                self.model.commit_changes()
+                return True
+
+        def get_new_system_rec_obj(new_system_name:str, proj_id:int):
+            new_system_record = System(name=new_system_name, project_id=proj_id)
+            return new_system_record
+
+        # Declare necessary objects
+        new_system_name: str = entry_widget.get()
+        proj_id = self.model.get_id_from_model_column_data(Project,'project_number', self.project_number)
+        new_system_rec_obj = get_new_system_rec_obj(new_system_name, proj_id)
+
+        ##### Need to verify that the system name doesn't already exist
+        error_msg = data_validation(new_system_name)
+        if not error_msg:
+            add_new_system_db(new_system_rec_obj)
+            # Update the system_device dictionary
+            self.systems_devices_data_dict, self.number_of_systems = self.get_systems_devices_data()
+            return None
+        return error_msg
+    #endregion

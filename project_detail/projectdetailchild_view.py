@@ -5,7 +5,7 @@ from tkinter import messagebox
 
 class AddSystemWindow(BaseWindow):
     def __init__(self, title, parent, controller=None, is_root=False):
-        super().__init__(title, parent, controller, is_root)
+        super().__init__(title, parent.root, controller, is_root)
         self.model = self.controller.model
         self.systems_devices_data_dict = self.controller.get_systems_devices_data()
         self.number_of_systems = len(self.systems_devices_data_dict)
@@ -28,10 +28,9 @@ class AddSystemWindow(BaseWindow):
         self.add_entry.focus_set()
 
     def add_button_cmd(self):
-        if self.controller.add_system_to_db(self.add_entry):
+        error_msg = self.controller.add_new_system(self.add_entry)
+        if not error_msg:
+            self.controller.view.refresh_systems_data_view()
             self.root.destroy()
-            self.parent.destroy()
-            self.controller.open_ProjectDetailWindow()
         else:
-            messagebox.showerror('Enter System', 'Please enter a system to be added.',
-                                 parent = self.root)
+            messagebox.showerror('Error', error_msg, parent=self.root)

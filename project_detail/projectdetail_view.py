@@ -7,10 +7,9 @@ class ProjectDetailWindow(BaseWindow):
     def __init__(self, title, parent, controller, project_number, is_root=False):
         super().__init__(title, parent, controller, is_root)
         self.project_number = project_number
-        self.systems_devices_data_dict = self.controller.get_systems_devices_data()
-        self.number_of_systems = len(self.systems_devices_data_dict)
         self.system_frames_collec_dict = {}
-
+        
+        self.controller.get_systems_devices_data()
         self.base_frame.columnconfigure(0, weight=1)
         self.create_project_label()
         self.create_systems()
@@ -24,15 +23,25 @@ class ProjectDetailWindow(BaseWindow):
                                        text = f'EM Number: {self.project_number}')
         self.project_label.grid(row=0,column=0,padx=10,pady=(0,10),sticky='w')
         return self.project_label
+
+    def refresh_systems_data_view(self):
+        def destroy_frames():
+            for system_frame in self.system_frames_collec_dict.values():
+                system_frame.destroy()
+            self.system_frames_collec_dict = {}
+
+        destroy_frames()
+        self.iter_generate_system_frame()
+        self.create_devices()
     
     def create_add_system_button_frame(self):
         def add_system_button_cmd():
-            self.add_system_window = AddSystemWindow('Add New System', self.root, controller=self.controller)
-
-        system_add_button_frame = ButtonsFrame(self.system_data_frame, [('Add System', lambda: add_system_button_cmd())])
-        system_add_button_frame.button_frame.grid(row=self.number_of_systems,column=0,
-                                                  padx=(10),pady=(10), sticky='e')
+            self.add_system_window = AddSystemWindow('Add New System', self, controller=self.controller)
     
+        system_add_button_frame = ButtonsFrame(self.system_base_frame, [('Add System', lambda: add_system_button_cmd())])
+        system_add_button_frame.button_frame.grid(row=1,column=0,
+                                                  padx=(10),pady=(10), sticky='e')
+
     def create_systems(self):
         #region Functions
         def create_system_base_frame():
@@ -43,44 +52,50 @@ class ProjectDetailWindow(BaseWindow):
         
         def create_system_data_frame():
             self.system_data_frame = ttk.Frame(self.system_base_frame)
-            self.system_data_frame.grid(row=0, column=0, sticky='nsew')
+            self.system_data_frame.grid(row=0, column=0,padx=10,pady=10, sticky='nsew')
             self.system_data_frame.columnconfigure(0, weight=1)
             return self.system_data_frame
-        
-        def iter_generate_system_frame():        
-            if self.systems_devices_data_dict:
-                for idx, system_key in enumerate(self.systems_devices_data_dict.keys()):
-                    create_system_frame(idx, system_key)
-
-        def create_system_frame(row_idx, system_key):
-            def pady_config(row_idx):
-                if self.number_of_systems == 1:
-                    ypad = (10,0)
-                elif self.number_of_systems == 0 or row_idx==self.number_of_systems-1:
-                    ypad = 0
-                elif row_idx == 0:
-                    ypad = (10,0)
-                elif row_idx == 1:
-                    ypad = (10,10)
-                else: ypad = (0,10)
-                return ypad
-            
-            system_name: str = system_key[1]
-            system_frame = ttk.Frame(self.system_data_frame, relief= 'solid')
-            ypad = pady_config(row_idx)
-            system_frame.grid(row=row_idx, column=0, padx=10, pady=ypad, sticky='nsew')        
-            system_frame.columnconfigure(0, weight=1)
-            
-            system_name_label = ttk.Label(system_frame, text=system_name,
-                                          font=("Helvetica", 10, "bold"))
-            system_name_label.grid(row=0,column=0,padx=10,pady=(10,0),sticky='w')
-
-            self.system_frames_collec_dict[system_key] = system_frame
         #endregion
 
         create_system_base_frame()
         create_system_data_frame()
-        iter_generate_system_frame()
+        self.iter_generate_system_frame()
+        
+    def iter_generate_system_frame(self):        
+        if self.controller.systems_devices_data_dict:
+            for idx, system_key in enumerate(self.controller.systems_devices_data_dict.keys()):
+                self.create_system_frame(idx, system_key)
+
+    def create_system_frame(self, row_idx, system_key):
+        def pady_config(row_idx):
+            if self.controller.number_of_systems == 0:
+                ypad = 0
+            elif row_idx == 0:
+                ypad = 10
+            elif row_idx==self.controller.number_of_systems-1:
+                ypad = 0
+            else: 
+                ypad = (0,10)
+            return ypad
+        
+        def create_frame():
+            system_frame = ttk.Frame(self.system_data_frame, relief= 'solid')
+            ypad = pady_config(row_idx)
+            system_frame.grid(row=row_idx, column=0, padx=10, pady=ypad, sticky='nsew')        
+            system_frame.columnconfigure(0, weight=1)
+            return system_frame
+        
+        def create_system_name_label(system_name):
+            system_name_label = ttk.Label(system_frame, text=system_name.upper(),
+                                            font=("Helvetica", 10, "bold"))
+            system_name_label.grid(row=0,column=0,padx=10,pady=(10,0),sticky='w')
+            return system_name_label
+
+        system_name: str = system_key[1]
+        system_frame = create_frame()
+        system_name_label = create_system_name_label(system_name)
+
+        self.system_frames_collec_dict[system_key] = system_frame
 
     def create_devices(self):
         #region Functions
@@ -104,7 +119,7 @@ class ProjectDetailWindow(BaseWindow):
             #region Functions
             def create_device_frame(parent, row_idx, system_key):
                 def create_device_tag_entry(parent, row_idx, system_key):
-                    device_tag_data = self.systems_devices_data_dict[system_key]['devices_tags']['data'][row_idx]
+                    device_tag_data = self.controller.systems_devices_data_dict[system_key]['devices_tags']['data'][row_idx]
                     def validate_input_length(P):
                         if len(P) > 7:  # Limit to 10 characters
                             return False
@@ -116,14 +131,14 @@ class ProjectDetailWindow(BaseWindow):
                     device_tag_entry.insert(0, device_tag_data)
 
                 def create_device_label(parent, row_idx, system_key, dev_prop_key, col):
-                    device_data = self.systems_devices_data_dict[system_key][dev_prop_key]['data'][row_idx]
-                    label_width = self.systems_devices_data_dict[system_key][dev_prop_key]['max_char'] + 2
+                    device_data = self.controller.systems_devices_data_dict[system_key][dev_prop_key]['data'][row_idx]
+                    label_width = self.controller.systems_devices_data_dict[system_key][dev_prop_key]['max_char'] + 2
                     device_label = ttk.Label(parent, text=f' {device_data}', relief='solid', width=label_width)
                     device_label.grid(row=row_idx+1,column=col, stick='nsew')
                 
                 def create_device_spinbox(parent, row_idx, system_key, dev_prop_key, col):
-                    device_data = self.systems_devices_data_dict[system_key][dev_prop_key]['data'][row_idx]
-                    label_width = self.systems_devices_data_dict[system_key][dev_prop_key]['max_char'] 
+                    device_data = self.controller.systems_devices_data_dict[system_key][dev_prop_key]['data'][row_idx]
+                    label_width = self.controller.systems_devices_data_dict[system_key][dev_prop_key]['max_char'] 
                     device_spinbox = ttk.Spinbox(parent, from_=0, to=9999, width=label_width)
                     device_spinbox.set(device_data)
                     device_spinbox.grid(row=row_idx+1,column=col, sticky='nsew')
@@ -162,7 +177,7 @@ class ProjectDetailWindow(BaseWindow):
 
             #endregion
 
-            manufs_list = self.systems_devices_data_dict[system_key]['devices_manufs']['data']
+            manufs_list = self.controller.systems_devices_data_dict[system_key]['devices_manufs']['data']
             if manufs_list:
                 num_devices = len(manufs_list)
                 create_device_header(parent)
@@ -170,7 +185,7 @@ class ProjectDetailWindow(BaseWindow):
                     create_device_frame(parent, row_idx, system_key)
         #endregion
 
-        if self.number_of_systems != 0:
+        if self.controller.number_of_systems != 0:
             for system_key, system_frame in self.system_frames_collec_dict.items():
                 device_base_frame = create_device_base_frame(system_frame)
                 create_add_device_button(device_base_frame)

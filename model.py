@@ -33,7 +33,7 @@ class Project(Base):
 class System(Base):
     __tablename__ = 'systems'
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(nullable=True)
+    name: Mapped[str] = mapped_column(nullable=False)
     project_id: Mapped[int] = mapped_column(ForeignKey('projects.id'), nullable=False)
     project: Mapped['Project'] = relationship(back_populates='systems')
     diagrams: Mapped[list['Diagram']] = relationship(back_populates='system', cascade="all, delete-orphan")
