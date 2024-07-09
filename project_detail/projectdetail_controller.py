@@ -41,13 +41,23 @@ class ProjectDetailController(Controller):
         def get_max_devices_data_char(systems_devices_data_dict, system_key):        
             for cat in systems_devices_data_dict[system_key].keys():
                 if cat not in self.max_device_data_char_dict:
+                    # This is here to establish a minimum character width and CAN  overwritten
                     if cat == 'devices_models':
-                        self.max_device_data_char_dict[cat] = 6
+                        self.max_device_data_char_dict[cat] = len('model')
+                    elif cat == 'devices_descs':
+                        self.max_device_data_char_dict[cat] = len('description')
+                    elif cat == 'devices_manufs':
+                        self.max_device_data_char_dict[cat] = len('manufacturer')
                     else:
                         self.max_device_data_char_dict[cat] = 0
                 for next in systems_devices_data_dict[system_key][cat]['data']:
-                    if cat == 'devices_qtys':
+                    # This is here to establish a minimum character width and CANNOT be overwritten
+                    if cat == 'devices_tags':
+                        self.max_device_data_char_dict[cat] = 7
+                    elif cat == 'devices_qtys':
                         self.max_device_data_char_dict[cat] = 5
+                    elif cat == 'devices_dwgs':
+                        self.max_device_data_char_dict[cat] = 4
                     else:
                         if len(next) > self.max_device_data_char_dict[cat]:
                             self.max_device_data_char_dict[cat] = len(next)
@@ -58,11 +68,13 @@ class ProjectDetailController(Controller):
                 devices_ids = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'device_id')
                 devices_tags = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'tag')
                 devices_qtys = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'qty')
+                devices_dwgs = self.get_target_col_vals_list_by_known_col_val(SystemDevice,'id', systemdevices_ids, 'dwgtitle_id')
                 devices_descs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'description')
                 devices_manufs = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'manufacturer')
                 devices_models = self.get_target_col_vals_list_by_known_col_val(Device,'id',devices_ids,'model')
                 self.systems_devices_data_dict[system_key] = {'devices_tags' : {'data':devices_tags, 'max_char':0},
                                                             'devices_qtys' : {'data':devices_qtys, 'max_char':0},
+                                                            'devices_dwgs' : {'data':devices_dwgs, 'max_char':0},
                                                             'devices_descs' : {'data':devices_descs, 'max_char':0},
                                                             'devices_manufs' : {'data':devices_manufs, 'max_char':0},
                                                             'devices_models' : {'data':devices_models, 'max_char':0}}

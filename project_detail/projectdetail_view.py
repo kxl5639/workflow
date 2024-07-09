@@ -47,6 +47,15 @@ class ProjectDetailWindow(BaseWindow):
                                                   padx=(10),pady=(0,10), sticky='e')
 
     def create_systems(self):
+        
+        ############################## System Frame Structure ###############################
+        #                                                                                   #
+        #                                                           -> system_header_frame  #
+        #  system_base_frame -> system_data_frame -> system_frame [                         #
+        #                                                           -> system_device_frame  #
+        #                                                                                   #
+        #####################################################################################
+    
         #region Functions
         def create_system_base_frame():
             self.system_base_frame = ttk.Frame(self.base_frame, relief='solid')
@@ -145,20 +154,22 @@ class ProjectDetailWindow(BaseWindow):
 
         def create_data_frame(parent):
             device_data_frame = ttk.Frame(parent)
-            device_data_frame.grid(row=0,column=0,padx=10,pady=(0,10),sticky='nsew')
+            device_data_frame.grid(row=0,column=0,padx=10,pady=(10,10),sticky='nsew')
             return device_data_frame
 
         def iter_generate_device_frame(parent, system_key): # parent is device_data_frame
             #region Functions
             def create_device_frame(parent, row_idx, system_key):
-                def create_device_tag_entry(parent, row_idx, system_key):
+
+                def create_device_tag_entry(parent, row_idx, system_key, dev_prop_key):
                     device_tag_data = self.controller.systems_devices_data_dict[system_key]['devices_tags']['data'][row_idx]
+                    label_width = self.controller.systems_devices_data_dict[system_key][dev_prop_key]['max_char']
                     def validate_input_length(P):
                         if len(P) > 7:  # Limit to 10 characters
                             return False
                         return True
                     vcmd = (parent.register(validate_input_length), '%P')
-                    device_tag_entry = ttk.Entry(parent,width=8, validate='key', validatecommand=vcmd)
+                    device_tag_entry = ttk.Entry(parent,width=label_width, validate='key', validatecommand=vcmd)
                     device_tag_entry.grid(row=row_idx+1,column=0)
                     device_tag_entry.delete(0, tk.END)
                     device_tag_entry.insert(0, device_tag_data)
@@ -175,14 +186,22 @@ class ProjectDetailWindow(BaseWindow):
                     device_spinbox = ttk.Spinbox(parent, from_=0, to=9999, width=label_width)
                     device_spinbox.set(device_data)
                     device_spinbox.grid(row=row_idx+1,column=col, sticky='nsew')
+                
+                def create_device_combobox(parent, row_idx, system_key, dev_prop_key, col):
+                    device_data = self.controller.systems_devices_data_dict[system_key][dev_prop_key]['data'][row_idx]
+                    label_width = self.controller.systems_devices_data_dict[system_key][dev_prop_key]['max_char'] 
+                    device_spinbox = ttk.Combobox(parent, width=label_width)
+                    device_spinbox.set(device_data)
+                    device_spinbox.grid(row=row_idx+1,column=col, sticky='nsew')
 
-                create_device_tag_entry(parent, row_idx, system_key)
+                create_device_tag_entry(parent, row_idx, system_key, 'devices_tags')
                 create_device_label(parent, row_idx, system_key, 'devices_descs', 1)
                 create_device_label(parent, row_idx, system_key, 'devices_manufs', 2)
                 create_device_label(parent, row_idx, system_key, 'devices_models', 3)
                 create_device_spinbox(parent, row_idx, system_key, 'devices_qtys', 4)
+                create_device_combobox(parent, row_idx, system_key, 'devices_dwgs', 5)
                 delete_device_button = ButtonsFrame(parent, [('Delete', None)])
-                delete_device_button.button_frame.grid(row=row_idx+1, column=5, padx=(5,0))
+                delete_device_button.button_frame.grid(row=row_idx+1, column=6, padx=(5,0))
 
             def create_device_header(parent):
                 def extract_model_from_string(input_string):
@@ -196,7 +215,8 @@ class ProjectDetailWindow(BaseWindow):
                         if model.endswith('s'):
                             model = model[:-1]
                         return model
-                header_list = ['Tag', 'Description', 'Manufacturer', 'Model', 'Qty']
+                header_list = ['Tag', 'Description', 'Manufacturer', 'Model', 'Qty', 'Dwg']
+                # header_list = ['Tag', 'Description', 'Manufacturer', 'Model', 'Qty']
                 width_dict = self.controller.max_device_data_char_dict
                 width_list = []
                 for header in header_list:
@@ -205,9 +225,8 @@ class ProjectDetailWindow(BaseWindow):
                         if clean_key in header.lower():
                             width_list.append(width_dict[key])
                 for idx, header in enumerate(header_list):
-                    label_tag = ttk.Label(parent, text=header, width=width_list[idx]+2)
+                    label_tag = ttk.Label(parent, text=header, width=width_list[idx]-1, font=("Helvetica", 10, "bold"))
                     label_tag.grid(row=0,column=idx,sticky='nsew')
-
             #endregion
 
             manufs_list = self.controller.systems_devices_data_dict[system_key]['devices_manufs']['data']
