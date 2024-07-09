@@ -8,23 +8,46 @@ class ProjectDetailWindow(BaseWindow):
         super().__init__(title, parent, controller, is_root)
         self.project_number = project_number
         self.system_frames_collec_dict = {}
+        # Create a ttk Style object
+        self.style = ttk.Style()
+        # Configure a new style called "Custom.TFrame" with a desired background color
+        self.style.configure('Custom.TFrame', background="#FFDDC1")
+        # self.base_frame.configure(style='Custom.TFrame')
+        self.base_frame.grid(row=0,column=1)
         
         self.controller.get_systems_devices_data()
-        self.base_frame.columnconfigure(0, weight=1)
+        self.base_frame.columnconfigure(1, weight=1)
+        self.create_project_info_frame()
         self.create_project_label()
         self.create_systems()
         self.create_add_system_button_frame()
         self.create_devices()
+        self.create_left_menu_frame()
+        self.create_title_manager_button()
         
         BaseWindow.center_window(self.root)
 
 #####################################################################################
 
+    def create_project_info_frame(self):
+        self.project_info_frame = ttk.Frame(self.base_frame, relief='solid')
+        self.project_info_frame.grid(row=0, column=0, pady=(0,10), sticky='nsew')
+
     def create_project_label(self):
-        self.project_label = ttk.Label(self.base_frame,
+        self.project_label = ttk.Label(self.project_info_frame,
                                        text = f'EM Number: {self.project_number}')
-        self.project_label.grid(row=0,column=0,padx=10,pady=(0,10),sticky='w')
+        self.project_label.grid(row=0,column=0,padx=10,pady=10,sticky='w')
         return self.project_label
+
+    def create_left_menu_frame(self):
+        self.left_menu_frame = ttk.Frame(self.root, relief='solid')
+        self.left_menu_frame.grid(row=0, column=0, padx=(10,0), pady=10, sticky='nsew')
+    
+    def create_title_manager_button(self):
+        def title_manager_button_cmd():
+            pass
+        title_manager_button = ButtonsFrame(self.left_menu_frame, [('Title Manager', lambda: title_manager_button_cmd())])
+        title_manager_button.button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='n')
 
     def refresh_systems_data_view(self):
         def destroy_frames():
@@ -37,14 +60,14 @@ class ProjectDetailWindow(BaseWindow):
         self.iter_generate_system_frame()
         self.create_devices()
         BaseWindow.center_window(self.root)
-    
+
     def create_add_system_button_frame(self):
         def add_system_button_cmd():
             self.add_system_window = AddSystemWindow('Add New System', self, controller=self.controller)
     
         system_add_button_frame = ButtonsFrame(self.system_base_frame, [('Add System', lambda: add_system_button_cmd())])
         system_add_button_frame.button_frame.grid(row=1,column=0,
-                                                  padx=(10),pady=(0,10), sticky='e')
+                                                  padx=(10,0),pady=(10,0), sticky='e')
 
     def create_systems(self):
         
@@ -58,14 +81,14 @@ class ProjectDetailWindow(BaseWindow):
     
         #region Functions
         def create_system_base_frame():
-            self.system_base_frame = ttk.Frame(self.base_frame, relief='solid')
-            self.system_base_frame.grid(row=1, column=0,padx=10,pady=(0,10), sticky='nsew')
+            self.system_base_frame = ttk.Frame(self.base_frame)
+            self.system_base_frame.grid(row=1, column=0,padx=0,pady=(0,0), sticky='nsew')
             self.system_base_frame.columnconfigure(0, weight=1)
             return self.system_base_frame
         
         def create_system_data_frame():
             self.system_data_frame = ttk.Frame(self.system_base_frame)
-            self.system_data_frame.grid(row=0, column=0,padx=10,pady=10, sticky='nsew')
+            self.system_data_frame.grid(row=0, column=0,padx=0,pady=(0), sticky='nsew')
             self.system_data_frame.columnconfigure(0, weight=1)
             return self.system_data_frame
         #endregion
@@ -83,7 +106,7 @@ class ProjectDetailWindow(BaseWindow):
                 elif self.controller.number_of_systems == 1:
                     ypad = (10,0)
                 elif row_idx == 0:
-                    ypad = 10
+                    ypad = (0,10)
                 elif row_idx==self.controller.number_of_systems-1:
                     ypad = 0
                 else: 
@@ -93,7 +116,7 @@ class ProjectDetailWindow(BaseWindow):
             def create_frame():
                 system_frame = ttk.Frame(self.system_data_frame, relief= 'solid')
                 ypad = pady_config(row_idx)
-                system_frame.grid(row=row_idx, column=0, padx=10, pady=ypad, sticky='nsew')        
+                system_frame.grid(row=row_idx, column=0, padx=0, pady=ypad, sticky='nsew')        
                 system_frame.columnconfigure(0, weight=1)
                 return system_frame
             
@@ -112,7 +135,7 @@ class ProjectDetailWindow(BaseWindow):
             def create_system_name_label(parent, system_name):
                 system_name_label = ttk.Label(parent, text=system_name.upper(),
                                                 font=("Helvetica", 10, "bold"))
-                system_name_label.grid(row=0,column=0,padx=10,pady=0,sticky='w')
+                system_name_label.grid(row=0,column=0,padx=(0,10),pady=0,sticky='w')
                 return system_name_label
             
             def delete_system_button_cmd(system_name):
@@ -125,7 +148,7 @@ class ProjectDetailWindow(BaseWindow):
 
             def create_system_delete_button(parent, system_name):
                 system_delete_button = ButtonsFrame(parent, [('Delete System', lambda: delete_system_button_cmd(system_name))])
-                system_delete_button.button_frame.grid(row=0,column=1,padx=10,pady=0,sticky='nse')
+                system_delete_button.button_frame.grid(row=0,column=1,padx=(10,0),pady=0,sticky='nse')
 
             system_name: str = system_key[1]
             system_frame = create_frame()
@@ -143,7 +166,7 @@ class ProjectDetailWindow(BaseWindow):
         #region Functions
         def create_device_base_frame(parent):
             device_base_frame = ttk.LabelFrame(parent, text='Devices')
-            device_base_frame.grid(row=1,column=0,padx=10,pady=(0,10),sticky='nsew')
+            device_base_frame.grid(row=1,column=0,padx=0,pady=(5,0),sticky='nsew')
             device_base_frame.grid_columnconfigure(0, weight=1)
             return device_base_frame
         
