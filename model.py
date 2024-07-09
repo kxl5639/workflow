@@ -53,10 +53,12 @@ class SystemDevice(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'), primary_key=False)
     device_id: Mapped[int] = mapped_column(ForeignKey('devices.id'), primary_key=False)
-    tag:Mapped[str] = mapped_column(nullable=True)    
-    qty:Mapped[int] = mapped_column(nullable=True)  
+    dwgtitle_id: Mapped[int] = mapped_column(ForeignKey('dwgtitles.id'), nullable=False)
+    tag: Mapped[str] = mapped_column(nullable=True)
+    qty: Mapped[int] = mapped_column(nullable=True)
     system: Mapped['System'] = relationship('System', back_populates='devices')
     device: Mapped['Device'] = relationship('Device', back_populates='systems')
+    dwgtitle: Mapped['DwgTitle'] = relationship('DwgTitle', back_populates='systemdevices')
 
 class Diagram(Base):
     __tablename__ = 'diagrams'
@@ -69,12 +71,13 @@ class Diagram(Base):
 
 class DwgTitle(Base):
     __tablename__ = 'dwgtitles'
-    id:Mapped[int] = mapped_column(primary_key=True)
-    title:Mapped[str] = mapped_column(nullable=True)
-    dwgno:Mapped[int] = mapped_column(nullable=False)
-    project_id:Mapped[int] = mapped_column(ForeignKey('projects.id'),nullable=False)
-    project:Mapped['Project'] = relationship(back_populates='dwgtitles')
-    diagrams:Mapped[List['Diagram']] = relationship(back_populates='dwgtitle')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(nullable=True)
+    dwgno: Mapped[int] = mapped_column(nullable=False)
+    project_id: Mapped[int] = mapped_column(ForeignKey('projects.id'), nullable=False)
+    project: Mapped['Project'] = relationship(back_populates='dwgtitles')
+    diagrams: Mapped[List['Diagram']] = relationship(back_populates='dwgtitle')
+    systemdevices: Mapped[List['SystemDevice']] = relationship('SystemDevice', back_populates='dwgtitle', cascade="all, delete-orphan")
 
 class Client(Base):
     __tablename__ = 'clients'

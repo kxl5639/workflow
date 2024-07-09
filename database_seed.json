@@ -213,18 +213,21 @@
         {
             "system_id": 1,
             "device_id": 1,
+            "dwgtitle_id": 1,
             "tag": "SPT",
             "qty": 10
         },
         {
             "system_id": 1,
             "device_id": 2,
+            "dwgtitle_id": 1,
             "tag": "CS",
             "qty": 5
         },
         {
             "system_id": 2,
             "device_id": 1,
+            "dwgtitle_id": 2,
             "tag": "CS",
             "qty": 0
             
