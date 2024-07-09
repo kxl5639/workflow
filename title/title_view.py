@@ -39,6 +39,12 @@ class TitleView:
 
     def _create_project_number_frame(self):
         '''Create frame for Project Number'''
+
+        def _get_project_numbers_list():
+            project_numbers_list = [project.project_number for project in session.query(Project).all()]
+            self.project_combo['values'] = project_numbers_list
+            return project_numbers_list
+        
         self.project_frame = ttk.LabelFrame(self.base_frame, text='Project EM')
         self.project_frame.grid(row=0, column=0, padx = (10,0), pady = (10,0), sticky='w')
 
@@ -50,7 +56,7 @@ class TitleView:
         self.project_combo.grid(row=0, column=0, padx = 5, pady = 5, sticky='nsew')
         
         # Load project numbers in combobox
-        self.list_project_numbers = self._get_project_numbers_list()
+        self.list_project_numbers = _get_project_numbers_list()
 
     def _create_titles_frame(self):
         # Create frame for title entries
@@ -95,80 +101,6 @@ class TitleView:
         self.add_button = ButtonsFrame(self.scr_frame,[('Write SCR',
                                                                 lambda:self.controller.write_scr(self.project_number))])
         self.add_button.button_frame.grid(row=0, column=0, padx=(10), pady = 10)
-        
-    #endregion
-
-    def _load_body(self, project_number):
-        '''Loads the title entries dependent on project selection'''     
-
-        def _prompt_select_project():
-            """Prompt user to select a project."""
-            prompt_label = ttk.Label(self.titles_frame, text='Please select a project!')
-            prompt_label.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
-
-        def _load_project_titles(project_number):
-            """Load the titles for the selected project."""
-            project_obj = self.controller.get_project_object(project_number)
-            self._remove_title_widgets()
-
-            # Get information of page numbers and titles from project object
-            title_objs_list = self.controller.get_title_object(project_obj)
-
-            if not title_objs_list: self._default_title_entries()
-            else:
-                for title_obj in title_objs_list:
-                    entry_widget = self.create_entry_widget(self.titles_frame)
-                    entry_widget.insert(0, title_obj.title)
-
-        if project_number is None:
-            _prompt_select_project()
-        else:
-            _load_project_titles(project_number)
-            self.project_combo.set(project_number)
-            self.project_combo.state(['disabled'])
-        BaseWindow.center_window(self.root)
-            
-    def _remove_title_widgets(self):
-        '''Removes ALL title widgets and resizes the window'''
-        self.root.withdraw()
-        for widget in self.titles_frame.winfo_children():
-            widget.destroy()
-            self.title_entry_widgets_list = []
-            self.titles_frame.update_idletasks() # Restores title frame back to proper size after removing widgets
-        self.root.geometry('')
-        self.root.deiconify()
-        BaseWindow.center_window(self.root)
-
-    def destroy_frames_if_labels_match(self, numbers):
-        entry_frame_to_be_popped = []
-        for item in numbers:
-            for page_number, entry_frame in self.entry_frames_names.items():
-                if page_number == item:
-                    entry_frame_to_be_popped.append(page_number)
-                    entry_frame.destroy()
-        for item in entry_frame_to_be_popped:
-            del self.entry_frames_names[item]
-        self.get_all_entry_widgets(self.root)
-        BaseWindow.center_window(self.root)
-
-    def _default_title_entries(self):
-        '''Creates title entries and default entries with GENERAL NOTES, COMM RISER, MASTER PANEL'''
-        for _ in range(self.title_column_break):
-            self.create_entry_widget(self.titles_frame)
-        self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
-        self.title_entry_widgets_list[0].insert(0, 'GENERAL NOTES')
-        self.title_entry_widgets_list[1].insert(0, 'COMMUNICATION RISER')
-        self.title_entry_widgets_list[2].insert(0, 'MASTER CONTROL PANEL')
-
-    def _get_project_numbers_list(self):
-        project_numbers_list = [project.project_number for project in session.query(Project).all()]
-        self.project_combo['values'] = project_numbers_list
-        return project_numbers_list
-        
-    def on_project_selected(self):        
-        self.project_number = self.combo_project_number.get()
-        ####### NEED TO CHECK IF VALUES CHANGED BEFORE SWITCHING TO NEW PROJECT INFOS
-        self._load_body(self.project_number)        
 
     def create_entry_widget(self, parent):
         '''Creates entry widgets'''
@@ -208,6 +140,80 @@ class TitleView:
         if entry_count % self.title_column_break == 0 or entry_count == self.title_column_break-1:
             BaseWindow.center_window(self.root)
         return entry
+        
+    #endregion
+
+    def _load_body(self, project_number):
+        '''Loads the title entries dependent on project selection'''     
+
+        def _prompt_select_project_label():
+            """Prompt user to select a project."""
+            prompt_label = ttk.Label(self.titles_frame, text='Please select a project!')
+            prompt_label.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
+
+        def _load_project_titles(project_number):
+            """Load the titles for the selected project."""
+                    
+            def _remove_title_widgets():
+                '''Removes ALL title widgets and resizes the window'''
+                self.root.withdraw() # Hides the screen while application updates
+
+                for widget in self.titles_frame.winfo_children():
+                    widget.destroy()
+                    self.title_entry_widgets_list = []
+                    self.titles_frame.update_idletasks() # Restores title frame back to proper size after removing widgets
+
+                self.root.geometry('')
+                self.root.deiconify()
+                BaseWindow.center_window(self.root)
+
+            def _default_title_entries():
+                '''Creates title entries and default entries with GENERAL NOTES, COMM RISER, MASTER PANEL'''
+                for _ in range(self.title_column_break):
+                    self.create_entry_widget(self.titles_frame)
+                self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
+                self.title_entry_widgets_list[0].insert(0, 'GENERAL NOTES')
+                self.title_entry_widgets_list[1].insert(0, 'COMMUNICATION RISER')
+                self.title_entry_widgets_list[2].insert(0, 'MASTER CONTROL PANEL')
+
+            _remove_title_widgets()
+
+            # Get information of page numbers and titles from project object
+            project_obj = self.controller.get_project_object(project_number)
+            title_objs_list = self.controller.get_title_object(project_obj)
+
+            if not title_objs_list: _default_title_entries()
+            else:
+                for title_obj in title_objs_list:
+                    entry_widget = self.create_entry_widget(self.titles_frame)
+                    entry_widget.insert(0, title_obj.title)
+
+        if project_number is None:
+            _prompt_select_project_label()
+        else:
+            _load_project_titles(project_number)
+            self.project_combo.set(project_number)
+            self.project_combo.state(['disabled'])
+        BaseWindow.center_window(self.root)
+
+    def destroy_frames_if_labels_match(self, numbers):
+        entry_frame_to_be_popped = []
+
+        for item in numbers:
+            for page_number, entry_frame in self.entry_frames_names.items():
+                if page_number == item:
+                    entry_frame_to_be_popped.append(page_number)
+                    entry_frame.destroy()
+
+        for item in entry_frame_to_be_popped:
+            del self.entry_frames_names[item]
+        self.get_all_entry_widgets(self.root)
+        BaseWindow.center_window(self.root)
+        
+    def on_project_selected(self):        
+        self.project_number = self.combo_project_number.get()
+        ####### NEED TO CHECK IF VALUES CHANGED BEFORE SWITCHING TO NEW PROJECT INFOS
+        self._load_body(self.project_number)        
 
     def get_all_entry_widgets(self, parent):
         entry_widgets = []
@@ -234,7 +240,6 @@ class TitleView:
             entry_widget.insert(0, data)
 
         # Gets list of all title entry widgets
-
         self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
 
         # Check if an entry widget is selected and move up/down if yes
