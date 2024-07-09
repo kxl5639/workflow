@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from abc import ABC, abstractmethod
-from model import session
+from model import session, Base
+from typing import List, Type
 
 class BaseWindow(ABC):
     def __init__(self, title, parent, controller=None, is_root=False):
@@ -157,3 +158,7 @@ class Model:
 
     def commit_changes(self):
         session.commit()
+
+    def get_objs_from_column_data(self, model: Type[Base], col_name, col_val) -> List[Base]:
+        col_attr = getattr(model, col_name)
+        return session.query(model).filter(col_attr == col_val).all()
