@@ -10,25 +10,24 @@ class Base(DeclarativeBase):
 
 class Project(Base):
     __tablename__ = 'projects'
-    id:Mapped[int] = mapped_column(primary_key=True)
-    project_number:Mapped[str] = mapped_column(nullable=False, unique=True)
-    em_type:Mapped[str] = mapped_column(nullable=False)
-    job_phase:Mapped[int] = mapped_column(nullable=False)
-    submit_date:Mapped[str] = mapped_column(nullable=False)
-    client_id:Mapped[int] = mapped_column(ForeignKey('clients.id'),nullable=False)
-    client:Mapped['Client'] = relationship(back_populates='projects')
-    projectmanager_id:Mapped[int] = mapped_column(ForeignKey('projectmanagers.id'),nullable=False)
-    projectmanager:Mapped['ProjectManager'] = relationship(back_populates='projects')
-    mechanicalengineer_id:Mapped[int] = mapped_column(ForeignKey('mechanicalengineers.id'),nullable=False)
-    mechanicalengineer:Mapped['MechanicalEngineer'] = relationship(back_populates='projects')
-    mechanicalcontractor_id:Mapped[int] = mapped_column(ForeignKey('mechanicalcontractors.id'),nullable=False)
-    mechanicalcontractor:Mapped['MechanicalContractor'] = relationship(back_populates='projects')
-    designengineer_id:Mapped[int] = mapped_column(ForeignKey('designengineers.id'),nullable=False)
-    designengineer:Mapped['DesignEngineer'] = relationship(back_populates='projects')
-    salesengineer_id:Mapped[int] = mapped_column(ForeignKey('salesengineers.id'),nullable=False)
-    salesengineer:Mapped['SalesEngineer'] = relationship(back_populates='projects')
-    dwgtitles:Mapped[List['DwgTitle']] = relationship(back_populates='project', cascade="all, delete-orphan")
-    systems:Mapped[List['System']] = relationship(back_populates='project', cascade="all, delete-orphan")
+    id: Mapped[int] = mapped_column(primary_key=True)
+    project_number: Mapped[str] = mapped_column(nullable=False, unique=True)
+    em_type: Mapped[str] = mapped_column(nullable=False)
+    job_phase: Mapped[int] = mapped_column(nullable=False)
+    submit_date: Mapped[str] = mapped_column(nullable=False)
+    client_id: Mapped[int] = mapped_column(ForeignKey('clients.id'), nullable=False)
+    client: Mapped['Client'] = relationship(back_populates='projects')
+    projectmanager_id: Mapped[int] = mapped_column(ForeignKey('projectmanagers.id'), nullable=False)
+    projectmanager: Mapped['ProjectManager'] = relationship(back_populates='projects')
+    mechanicalengineer_id: Mapped[int] = mapped_column(ForeignKey('mechanicalengineers.id'), nullable=False)
+    mechanicalengineer: Mapped['MechanicalEngineer'] = relationship(back_populates='projects')
+    mechanicalcontractor_id: Mapped[int] = mapped_column(ForeignKey('mechanicalcontractors.id'), nullable=False)
+    mechanicalcontractor: Mapped['MechanicalContractor'] = relationship(back_populates='projects')
+    designengineer_id: Mapped[int] = mapped_column(ForeignKey('designengineers.id'), nullable=False)
+    designengineer: Mapped['DesignEngineer'] = relationship(back_populates='projects')
+    salesengineer_id: Mapped[int] = mapped_column(ForeignKey('salesengineers.id'), nullable=False)
+    salesengineer: Mapped['SalesEngineer'] = relationship(back_populates='projects')
+    systems: Mapped[List['System']] = relationship(back_populates='project', cascade="all, delete-orphan")
 
 class System(Base):
     __tablename__ = 'systems'
@@ -36,8 +35,9 @@ class System(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     project_id: Mapped[int] = mapped_column(ForeignKey('projects.id'), nullable=False)
     project: Mapped['Project'] = relationship(back_populates='systems')
-    diagrams: Mapped[list['Diagram']] = relationship(back_populates='system', cascade="all, delete-orphan")
-    devices: Mapped[list['SystemDevice']] = relationship('SystemDevice', back_populates='system', cascade="all, delete-orphan")
+    diagrams: Mapped[List['SystemDiagram']] = relationship('SystemDiagram', back_populates='system', cascade="all, delete-orphan")
+    devices: Mapped[List['SystemDevice']] = relationship('SystemDevice', back_populates='system', cascade="all, delete-orphan")
+    dwgtitles: Mapped[List['DwgTitle']] = relationship('DwgTitle', back_populates='system')
 
 class Device(Base):
     __tablename__ = 'devices'
@@ -60,83 +60,83 @@ class SystemDevice(Base):
     device: Mapped['Device'] = relationship('Device', back_populates='systems')
     dwgtitle: Mapped['DwgTitle'] = relationship('DwgTitle', back_populates='systemdevices')
 
+class SystemDiagram(Base):
+    __tablename__ = 'systemdiagrams'
+    system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'), primary_key=True)
+    diagram_id: Mapped[int] = mapped_column(ForeignKey('diagrams.id'), primary_key=True)
+    system: Mapped['System'] = relationship('System', back_populates='diagrams')
+    diagram: Mapped['Diagram'] = relationship('Diagram', back_populates='systems')
+
 class Diagram(Base):
     __tablename__ = 'diagrams'
-    id:Mapped[int] = mapped_column(primary_key=True)
-    type:Mapped[str] = mapped_column(nullable=True)    
-    system_id:Mapped[int] = mapped_column(ForeignKey('systems.id'),nullable=False)
-    system:Mapped['System'] = relationship(back_populates='diagrams')
-    dwgtitle_id:Mapped[int] = mapped_column(ForeignKey('dwgtitles.id'),nullable=False)
-    dwgtitle:Mapped['DwgTitle'] = relationship(back_populates='diagrams')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    type: Mapped[str] = mapped_column(nullable=False, unique=True)    
+    systems: Mapped[List['SystemDiagram']] = relationship('SystemDiagram', back_populates='diagram', cascade="all, delete-orphan")
 
 class DwgTitle(Base):
     __tablename__ = 'dwgtitles'
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(nullable=True)
     dwgno: Mapped[int] = mapped_column(nullable=False)
-    project_id: Mapped[int] = mapped_column(ForeignKey('projects.id'), nullable=False)
-    project: Mapped['Project'] = relationship(back_populates='dwgtitles')
-    diagrams: Mapped[List['Diagram']] = relationship(back_populates='dwgtitle')
+    system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'), nullable=False)
+    system: Mapped['System'] = relationship(back_populates='dwgtitles')
     systemdevices: Mapped[List['SystemDevice']] = relationship('SystemDevice', back_populates='dwgtitle', cascade="all, delete-orphan")
 
 class Client(Base):
     __tablename__ = 'clients'
-    id:Mapped[int] = mapped_column(primary_key=True)
-    client_name:Mapped[str] = mapped_column(nullable=False)
-    scope:Mapped[str] = mapped_column(nullable=False)
-    address:Mapped[str] = mapped_column(nullable=False)
-    city:Mapped[str] = mapped_column(nullable=False)
-    state:Mapped[str] = mapped_column(nullable=False)
-    zip_code:Mapped[int] = mapped_column(nullable=False)    
-    projects:Mapped[List['Project']] = relationship(back_populates='client')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    client_name: Mapped[str] = mapped_column(nullable=False)
+    scope: Mapped[str] = mapped_column(nullable=False)
+    address: Mapped[str] = mapped_column(nullable=False)
+    city: Mapped[str] = mapped_column(nullable=False)
+    state: Mapped[str] = mapped_column(nullable=False)
+    zip_code: Mapped[int] = mapped_column(nullable=False)    
+    projects: Mapped[List['Project']] = relationship(back_populates='client')
 
 class ProjectManager(Base):
     __tablename__ = 'projectmanagers'
-    id:Mapped[int] = mapped_column(primary_key=True)
-    first_name:Mapped[str] = mapped_column(nullable=False)
-    last_name:Mapped[str] = mapped_column(nullable=False)
-    projects:Mapped[List['Project']] = relationship(back_populates='projectmanager')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    first_name: Mapped[str] = mapped_column(nullable=False)
+    last_name: Mapped[str] = mapped_column(nullable=False)
+    projects: Mapped[List['Project']] = relationship(back_populates='projectmanager')
 
 class MechanicalEngineer(Base):
     __tablename__ = 'mechanicalengineers'
-    id:Mapped[int] = mapped_column(primary_key=True)
-    name:Mapped[str] = mapped_column(nullable=False)    
-    address:Mapped[str] = mapped_column(nullable=False)
-    city:Mapped[str] = mapped_column(nullable=False)
-    state:Mapped[str] = mapped_column(nullable=False)
-    zip_code:Mapped[int] = mapped_column(nullable=False)    
-    projects:Mapped[List['Project']] = relationship(back_populates='mechanicalengineer')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(nullable=False)    
+    address: Mapped[str] = mapped_column(nullable=False)
+    city: Mapped[str] = mapped_column(nullable=False)
+    state: Mapped[str] = mapped_column(nullable=False)
+    zip_code: Mapped[int] = mapped_column(nullable=False)    
+    projects: Mapped[List['Project']] = relationship(back_populates='mechanicalengineer')
 
 class MechanicalContractor(Base):
     __tablename__ = 'mechanicalcontractors'
-    id:Mapped[int] = mapped_column(primary_key=True)
-    name:Mapped[str] = mapped_column(nullable=False)    
-    address:Mapped[str] = mapped_column(nullable=False)
-    city:Mapped[str] = mapped_column(nullable=False)
-    state:Mapped[str] = mapped_column(nullable=False)
-    zip_code:Mapped[int] = mapped_column(nullable=False)    
-    telephone:Mapped[str] = mapped_column(nullable=False)    
-    projects:Mapped[List['Project']] = relationship(back_populates='mechanicalcontractor')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(nullable=False)    
+    address: Mapped[str] = mapped_column(nullable=False)
+    city: Mapped[str] = mapped_column(nullable=False)
+    state: Mapped[str] = mapped_column(nullable=False)
+    zip_code: Mapped[int] = mapped_column(nullable=False)    
+    telephone: Mapped[str] = mapped_column(nullable=False)    
+    projects: Mapped[List['Project']] = relationship(back_populates='mechanicalcontractor')
 
 class DesignEngineer(Base):
     __tablename__ = 'designengineers'
-    id:Mapped[int] = mapped_column(primary_key=True)
-    first_name:Mapped[str] = mapped_column(nullable=False)
-    last_name:Mapped[str] = mapped_column(nullable=False)
-    projects:Mapped[List['Project']] = relationship(back_populates='designengineer')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    first_name: Mapped[str] = mapped_column(nullable=False)
+    last_name: Mapped[str] = mapped_column(nullable=False)
+    projects: Mapped[List['Project']] = relationship(back_populates='designengineer')
 
 class SalesEngineer(Base):
     __tablename__ = 'salesengineers'
-    id:Mapped[int] = mapped_column(primary_key=True)
-    first_name:Mapped[str] = mapped_column(nullable=False)
-    last_name:Mapped[str] = mapped_column(nullable=False)
-    projects:Mapped[List['Project']] = relationship(back_populates='salesengineer')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    first_name: Mapped[str] = mapped_column(nullable=False)
+    last_name: Mapped[str] = mapped_column(nullable=False)
+    projects: Mapped[List['Project']] = relationship(back_populates='salesengineer')
 
 def _db_exist():
-    if os.path.exists('workflow.db'):
-        return True
-    else:
-        return False
+    return os.path.exists('workflow.db')
 
 exist_db = _db_exist()
 DATABASE_URL = 'sqlite:///workflow.db'
@@ -200,5 +200,9 @@ if not exist_db:
     for diagram_data in data['diagrams']:
         diagram = Diagram(**diagram_data)
         session.add(diagram)
+
+    for systemdiagram_data in data['systemdiagrams']:
+        systemdiagram = SystemDiagram(**systemdiagram_data)
+        session.add(systemdiagram)
 
     session.commit()
