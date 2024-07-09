@@ -28,6 +28,8 @@ class TitleView:
         BaseWindow.center_window(self.root)
         self.root.focus_force()
 
+#####################################################################################
+
     #region Creating widgets on screen
     def _create_base_frame(self):
         '''Create base frame where title entries and menu buttons will live'''
@@ -160,31 +162,42 @@ class TitleView:
 
     def create_entry_widget(self, parent):
         '''Creates entry widgets'''
-        # Check how many existing entry widgets there are
+
+        def _get_active_entry_widget(entry):
+            self.active_entry_widget = entry
+        
+        def create_entry_frame(parent):
+            entry_frame = ttk.Frame(parent)        
+            ypad = 10 if entry_count % self.title_column_break == 0 else (0,10) 
+            entry_frame.grid(row=in_row, column=in_column, padx=10, pady=ypad, sticky='nsew')
+            entry_frame.grid_columnconfigure(1, weight = 1)
+            return entry_frame
+
+        # Count existing entries
         entry_count = len(self.get_all_entry_widgets(self.root))
+
+        # Calculate column and rows indexes
         in_column = entry_count // self.title_column_break
         in_row = entry_count - (in_column*self.title_column_break)
-        entry_frame = ttk.Frame(parent)        
-        ypad = 10 if entry_count % self.title_column_break == 0 else (0,10) 
-        entry_frame.grid(row=in_row, column=in_column, padx=10, pady=ypad, sticky='nsew')
-        entry_frame.grid_columnconfigure(1, weight = 1)
+
+        # Create entry frame
+        entry_frame = create_entry_frame(parent)
+
+        # Store entry frames
         self.entry_frames_names[entry_count+1] = entry_frame
+        
+        # Create number index label
         entry_label = ttk.Label(entry_frame, text=entry_count+1)
         entry_label.grid(row=0, column=0, padx=(0,5))
+
+        # Create title entry widget
         entry = ttk.Entry(entry_frame, width=50)
         entry.grid(row=0, column=1, sticky='nsew')
-        entry.bind("<FocusIn>", lambda event: self._get_active_entry_widget(entry))
+        entry.bind("<FocusIn>", lambda event: _get_active_entry_widget(entry))
         self.titles_frame.grid_columnconfigure(in_column, weight = 1)
         if entry_count % self.title_column_break == 0 or entry_count == self.title_column_break-1:
             BaseWindow.center_window(self.root)
         return entry
-
-    def _get_active_entry_widget(self, entry):
-        self.active_entry_widget = entry
-
-    def _update_widget_data(self, entry_widget, data):
-        entry_widget.delete(0, tk.END)
-        entry_widget.insert(0, data)
 
     def get_all_entry_widgets(self, parent):
         entry_widgets = []
@@ -199,21 +212,31 @@ class TitleView:
         return entry_widgets
 
     def move_entry(self, direction):
+
+        def _swap_widget_data(entry1, entry2):
+            data1 = entry1.get()
+            data2 = entry2.get()
+            _update_widget_data(entry1, data2)
+            _update_widget_data(entry2, data1)
+
+        def _update_widget_data(entry_widget, data):
+            entry_widget.delete(0, tk.END)
+            entry_widget.insert(0, data)
+
+        # Gets list of all title entry widgets
+
         self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
+
+        # Check if an entry widget is selected and move up/down if yes
         if self.active_entry_widget:
             if (direction == 'up' and self.active_entry_widget != self.title_entry_widgets_list[0]) or \
             (direction == 'down' and self.active_entry_widget != self.title_entry_widgets_list[-1]):
                 curr_idx = self.title_entry_widgets_list.index(self.active_entry_widget)
                 new_idx = curr_idx - 1 if direction == 'up' else curr_idx + 1
-                
-                def _swap_widget_data(idx1, idx2):
-                    data1 = self.title_entry_widgets_list[idx1].get()
-                    data2 = self.title_entry_widgets_list[idx2].get()
-                    self._update_widget_data(self.title_entry_widgets_list[idx1], data2)
-                    self._update_widget_data(self.title_entry_widgets_list[idx2], data1)
-                
-                _swap_widget_data(curr_idx, new_idx)
+                curr_entry = self.title_entry_widgets_list[curr_idx]
+                new_entry = self.title_entry_widgets_list[new_idx]
+                _swap_widget_data(curr_entry, new_entry)
                 self.active_entry_widget = self.title_entry_widgets_list[new_idx]
-                self.title_entry_widgets_list[new_idx].focus_set()
+                self.active_entry_widget.focus_set()
             else:
                 self.active_entry_widget.focus_set()
