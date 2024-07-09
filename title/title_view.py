@@ -4,7 +4,7 @@ from class_collection import BaseWindow, ButtonsFrame
 from model import session, Project
 
 class TitleView:
-    def __init__(self, title, parent, controller, project_number):
+    def __init__(self, title, parent, controller, project_number=None):
         self.title = title
         self.parent = parent
         self.controller = controller
@@ -41,12 +41,14 @@ class TitleView:
         '''Create frame for Project Number'''
         self.project_frame = ttk.LabelFrame(self.base_frame, text='Project EM')
         self.project_frame.grid(row=0, column=0, padx = (10,0), pady = (10,0), sticky='w')
+
         self.combo_project_number = tk.StringVar()
         self.project_combo = ttk.Combobox(self.project_frame,
                                         textvariable=self.combo_project_number, state='readonly')
         self.project_combo.bind('<<ComboboxSelected>>',
                                 lambda _:self.controller.on_project_combobox_selected())
         self.project_combo.grid(row=0, column=0, padx = 5, pady = 5, sticky='nsew')
+        
         # Load project numbers in combobox
         self.list_project_numbers = self._get_project_numbers_list()
 
@@ -98,24 +100,32 @@ class TitleView:
 
     def _load_body(self, project_number):
         '''Loads the title entries dependent on project selection'''     
+
         def _prompt_select_project():
             """Prompt user to select a project."""
             prompt_label = ttk.Label(self.titles_frame, text='Please select a project!')
             prompt_label.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
+
         def _load_project_titles(project_number):
             """Load the titles for the selected project."""
             project_obj = self.controller.get_project_object(project_number)
             self._remove_title_widgets()
+
             # Get information of page numbers and titles from project object
             title_objs_list = self.controller.get_title_object(project_obj)
+
             if not title_objs_list: self._default_title_entries()
             else:
                 for title_obj in title_objs_list:
                     entry_widget = self.create_entry_widget(self.titles_frame)
                     entry_widget.insert(0, title_obj.title)
 
-        if project_number is None: _prompt_select_project()
-        else: _load_project_titles(project_number)
+        if project_number is None:
+            _prompt_select_project()
+        else:
+            _load_project_titles(project_number)
+            self.project_combo.set(project_number)
+            self.project_combo.state(['disabled'])
         BaseWindow.center_window(self.root)
             
     def _remove_title_widgets(self):

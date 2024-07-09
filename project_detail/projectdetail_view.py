@@ -12,7 +12,6 @@ class ProjectDetailWindow(BaseWindow):
         self.style = ttk.Style()
         # Configure a new style called "Custom.TFrame" with a desired background color
         self.style.configure('Custom.TFrame', background="#FFDDC1")
-        # self.base_frame.configure(style='Custom.TFrame')
         self.base_frame.grid(row=0,column=1)
         
         self.controller.get_systems_devices_data()

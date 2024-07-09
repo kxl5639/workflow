@@ -6,8 +6,9 @@ from class_collection import Controller
 class TitleController(Controller):
     def __init__(self, parent=None, project_number=None) -> None:
         super().__init__(parent, project_number)
-        self.view = TitleView('Title Manager', self.parent, self, project_number=None)
-        self.model = TitleModel()
+        self.model = TitleModel(self)
+        self.view = TitleView(f'{self.project_number} Title Manager', self.parent, self, project_number=self.project_number)
+        
 
 #region View
     def add_entry(self, parent):
