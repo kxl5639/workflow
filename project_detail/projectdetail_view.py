@@ -45,7 +45,7 @@ class ProjectDetailWindow(BaseWindow):
     
     def create_title_manager_button(self):
         def title_manager_button_cmd():
-            pass
+            self.controller.open_title_manager()
         title_manager_button = ButtonsFrame(self.left_menu_frame, [('Title Manager', lambda: title_manager_button_cmd())])
         title_manager_button.button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='n')
 

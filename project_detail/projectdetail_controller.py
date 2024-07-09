@@ -2,6 +2,7 @@ from project_detail.projectdetail_view import ProjectDetailWindow
 from project_detail.projectdetail_model import ProjectDetailModel
 from model import session, Project, SystemDevice, System, Device
 from class_collection import Controller
+from title.title_controller import TitleController
 
 class ProjectDetailController(Controller):
     def __init__(self, parent=None, project_number=None) -> None:
@@ -180,3 +181,6 @@ class ProjectDetailController(Controller):
         self.model.delete_record([system_obj])
         self.model.commit_changes()
     #endregion
+
+    def open_title_manager(self):
+        TitleController(self.view, self.project_number)
