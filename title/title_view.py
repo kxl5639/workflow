@@ -1,70 +1,104 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, font
 from class_collection import View, ButtonsFrame
 from model import session, Project
 
 class TitleView(View):
     def __init__(self, title, parent, controller, project_number, is_root=False):
         super().__init__(title, parent, controller, is_root)
-        self.project_number = project_number
-        self.title_column_break = 15
+        self.initiate_testing_values(1)
         self.root.resizable(width=True, height=True)
-        self.testing = 1
-        if self.testing == 0:
-            self.relief = None
-        else:
-            self.relief = 'solid'
+        self.project_number = project_number
+        self.title_column_break = 10
+        self.header_font = font.Font(family="Helvetica", size=9, weight="bold")
+        self.title_col_frames_list = []
+        
     
         self.create_project_number_frame()
-        self.create_titles_frame()
+        self.create_and_populate_titles_frame()
         self.create_right_toolbar_frame()
 
         self.center_window(self.root)
 
 #####################################################################################
 
-####################### Frame Structure #######################
-#                                                             #
-#  base_frame [-> titles_frame -> entry_frame]                #
-#              -> project_number_frame]                       #
-#              -> right_toolbar_frame [-> menu_frame]         #
-#                                      -> autocad_scr_frame]  #
-#                                                             # 
-###############################################################
+############################ Frame Structure ############################
+#                                                                       #
+#  base_frame [-> titles_frame -> [ -> title_col_frame - > entry_frame] #
+#                                   ...                                 #
+#                                   -> title_col_frame - > entry_frame] #
+#              -> project_number_frame]                                 #
+#              -> right_toolbar_frame [-> menu_frame]                   #
+#                                      -> autocad_scr_frame]            #
+#                                                                       # 
+#########################################################################
 
     def create_project_number_frame(self):
         project_number_frame = self.create_frame(self.base_frame, 0, 0,
                                                  padx=0, pady=(0,10), sticky='nsew',
                                                  relief = self.relief)
-        project_number_label = self.create_label(project_number_frame, f'EM: {self.project_number}',
-                                                 0, 0, padx=0, pady=0,
-                                                 sticky='w', relief=self.relief)
+        
+        self.create_label(project_number_frame, f'EM: {self.project_number}',
+                          0, 0, padx=0, pady=0,
+                          sticky='w', relief=self.relief)
     
-    def create_titles_frame(self):
+    def create_and_populate_titles_frame(self):
 
-        def populate_titles_frame():
+        def create_titles_frame():
+            self.titles_label_frame = self.create_label_frame(self.base_frame, 'Titles', 1, 0,
+                                                    padx=(0,10),pady=0,sticky='nsew',
+                                                    relief=self.relief)
+            return self.titles_label_frame
 
-            self.controller.fetch_all_title_data_dict()
+        def create_title_col_frame(cidx):
+            title_col_frame = self.create_frame(self.titles_label_frame, 0, cidx,
+                                                padx=10, pady=10, sticky='nsew',
+                                                relief='solid')
+            return title_col_frame
+                    
+        def create_title_header_frame(parent):
+            title_header_frame = self.create_frame(parent, 0, 0,
+                                    padx=10, pady=10, sticky='nsew',
+                                    relief=self.relief)
+            title_header = self.create_label(title_header_frame, 'Title', 0, 1, 0, 0, sticky='nsew')
+            title_header.config(font=self.header_font)
+            diagram_header = self.create_label(title_header_frame, 'Diagram', 0, 2, 0, 0, sticky='nsew')
+            diagram_header.config(font=self.header_font)
+            system_header = self.create_label(title_header_frame, 'System', 0, 3, 0, 0, sticky='nsew')
+            system_header.config(font=self.header_font)
 
-            # def create_title_col_frame(ridx, cidx):
-            #     title_col_frame = self.create_frame(self.titles_frame, ridx, cidx,
-            #                                         padx=0, pady=0, sticky='nsew',
-            #                                         relief=self.relief)
-
-            # # Get number of title objects from controller
-            # num_title_obj = len(self.controller.dwgtitle_table_dict_list)
-            # # title_dict = self.controller.title_dict
-            # # # print(title_dict)
             
-            # if num_title_obj:
-            #     pass # Create entry frames based on titles
-            # else:
-            #     pass # Create default entries such as com riser, general notes, master panel, etc...
+        self.titles_label_frame = create_titles_frame()
 
-        self.titles_frame = self.create_label_frame(self.base_frame, 'Titles', 1, 0,
-                                                 padx=(0,10),pady=0,sticky='nsew',
-                                                 relief=self.relief)
-        populate_titles_frame()
+        all_title_data_dict_generator = self.controller.generate_all_title_data_dict()
+        for title_data_dict in all_title_data_dict_generator:
+
+            dwgno = title_data_dict['dwgno']
+            title = title_data_dict['title']
+            diagram_id = title_data_dict['diagram_id']
+            system_id = title_data_dict['system_id']
+            in_column = dwgno // self.title_column_break
+            in_row = dwgno - (in_column*self.title_column_break)
+            print(f'\n{dwgno = }')
+            print(f'{title = }')
+            print(f'{diagram_id = }')
+            print(f'{system_id = }')
+            print(f'{in_column = }')
+            print(f'{in_row = }')
+        
+            if int(in_row) == 1:
+                title_col_frame = create_title_col_frame(in_column)
+                self.title_col_frames_list.append(title_col_frame)
+                title_header_frame = create_title_header_frame(self.title_col_frames_list[-1])
+
+            
+                
+
+                
+
+        
+            
+        # create_title_col_frame()
     
     def create_right_toolbar_frame(self):
         def create_menu_frame():
@@ -104,3 +138,9 @@ class TitleView(View):
 
         scr_button = ButtonsFrame(autocad_src_frame, [('Write SCR', lambda:scr_btn_cmd())])
         scr_button.button_frame.grid(row=0, column=0, padx=(10,10), pady=(10), sticky='nsew')
+
+    def initiate_testing_values(self, testing):
+        if testing == 0:
+            self.relief = None
+        else:
+            self.relief = 'solid'
