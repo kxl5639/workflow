@@ -163,37 +163,43 @@ class Model:
         col_attr = getattr(model, col_name)
         return session.query(model).filter(col_attr == col_val).all()
     
-    def query_multple_columns_with_filter(self, model, columns, filter_column, filter_value):
+    def query_multiple_columns_with_filter(self, model, columns, filter_column, filter_value, sort_column=None):
         '''
         Query specified columns from a SQLAlchemy model based on a filter condition.
         
         Parameters:
+        - model: SQLAlchemy model class.
         - columns (list of str): A list of column names (as strings) to retrieve from the model.
         - filter_column (str): The name of the column to use for filtering the query.
         - filter_value (any): The value to filter the specified filter_column by.
+        - sort_column (str, optional): The name of the column to sort the result by. Should be one of the columns in the 'columns' list.
         
         Returns:
-        - list: A list of tuples, where each tuple contains the values of the specified columns 
+        - list: A list of dictionaries, where each dictionary contains the values of the specified columns 
                 for each row that matches the filter condition.
         
         Example:
         columns = ['name', 'age']
         filter_column = 'id' # This column is your given column, along with given filter_value.
         filter_value = 2
-        result = query_columns_with_filter(session, User, columns, filter_column, filter_value)
+        sort_column = 'name'
+        result = query_multiple_columns_with_filter(User, columns, filter_column, filter_value, sort_column)
         
-        Returns a list of dictionarys with the key(column) value(column_value) for record object.
+        Returns a list of dictionaries with the key(column) value(column_value) for record object.
         '''
         filter_col_attr = getattr(model, filter_column)        
         record_objs_list = session.query(model).filter(filter_col_attr == filter_value).all()
+        
         col_and_value_dict_list = []
-        individual_dict = {}
         for record_obj in record_objs_list:
-            individual_dict = {}
-            for col in columns:
-                    individual_dict[col] = getattr(record_obj, col)
+            individual_dict = {col: getattr(record_obj, col) for col in columns}
             col_and_value_dict_list.append(individual_dict)
+        
+        if sort_column and sort_column in columns:
+            col_and_value_dict_list = sorted(col_and_value_dict_list, key=lambda x: x[sort_column])
+        
         return col_and_value_dict_list
+
     
 class View(BaseWindow):
     def __init__(self, title, parent, controller=None, is_root=False):
@@ -205,7 +211,7 @@ class View(BaseWindow):
                             col: int,
                             padx: int = None,
                             pady: int = None,
-                            sticky: str = None):
+                            sticky: str = 'nsew'):
         entry_widget = ttk.Entry(parent)
         entry_widget.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
         return entry_widget
@@ -217,7 +223,7 @@ class View(BaseWindow):
                      col: int,
                      padx: int  = 0,
                      pady: int = 0,
-                     sticky: str = None,
+                     sticky: str = 'nsew',
                      relief: str = None):
         label = ttk.Label(parent, text=text, relief=relief)
         label.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
@@ -229,7 +235,7 @@ class View(BaseWindow):
                      col: int,
                      padx: int  = 0,
                      pady: int = 0,
-                     sticky: str = None,
+                     sticky: str = 'nsew',
                      relief: str = None):
         frame = ttk.Frame(parent, relief=relief)
         frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
@@ -242,7 +248,7 @@ class View(BaseWindow):
                            col: int,
                            padx: int  = 0,
                            pady: int = 0,
-                           sticky: str = None,
+                           sticky: str = 'nsew',
                            relief: str = None):
         frame = ttk.LabelFrame(parent, text=text, relief=relief)
         frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
