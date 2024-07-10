@@ -139,21 +139,75 @@
     ],
     "dwgtitles": [
         {
-            "title": "AHU Sequence",
+            "title": "AHU Sequence (Page 1 of 3)",
             "dwgno": 1,
             "system_id": 1,
             "project_id": 2
         },
         {
-            "title": "AHU FLOW",
+            "title": "AHU Sequence (Page 2 of 2)",
             "dwgno": 2,
             "system_id": 1,
             "project_id": 2
         },
         {
-            "title": "AHU CONTROL PANEL",
+            "title": "AHU Sequence (Page 3 of 3)",
             "dwgno": 3,
             "system_id": 1,
+            "project_id": 2
+        },
+        {
+            "title": "AHU FLOW DIAGRAM",
+            "dwgno": 4,
+            "system_id": 1,
+            "project_id": 2
+        },
+        {
+            "title": "AHU CONTROL PANEL (page 1 of 2)",
+            "dwgno": 5,
+            "system_id": 1,
+            "project_id": 2
+        },
+        {
+            "title": "AHU CONTROL PANEL (page 2 of 2)",
+            "dwgno": 6,
+            "system_id": 1,
+            "project_id": 2
+        },
+        {
+            "title": "VAV Sequence (Page 1 of 3)",
+            "dwgno": 7,
+            "system_id": 2,
+            "project_id": 2
+        },
+        {
+            "title": "VAV Sequence (Page 2 of 2)",
+            "dwgno": 8,
+            "system_id": 2,
+            "project_id": 2
+        },
+        {
+            "title": "VAV Sequence (Page 3 of 3)",
+            "dwgno": 9,
+            "system_id": 2,
+            "project_id": 2
+        },
+        {
+            "title": "VAV FLOW DIAGRAM",
+            "dwgno": 10,
+            "system_id": 2,
+            "project_id": 2
+        },
+        {
+            "title": "VAV CONTROL PANEL (page 1 of 2)",
+            "dwgno": 11,
+            "system_id": 2,
+            "project_id": 2
+        },
+        {
+            "title": "VAV CONTROL PANEL (page 2 of 2)",
+            "dwgno": 12,
+            "system_id": 2,
             "project_id": 2
         }
     ],
@@ -225,17 +279,53 @@
             "qty": 0
         }
     ],
-    "systemdiagrams": [
+    "dwgtitlediagrams": [
         {
-            "system_id": 1,
+            "dwgtitle_id": 1,
             "diagram_id": 2
         },
         {
-            "system_id": 1,
+            "dwgtitle_id": 2,
+            "diagram_id": 2
+        },
+        {
+            "dwgtitle_id": 3,
+            "diagram_id": 2
+        },
+        {
+            "dwgtitle_id": 4,
             "diagram_id": 3
         },
         {
-            "system_id": 1,
+            "dwgtitle_id": 5,
+            "diagram_id": 4
+        },
+        {
+            "dwgtitle_id": 6,
+            "diagram_id": 4
+        },
+        {
+            "dwgtitle_id": 7,
+            "diagram_id": 2
+        },
+        {
+            "dwgtitle_id": 8,
+            "diagram_id": 2
+        },
+        {
+            "dwgtitle_id": 9,
+            "diagram_id": 2
+        },
+        {
+            "dwgtitle_id": 10,
+            "diagram_id": 3
+        },
+        {
+            "dwgtitle_id": 11,
+            "diagram_id": 4
+        },
+        {
+            "dwgtitle_id": 12,
             "diagram_id": 4
         }
     ]

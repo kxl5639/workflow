@@ -162,3 +162,88 @@ class Model:
     def get_objs_from_column_data(self, model: Type[Base], col_name, col_val) -> List[Base]:
         col_attr = getattr(model, col_name)
         return session.query(model).filter(col_attr == col_val).all()
+    
+    def query_multple_columns_with_filter(self, model, columns, filter_column, filter_value):
+        '''
+        Query specified columns from a SQLAlchemy model based on a filter condition.
+        
+        Parameters:
+        - columns (list of str): A list of column names (as strings) to retrieve from the model.
+        - filter_column (str): The name of the column to use for filtering the query.
+        - filter_value (any): The value to filter the specified filter_column by.
+        
+        Returns:
+        - list: A list of tuples, where each tuple contains the values of the specified columns 
+                for each row that matches the filter condition.
+        
+        Example:
+        columns = ['name', 'age']
+        filter_column = 'id' # This column is your given column, along with given filter_value.
+        filter_value = 2
+        result = query_columns_with_filter(session, User, columns, filter_column, filter_value)
+        
+        Returns a list of dictionarys with the key(column) value(column_value) for record object.
+        '''
+        filter_col_attr = getattr(model, filter_column)        
+        record_objs_list = session.query(model).filter(filter_col_attr == filter_value).all()
+        col_and_value_dict_list = []
+        individual_dict = {}
+        for record_obj in record_objs_list:
+            individual_dict = {}
+            for col in columns:
+                    individual_dict[col] = getattr(record_obj, col)
+            col_and_value_dict_list.append(individual_dict)
+        return col_and_value_dict_list
+    
+class View(BaseWindow):
+    def __init__(self, title, parent, controller=None, is_root=False):
+        super().__init__(title, parent, controller, is_root)
+
+    def create_entry_widget(self,
+                            parent,
+                            row: int,
+                            col: int,
+                            padx: int = None,
+                            pady: int = None,
+                            sticky: str = None):
+        entry_widget = ttk.Entry(parent)
+        entry_widget.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
+        return entry_widget
+    
+    def create_label(self,
+                     parent,
+                     text: str,
+                     row: int,
+                     col: int,
+                     padx: int  = 0,
+                     pady: int = 0,
+                     sticky: str = None,
+                     relief: str = None):
+        label = ttk.Label(parent, text=text, relief=relief)
+        label.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
+        return label
+    
+    def create_frame(self,
+                     parent,
+                     row: int,
+                     col: int,
+                     padx: int  = 0,
+                     pady: int = 0,
+                     sticky: str = None,
+                     relief: str = None):
+        frame = ttk.Frame(parent, relief=relief)
+        frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
+        return frame
+    
+    def create_label_frame(self,
+                           parent,
+                           text: str,
+                           row: int,
+                           col: int,
+                           padx: int  = 0,
+                           pady: int = 0,
+                           sticky: str = None,
+                           relief: str = None):
+        frame = ttk.LabelFrame(parent, text=text, relief=relief)
+        frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
+        return frame

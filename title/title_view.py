@@ -1,257 +1,106 @@
 import tkinter as tk
 from tkinter import ttk
-from class_collection import BaseWindow, ButtonsFrame
+from class_collection import View, ButtonsFrame
 from model import session, Project
 
-class TitleView:
-    def __init__(self, title, parent, controller, project_number=None):
-        self.title = title
-        self.parent = parent
-        self.controller = controller
+class TitleView(View):
+    def __init__(self, title, parent, controller, project_number, is_root=False):
+        super().__init__(title, parent, controller, is_root)
         self.project_number = project_number
         self.title_column_break = 15
-        self.active_entry_widget = None  
-        self.entry_frames_names = {} # Dictionary of names : entry frame widget. Used to destroy() blank entry frames
-        self.root = BaseWindow(self.title, self.parent, controller=self.controller).root
         self.root.resizable(width=True, height=True)
+        self.testing = 1
+        if self.testing == 0:
+            self.relief = None
+        else:
+            self.relief = 'solid'
+    
+        self.create_project_number_frame()
+        self.create_titles_frame()
+        self.create_right_toolbar_frame()
 
-        self._create_base_frame()
-        self._create_project_number_frame()
-        self._create_titles_frame()
-        self._create_right_toolbar_frame()
-        self._create_save_frame()
-        self._create_menu_frame()
-        self._create_autocad_src_frame()
-
-        # Load the main contents of the titles_frame
-        self._load_body(self.project_number)
-        BaseWindow.center_window(self.root)
-        self.root.focus_force()
+        self.center_window(self.root)
 
 #####################################################################################
 
-    #region Creating widgets on screen
-    def _create_base_frame(self):
-        '''Create base frame where title entries and menu buttons will live'''
-        self.base_frame = ttk.Frame(self.root)
-        self.base_frame.grid(row=0, column=0, sticky='nsew')
-        self.base_frame.grid_columnconfigure(0, weight = 1)
+####################### Frame Structure #######################
+#                                                             #
+#  base_frame [-> titles_frame -> entry_frame]                #
+#              -> project_number_frame]                       #
+#              -> right_toolbar_frame [-> menu_frame]         #
+#                                      -> autocad_scr_frame]  #
+#                                                             # 
+###############################################################
 
-    def _create_project_number_frame(self):
-        '''Create frame for Project Number'''
+    def create_project_number_frame(self):
+        project_number_frame = self.create_frame(self.base_frame, 0, 0,
+                                                 padx=0, pady=(0,10), sticky='nsew',
+                                                 relief = self.relief)
+        project_number_label = self.create_label(project_number_frame, f'EM: {self.project_number}',
+                                                 0, 0, padx=0, pady=0,
+                                                 sticky='w', relief=self.relief)
+    
+    def create_titles_frame(self):
 
-        def _get_project_numbers_list():
-            project_numbers_list = [project.project_number for project in session.query(Project).all()]
-            self.project_combo['values'] = project_numbers_list
-            return project_numbers_list
+        def populate_titles_frame():
+
+            self.controller.fetch_all_title_data_dict()
+
+            # def create_title_col_frame(ridx, cidx):
+            #     title_col_frame = self.create_frame(self.titles_frame, ridx, cidx,
+            #                                         padx=0, pady=0, sticky='nsew',
+            #                                         relief=self.relief)
+
+            # # Get number of title objects from controller
+            # num_title_obj = len(self.controller.dwgtitle_table_dict_list)
+            # # title_dict = self.controller.title_dict
+            # # # print(title_dict)
+            
+            # if num_title_obj:
+            #     pass # Create entry frames based on titles
+            # else:
+            #     pass # Create default entries such as com riser, general notes, master panel, etc...
+
+        self.titles_frame = self.create_label_frame(self.base_frame, 'Titles', 1, 0,
+                                                 padx=(0,10),pady=0,sticky='nsew',
+                                                 relief=self.relief)
+        populate_titles_frame()
+    
+    def create_right_toolbar_frame(self):
+        def create_menu_frame():
+            menu_frame = self.create_label_frame(right_toolbar_frame, 'Menu', 0, 0,
+                                        padx=0,pady=(0,10),sticky='nsew',
+                                        relief=self.relief)
+            return menu_frame
         
-        self.project_frame = ttk.LabelFrame(self.base_frame, text='Project EM')
-        self.project_frame.grid(row=0, column=0, padx = (10,0), pady = (10,0), sticky='w')
+        def create_autocad_src_frame():
+            scr_frame = self.create_label_frame(right_toolbar_frame, 'AutoCAD SCR', 1, 0,
+                                        padx=0,pady=0,sticky='nsew',
+                                        relief=self.relief)
+            return scr_frame
 
-        self.combo_project_number = tk.StringVar()
-        self.project_combo = ttk.Combobox(self.project_frame,
-                                        textvariable=self.combo_project_number, state='readonly')
-        self.project_combo.bind('<<ComboboxSelected>>',
-                                lambda _:self.controller.on_project_combobox_selected())
-        self.project_combo.grid(row=0, column=0, padx = 5, pady = 5, sticky='nsew')
+        def add_title_btn_cmd(self):
+                pass
+        def move_btn_cmd(self, direction):
+            pass
+        def scr_btn_cmd(self):
+            pass
         
-        # Load project numbers in combobox
-        self.list_project_numbers = _get_project_numbers_list()
-
-    def _create_titles_frame(self):
-        # Create frame for title entries
-        self.titles_frame = ttk.LabelFrame(self.base_frame, text='Titles')
-        self.titles_frame.grid(row=1, column=0, padx = (10,0), pady = (0,10), sticky='new')
-
-    def _create_save_frame(self):
-        # Create frame for save button
-        self.save_frame = ttk.Frame(self.base_frame)
-        self.save_frame.grid(row=0, column=1, padx = (10,10), pady = (10,0), sticky='nsew')
-        self.save_frame.grid_rowconfigure(0, weight=1)
-        self.save_frame.grid_columnconfigure(0, weight=1)
-        self.save_button = ttk.Button(self.save_frame, text='Save Titles',
-                                      command=lambda:self.controller.commit_titles(self.combo_project_number.get()))
-        self.save_button.grid(row=0, column=0)
-
-    def _create_right_toolbar_frame(self):
-        # Create frame for title entries
-        self.right_toolbar_frame = ttk.Frame(self.base_frame)
-        self.right_toolbar_frame.grid(row=1, column=1, padx = (10,10), pady = (0,10), sticky='new')
-
-    def _create_menu_frame(self):
-        # Create frame for menu buttons
-        self.menu_frame = ttk.LabelFrame(self.right_toolbar_frame, text='Menu')
-        self.menu_frame.grid(row=1, column=1, padx = 10, pady = (0,10), sticky='n')
-        # Create button in menu frame
-        self.add_button = ButtonsFrame(self.menu_frame,[('(+) Title',
-                                                                lambda:self.controller.add_entry(self.titles_frame))])
-        self.add_button.button_frame.grid(row=0, column=0, padx=(10), pady = 10)
-        self.moveup_button = ButtonsFrame(self.menu_frame,[('Move Up',
-                                                                   lambda:self.controller.moveup_entry())])
-        self.moveup_button.button_frame.grid(row=1, column=0, padx=(10), pady = (0,10))
-        self.movedown_button = ButtonsFrame(self.menu_frame,[('Move Down',
-                                                                     lambda:self.controller.movedown_entry())])
-        self.movedown_button.button_frame.grid(row=2, column=0, padx=(10), pady = (0,10))
-
-    def _create_autocad_src_frame(self):
-        # Create frame for scr button
-        self.scr_frame = ttk.LabelFrame(self.right_toolbar_frame, text='Generate SCR')
-        self.scr_frame.grid(row=2, column=1, padx = 10, pady = (0,10), sticky='n')
-        # Create button in scr frame
-        self.add_button = ButtonsFrame(self.scr_frame,[('Write SCR',
-                                                                lambda:self.controller.write_scr(self.project_number))])
-        self.add_button.button_frame.grid(row=0, column=0, padx=(10), pady = 10)
-
-    def create_entry_widget(self, parent):
-        '''Creates entry widgets'''
-
-        def _get_active_entry_widget(entry):
-            self.active_entry_widget = entry
+        right_toolbar_frame = self.create_frame(self.base_frame, 1, 1,
+                                                 padx=0,pady=0,sticky='nsew',
+                                                 relief=self.relief)
+        menu_frame = create_menu_frame()
         
-        def create_entry_frame(parent):
-            entry_frame = ttk.Frame(parent)        
-            ypad = 10 if entry_count % self.title_column_break == 0 else (0,10) 
-            entry_frame.grid(row=in_row, column=in_column, padx=10, pady=ypad, sticky='nsew')
-            entry_frame.grid_columnconfigure(1, weight = 1)
-            return entry_frame
+        add_title_button = ButtonsFrame(menu_frame, [('(+) Title', lambda:add_title_btn_cmd())])
+        add_title_button.button_frame.grid(row=0, column=0, padx=(10,10), pady=10, sticky='nsew')
 
-        # Count existing entries
-        entry_count = len(self.get_all_entry_widgets(self.root))
-
-        # Calculate column and rows indexes
-        in_column = entry_count // self.title_column_break
-        in_row = entry_count - (in_column*self.title_column_break)
-
-        # Create entry frame
-        entry_frame = create_entry_frame(parent)
-
-        # Store entry frames
-        self.entry_frames_names[entry_count+1] = entry_frame
+        moveup_button = ButtonsFrame(menu_frame, [('Move Up', lambda:move_btn_cmd('up'))])
+        moveup_button.button_frame.grid(row=1, column=0, padx=(10,10), pady=(0,10), sticky='nsew')
         
-        # Create number index label
-        entry_label = ttk.Label(entry_frame, text=entry_count+1)
-        entry_label.grid(row=0, column=0, padx=(0,5))
+        movedown_button = ButtonsFrame(menu_frame, [('Move Down', lambda:move_btn_cmd('down'))])
+        movedown_button.button_frame.grid(row=2, column=0, padx=(10,10), pady=(0,10), sticky='nsew')
 
-        # Create title entry widget
-        entry = ttk.Entry(entry_frame, width=50)
-        entry.grid(row=0, column=1, sticky='nsew')
-        entry.bind("<FocusIn>", lambda event: _get_active_entry_widget(entry))
-        self.titles_frame.grid_columnconfigure(in_column, weight = 1)
-        if entry_count % self.title_column_break == 0 or entry_count == self.title_column_break-1:
-            BaseWindow.center_window(self.root)
-        return entry
-        
-    #endregion
+        autocad_src_frame = create_autocad_src_frame()
 
-    def _load_body(self, project_number):
-        '''Loads the title entries dependent on project selection'''     
-
-        def _prompt_select_project_label():
-            """Prompt user to select a project."""
-            prompt_label = ttk.Label(self.titles_frame, text='Please select a project!')
-            prompt_label.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
-
-        def _load_project_titles(project_number):
-            """Load the titles for the selected project."""
-                    
-            def _remove_title_widgets():
-                '''Removes ALL title widgets and resizes the window'''
-                self.root.withdraw() # Hides the screen while application updates
-
-                for widget in self.titles_frame.winfo_children():
-                    widget.destroy()
-                    self.title_entry_widgets_list = []
-                    self.titles_frame.update_idletasks() # Restores title frame back to proper size after removing widgets
-
-                self.root.geometry('')
-                self.root.deiconify()
-                BaseWindow.center_window(self.root)
-
-            def _default_title_entries():
-                '''Creates title entries and default entries with GENERAL NOTES, COMM RISER, MASTER PANEL'''
-                for _ in range(self.title_column_break):
-                    self.create_entry_widget(self.titles_frame)
-                self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
-                self.title_entry_widgets_list[0].insert(0, 'GENERAL NOTES')
-                self.title_entry_widgets_list[1].insert(0, 'COMMUNICATION RISER')
-                self.title_entry_widgets_list[2].insert(0, 'MASTER CONTROL PANEL')
-
-            _remove_title_widgets()
-
-            # Get information of page numbers and titles from project object
-            project_obj = self.controller.get_project_object(project_number)
-            title_objs_list = self.controller.get_title_object(project_obj)
-
-            if not title_objs_list: _default_title_entries()
-            else:
-                for title_obj in title_objs_list:
-                    entry_widget = self.create_entry_widget(self.titles_frame)
-                    entry_widget.insert(0, title_obj.title)
-
-        if project_number is None:
-            _prompt_select_project_label()
-        else:
-            _load_project_titles(project_number)
-            self.project_combo.set(project_number)
-            self.project_combo.state(['disabled'])
-        BaseWindow.center_window(self.root)
-
-    def destroy_frames_if_labels_match(self, numbers):
-        entry_frame_to_be_popped = []
-
-        for item in numbers:
-            for page_number, entry_frame in self.entry_frames_names.items():
-                if page_number == item:
-                    entry_frame_to_be_popped.append(page_number)
-                    entry_frame.destroy()
-
-        for item in entry_frame_to_be_popped:
-            del self.entry_frames_names[item]
-        self.get_all_entry_widgets(self.root)
-        BaseWindow.center_window(self.root)
-        
-    def on_project_selected(self):        
-        self.project_number = self.combo_project_number.get()
-        ####### NEED TO CHECK IF VALUES CHANGED BEFORE SWITCHING TO NEW PROJECT INFOS
-        self._load_body(self.project_number)        
-
-    def get_all_entry_widgets(self, parent):
-        entry_widgets = []
-        
-        def find_entries(widget):
-            if isinstance(widget, (tk.Entry, ttk.Entry)) and not isinstance(widget, ttk.Combobox):
-                entry_widgets.append(widget)
-            for child in widget.winfo_children():
-                find_entries(child)
-        
-        find_entries(parent)
-        return entry_widgets
-
-    def move_entry(self, direction):
-
-        def _swap_widget_data(entry1, entry2):
-            data1 = entry1.get()
-            data2 = entry2.get()
-            _update_widget_data(entry1, data2)
-            _update_widget_data(entry2, data1)
-
-        def _update_widget_data(entry_widget, data):
-            entry_widget.delete(0, tk.END)
-            entry_widget.insert(0, data)
-
-        # Gets list of all title entry widgets
-        self.title_entry_widgets_list = self.get_all_entry_widgets(self.root)
-
-        # Check if an entry widget is selected and move up/down if yes
-        if self.active_entry_widget:
-            if (direction == 'up' and self.active_entry_widget != self.title_entry_widgets_list[0]) or \
-            (direction == 'down' and self.active_entry_widget != self.title_entry_widgets_list[-1]):
-                curr_idx = self.title_entry_widgets_list.index(self.active_entry_widget)
-                new_idx = curr_idx - 1 if direction == 'up' else curr_idx + 1
-                curr_entry = self.title_entry_widgets_list[curr_idx]
-                new_entry = self.title_entry_widgets_list[new_idx]
-                _swap_widget_data(curr_entry, new_entry)
-                self.active_entry_widget = self.title_entry_widgets_list[new_idx]
-                self.active_entry_widget.focus_set()
-            else:
-                self.active_entry_widget.focus_set()
+        scr_button = ButtonsFrame(autocad_src_frame, [('Write SCR', lambda:scr_btn_cmd())])
+        scr_button.button_frame.grid(row=0, column=0, padx=(10,10), pady=(10), sticky='nsew')
