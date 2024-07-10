@@ -9,10 +9,9 @@ class TitleController(Controller):
         super().__init__(parent, project_number)
         self.model = TitleModel(self)
         self.project_id = self.get_project_id()
-        # self.dwgtitle_table_dict_list = self.fetch_title_table_dict_list()
+        self.all_title_data_dict_list = self.fetch_all_title_data_dict()
 
         self.view = TitleView(f'{self.project_number} Title Manager', self.parent, self, project_number=self.project_number)
-        
 
     def add_entry(self, parent):
         """Add a new entry widget to the view."""
@@ -40,21 +39,20 @@ class TitleController(Controller):
         def fetch_title_table_dict_list():
             '''
             Fetches a list of dictionaries from the DwgTitle table using known project_id.
-
-            Note: 'id' refers to id of the DwgTitle table
+            Note: 'id' refers to id of the DwgTitle table. Also this returned list is sorted by 'dwgno'
 
             Returns:
             [
                 {'id': 1, 'title': 'AHU Sequence (Page 1 of 3)', 'dwgno': 1, 'system_id': 1},
                                 ...
-                                ...
-                                ...
                 {'id': 12, 'title': 'VAV CONTROL PANEL (page 2 of 2)', 'dwgno': 12, 'system_id': 2}
                 ]
             '''
-            dwgtitle_table_dict_list = self.model.query_multple_columns_with_filter(DwgTitle,
-                                                                    ['id', 'title', 'dwgno', 'system_id'],'project_id',
-                                                                    self.project_id)
+            dwgtitle_table_dict_list = self.model.query_multiple_columns_with_filter(DwgTitle,
+                                                                    ['id', 'title', 'dwgno', 'system_id'],
+                                                                    'project_id',
+                                                                    self.project_id,
+                                                                    sort_column = 'dwgno')
             return dwgtitle_table_dict_list
         
         dwgtitle_table_dict_list = fetch_title_table_dict_list()
@@ -66,24 +64,17 @@ class TitleController(Controller):
             for key, value in dwgtitle_table_dict.items():
                 if key == 'id':
                     all_title_data_dict = dwgtitle_table_dict.copy()
-                    diagram_id_dict = self.model.query_multple_columns_with_filter(DwgTitleDiagram,['diagram_id'],'dwgtitle_id', value)[0]
+                    diagram_id_dict = self.model.query_multiple_columns_with_filter(DwgTitleDiagram,
+                                                                                   ['diagram_id'],
+                                                                                   'dwgtitle_id',
+                                                                                   value)[0]
                     all_title_data_dict['diagram_id'] = diagram_id_dict['diagram_id']
                     all_title_data_dict_list.append(all_title_data_dict)
-
-        all_title_data_dict_list
-
-        print(f'{all_title_data_dict_list = }')
-
-    def get_title_dict(self):
-        titles_list = []
-        title_pages_list = []
-        title_dict = {}
-        for title_obj in self.title_obj_list:
-            titles_list.append(title_obj.title)
-            title_pages_list.append(title_obj.dwgno)
-        for key, value in zip(title_pages_list, titles_list):
-            title_dict[key] = value
-        return title_dict
+        return all_title_data_dict_list
+        
+    def generate_all_title_data_dict(self):
+        for all_title_data_dict in self.all_title_data_dict_list:
+            yield all_title_data_dict
 
     def get_project_object(self, project_number):
         """Get project object from the model."""
