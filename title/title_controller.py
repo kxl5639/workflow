@@ -2,14 +2,16 @@ from title.title_view import TitleView
 from title.title_model import TitleModel, DwgTitle
 from tkinter import messagebox
 from class_collection import Controller
-from model import Project, DwgTitle, DwgTitleDiagram
+from model import Project, DwgTitle, DwgTitleDiagram, System, Diagram
 
 class TitleController(Controller):
     def __init__(self, parent=None, project_number=None) -> None:
         super().__init__(parent, project_number)
         self.model = TitleModel(self)
+        self.diagram_options = self.model.diagram_options
         self.project_id = self.get_project_id()
         self.all_title_data_dict_list = self.fetch_all_title_data_dict()
+        self.systems_list = self.get_systems_list()
 
         self.view = TitleView(f'{self.project_number} Title Manager', self.parent, self, project_number=self.project_number)
 
@@ -58,7 +60,6 @@ class TitleController(Controller):
         dwgtitle_table_dict_list = fetch_title_table_dict_list()
 
         all_title_data_dict_list = []
-        # print(f'Original dwgtitle_table_dict before iteration: {original_dwgtitle_table_dict_list}')
         for dwgtitle_table_dict in dwgtitle_table_dict_list:
             all_title_data_dict = {}
             for key, value in dwgtitle_table_dict.items():
@@ -71,10 +72,38 @@ class TitleController(Controller):
                     all_title_data_dict['diagram_id'] = diagram_id_dict['diagram_id']
                     all_title_data_dict_list.append(all_title_data_dict)
         return all_title_data_dict_list
+
+    def get_systems_list(self):
+        systems_dict_list = self.model.query_multiple_columns_with_filter(System,
+                                                                         ['name'],
+                                                                         'project_id',
+                                                                         self.project_id,
+                                                                         'name')
         
+        systems_list = []
+        for systems_dict in systems_dict_list:
+            for values in systems_dict.values():
+                systems_list.append(values)
+        return systems_list
+
     def generate_all_title_data_dict(self):
         for all_title_data_dict in self.all_title_data_dict_list:
             yield all_title_data_dict
+
+    def get_diagram_name_from_id(self, diagram_id):
+        diagram_name = self.model.query_multiple_columns_with_filter(Diagram,
+                                                                     ['type'],
+                                                                     'id',
+                                                                     diagram_id)
+        return diagram_name[0]['type']
+
+    def get_system_name_from_id(self, system_id):
+        system_name = self.model.query_multiple_columns_with_filter(System,
+                                                                     ['name'],
+                                                                     'id',
+                                                                     system_id)
+        return system_name[0]['name']
+
 
     def get_project_object(self, project_number):
         """Get project object from the model."""
@@ -129,7 +158,6 @@ class TitleController(Controller):
 
         # Commit changes
         self.model.commit_changes()
-
 
 #region title SCR script generator
     def write_text_style(self, font):

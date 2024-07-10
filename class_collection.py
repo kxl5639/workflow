@@ -164,7 +164,7 @@ class Model:
         col_attr = getattr(model, col_name)
         return session.query(model).filter(col_attr == col_val).all()
     
-    def query_multiple_columns_with_filter(self, model, columns, filter_column, filter_value, sort_column=None):
+    def query_multiple_columns_with_filter(self, model, columns: list[str], filter_column, filter_value, sort_column=None):
         '''
         Query specified columns from a SQLAlchemy model based on a filter condition.
         

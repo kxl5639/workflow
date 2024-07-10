@@ -1,19 +1,17 @@
 import tkinter as tk
 from tkinter import ttk, font
 from class_collection import View, ButtonsFrame
-from model import session, Project
 
 class TitleView(View):
     def __init__(self, title, parent, controller, project_number, is_root=False):
         super().__init__(title, parent, controller, is_root)
-        self.initiate_testing_values(1)
+        self.initiate_testing_values(0)
         self.root.resizable(width=True, height=True)
         self.project_number = project_number
         self.title_column_break = 10
         self.header_font = font.Font(family="Helvetica", size=9, weight="bold")
         self.title_col_frames_list = []
         
-    
         self.create_project_number_frame()
         self.create_and_populate_titles_frame()
         self.create_right_toolbar_frame()
@@ -22,16 +20,16 @@ class TitleView(View):
 
 #####################################################################################
 
-############################ Frame Structure ############################
-#                                                                       #
-#  base_frame [-> titles_frame -> [ -> title_col_frame - > entry_frame] #
-#                                   ...                                 #
-#                                   -> title_col_frame - > entry_frame] #
-#              -> project_number_frame]                                 #
-#              -> right_toolbar_frame [-> menu_frame]                   #
-#                                      -> autocad_scr_frame]            #
-#                                                                       # 
-#########################################################################
+############################## Frame Structure ###############################
+#                                                                            #
+#  base_frame [-> titles_frame -> [ -> title_col_frame - > title_data_frame] #
+#                                   ...                                      #
+#                                   -> title_col_frame - > title_data_frame] #
+#              -> project_number_frame]                                      #
+#              -> right_toolbar_frame [-> menu_frame]                        #
+#                                      -> autocad_scr_frame]                 #
+#                                                                            # 
+##############################################################################
 
     def create_project_number_frame(self):
         project_number_frame = self.create_frame(self.base_frame, 0, 0,
@@ -51,46 +49,78 @@ class TitleView(View):
             return self.titles_label_frame
 
         def create_title_col_frame(cidx):
+            if cidx == 0: xpad = 10
+            else: xpad = (0,10)
             title_col_frame = self.create_frame(self.titles_label_frame, 0, cidx,
-                                                padx=10, pady=10, sticky='nsew',
+                                                padx=xpad, pady=10, sticky='nsew',
                                                 relief='solid')
             return title_col_frame
                     
         def create_title_header_frame(parent):
-            title_header_frame = self.create_frame(parent, 0, 0,
-                                    padx=10, pady=10, sticky='nsew',
-                                    relief=self.relief)
-            title_header = self.create_label(title_header_frame, 'Title', 0, 1, 0, 0, sticky='nsew')
-            title_header.config(font=self.header_font)
-            diagram_header = self.create_label(title_header_frame, 'Diagram', 0, 2, 0, 0, sticky='nsew')
-            diagram_header.config(font=self.header_font)
-            system_header = self.create_label(title_header_frame, 'System', 0, 3, 0, 0, sticky='nsew')
-            system_header.config(font=self.header_font)
+            title_header = self.create_label(parent, 'Title', 0, 1, (0,10), (0,5), sticky='nsew')
+            title_header.config(font=self.header_font, relief=self.relief, anchor ='center')
+            diagram_header = self.create_label(parent, 'Diagram', 0, 2, (0,10), (0,5), sticky='nsew')
+            diagram_header.config(font=self.header_font, relief=self.relief, anchor ='center')
+            system_header = self.create_label(parent, 'System', 0, 3, 0, (0,5), sticky='nsew')
+            system_header.config(font=self.header_font, relief=self.relief, anchor ='center')
 
+        def create_title_data_frame(ridx, dwgno, title, diagram_name, system_name):
+            if ridx == 1:
+                ypad = 10
+            else:
+                ypad = (0,10)
+            title_data_frame = self.create_frame(self.title_col_frames_list[-1],
+                                                 ridx, 0, 10, ypad, relief=self.relief)
             
+            if ridx == 1: create_title_header_frame(title_data_frame)
+            
+            if 1 <= dwgno <= 9: clean_dwgno = f'  {dwgno}'
+            else: clean_dwgno = (dwgno)
+            dwgno_label = self.create_label(title_data_frame, clean_dwgno, ridx, 0, (0,5), 0)
+
+            title_entry = self.create_entry_widget(title_data_frame, ridx, 1, (0,10), 0)
+            title_entry.insert(0, title)
+            title_entry.config(width = 50)
+
+            diagram_combo = self.create_combobox(title_data_frame, ridx, 2, (0,10), 0, state='readonly')
+            diagram_combo.set(diagram_name)
+            diagram_combo.config(values=self.controller.diagram_options,
+                                 width=max(len(option) for option in self.controller.diagram_options))
+            
+            system_combo = self.create_combobox(title_data_frame, ridx, 3, 0, 0, state='readonly')
+            system_combo.set(system_name)
+            system_combo.config(values=self.controller.systems_list,
+                                width=max(len('system'), max(len(option) for option in self.controller.systems_list)))
+            
+    ####### create_and_populate_titles_frame() MAIN CODE STARTS HERE ##############################  
+          
         self.titles_label_frame = create_titles_frame()
 
         all_title_data_dict_generator = self.controller.generate_all_title_data_dict()
+        self.max_title_length = 0
         for title_data_dict in all_title_data_dict_generator:
 
             dwgno = title_data_dict['dwgno']
             title = title_data_dict['title']
             diagram_id = title_data_dict['diagram_id']
+            diagram_name = self.controller.get_diagram_name_from_id(diagram_id)
             system_id = title_data_dict['system_id']
-            in_column = dwgno // self.title_column_break
-            in_row = dwgno - (in_column*self.title_column_break)
-            print(f'\n{dwgno = }')
-            print(f'{title = }')
-            print(f'{diagram_id = }')
-            print(f'{system_id = }')
-            print(f'{in_column = }')
-            print(f'{in_row = }')
+            system_name = self.controller.get_system_name_from_id(system_id)
+            if dwgno % self.title_column_break == 0:
+                in_column = dwgno // self.title_column_break -1
+                in_row = self.title_column_break
+            else:
+                in_column = dwgno // self.title_column_break
+                in_row = dwgno - (in_column*self.title_column_break)
+
+            if len(title) > self.max_title_length:
+                self.max_title_length = len(title)
         
             if int(in_row) == 1:
                 title_col_frame = create_title_col_frame(in_column)
                 self.title_col_frames_list.append(title_col_frame)
-                title_header_frame = create_title_header_frame(self.title_col_frames_list[-1])
-
+            
+            create_title_data_frame(in_row, dwgno, title, diagram_name, system_name)
             
                 
 
@@ -98,8 +128,28 @@ class TitleView(View):
 
         
             
-        # create_title_col_frame()
+        
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     def create_right_toolbar_frame(self):
         def create_menu_frame():
             menu_frame = self.create_label_frame(right_toolbar_frame, 'Menu', 0, 0,
