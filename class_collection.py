@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from abc import ABC, abstractmethod
-from model import session, Base
+from model import session, Base, Diagram
 from typing import List, Type
 
 class BaseWindow(ABC):
@@ -148,6 +148,7 @@ class Controller:
 class Model:
     def __init__(self, controller=None) -> None:
         self.controller = controller
+        self.diagram_options = self.query_column_values(Diagram, 'type')
 
     def delete_record(self, object_list):
         for obj in object_list:
@@ -199,6 +200,30 @@ class Model:
             col_and_value_dict_list = sorted(col_and_value_dict_list, key=lambda x: x[sort_column])
         
         return col_and_value_dict_list
+    
+    def query_column_values(self, model, column):
+        '''
+        Query a specified column from a SQLAlchemy model.
+        
+        Parameters:
+        - model: SQLAlchemy model class.
+        - column (str): The name of the column to retrieve from the model.
+        
+        Returns:
+        - list: A list of values from the specified column.
+        
+        Example:
+        column = 'name'
+        result = query_column_values(User, column)
+        
+        Returns a list of values from the 'name' column for all records.
+        '''
+        column_attr = getattr(model, column)
+        values_list = session.query(column_attr).all()
+        
+        # Flatten the list of tuples to a list of values
+        values_list = [value[0] for value in values_list]
+        return values_list
 
     
 class View(BaseWindow):
@@ -253,3 +278,15 @@ class View(BaseWindow):
         frame = ttk.LabelFrame(parent, text=text, relief=relief)
         frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
         return frame
+    
+    def create_combobox(self,
+                        parent,
+                        row: int,
+                        col: int,
+                        padx: int  = 0,
+                        pady: int = 0,
+                        sticky: str = 'nsew',
+                        state: str = None,):
+        combobox = ttk.Combobox(parent, state=state)
+        combobox.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
+        return combobox
