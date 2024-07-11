@@ -5,10 +5,10 @@ from class_collection import View, ButtonsFrame
 class TitleView(View):
     def __init__(self, title, parent, controller, project_number, is_root=False):
         super().__init__(title, parent, controller, is_root)
-        self.initiate_testing_values(1)
+        self.initiate_testing_values(0)
         self.root.resizable(width=True, height=True)
         self.project_number = project_number
-        self.title_column_break = 10
+        self.title_column_break = 30
         self.header_font = font.Font(family="Helvetica", size=9, weight="bold")
         self.title_col_frames_list = []
         self.title_diagram_system_list = []
@@ -42,6 +42,16 @@ class TitleView(View):
                           0, 0, padx=0, pady=0,
                           sticky='w', relief=self.relief)
     
+    def calc_col_row_for_pop_title_data_frame(self, dwgno):
+        if dwgno % self.title_column_break == 0:
+            in_column = dwgno // self.title_column_break -1
+            in_row = self.title_column_break
+        else:
+            in_column = dwgno // self.title_column_break
+            in_row = dwgno - (in_column*self.title_column_break)
+
+        return in_row, in_column
+    
     def create_and_populate_titles_frame(self):
 
         def create_titles_frame():
@@ -49,7 +59,29 @@ class TitleView(View):
                                                     padx=(0,10),pady=0,sticky='nsew',
                                                     relief=self.relief)
             return self.titles_label_frame
+            
+    ####### create_and_populate_titles_frame() MAIN CODE STARTS HERE ##############################  
+          
+        self.titles_label_frame = create_titles_frame()
 
+        all_title_data_dict_generator = self.controller.generate_all_title_data_dict()
+        for title_data_dict in all_title_data_dict_generator:
+
+            # Unpack data from title_data_dict
+            dwgno = title_data_dict['dwgno']
+            title = title_data_dict['title']
+            diagram_id = title_data_dict['diagram_id']
+            diagram_name = self.controller.get_diagram_name_from_id(diagram_id)
+            system_id = title_data_dict['system_id']
+            system_name = self.controller.get_system_name_from_id(system_id)
+
+            # Calculate column and row based on self.title_column_break
+            in_row, in_column = self.calc_col_row_for_pop_title_data_frame(dwgno)
+
+            self.create_n_pop_title_col_frame(in_row, in_column, dwgno, title, diagram_name, system_name)
+
+    def create_n_pop_title_col_frame(self, in_row, in_column, dwgno, title, diagram_name, system_name):
+        #region Functions
         def create_title_col_frame(cidx):
             if cidx == 0: xpad = 10
             else: xpad = (0,10)
@@ -76,6 +108,26 @@ class TitleView(View):
                     else:
                         lst[3].config(font='')
 
+            def create_title_entry(parent, ridx):
+                title_entry = self.create_entry_widget(parent, ridx, 1, (0,10), 0)
+                title_entry.insert(0, title)
+                title_entry.config(width = 50)
+                title_entry.bind("<FocusIn>", lambda event: get_active_data_widget(title_entry))
+
+            def create_diagram_combo(parent, ridx):
+                diagram_combo = self.create_combobox(parent, ridx, 2, (0,10), 0, state='readonly')
+                diagram_combo.set(diagram_name)
+                diagram_combo.config(values=self.controller.diagram_options,
+                                    width=max(len(option) for option in self.controller.diagram_options))
+                diagram_combo.bind("<FocusIn>", lambda event: get_active_data_widget(diagram_combo))
+
+            def create_system_combo(parent, ridx):
+                system_combo = self.create_combobox(parent, ridx, 3, 0, 0, state='readonly')
+                system_combo.set(system_name)
+                system_combo.config(values=self.controller.systems_list,
+                                    width=max(len('system'), max(len(option) for option in self.controller.systems_list)))
+                system_combo.bind("<FocusIn>", lambda event: get_active_data_widget(system_combo))
+
             if ridx == 1:
                 ypad = 10
             else:
@@ -89,59 +141,19 @@ class TitleView(View):
             else: clean_dwgno = (dwgno)
             dwgno_label = self.create_label(title_data_frame, clean_dwgno, ridx, 0, (0,5), 0)
 
-            title_entry = self.create_entry_widget(title_data_frame, ridx, 1, (0,10), 0)
-            title_entry.insert(0, title)
-            title_entry.config(width = 50)
-            title_entry.bind("<FocusIn>", lambda event: get_active_data_widget(title_entry))
-
-            diagram_combo = self.create_combobox(title_data_frame, ridx, 2, (0,10), 0, state='readonly')
-            diagram_combo.set(diagram_name)
-            diagram_combo.config(values=self.controller.diagram_options,
-                                 width=max(len(option) for option in self.controller.diagram_options))
-            diagram_combo.bind("<FocusIn>", lambda event: get_active_data_widget(diagram_combo))
-            
-            system_combo = self.create_combobox(title_data_frame, ridx, 3, 0, 0, state='readonly')
-            system_combo.set(system_name)
-            system_combo.config(values=self.controller.systems_list,
-                                width=max(len('system'), max(len(option) for option in self.controller.systems_list)))
-            system_combo.bind("<FocusIn>", lambda event: get_active_data_widget(system_combo))
-            
+            title_entry = create_title_entry(title_data_frame, ridx)
+            diagram_combo = create_diagram_combo(title_data_frame, ridx)
+            system_combo = create_system_combo(title_data_frame, ridx)            
             self.title_diagram_system_list.append((title_entry, diagram_combo, system_combo, dwgno_label))
-            
-    ####### create_and_populate_titles_frame() MAIN CODE STARTS HERE ##############################  
-          
-        self.titles_label_frame = create_titles_frame()
-
-        all_title_data_dict_generator = self.controller.generate_all_title_data_dict()
-        self.max_title_length = 0
-        for title_data_dict in all_title_data_dict_generator:
-
-            # Unpack data from title_data_dict
-            dwgno = title_data_dict['dwgno']
-            title = title_data_dict['title']
-            diagram_id = title_data_dict['diagram_id']
-            diagram_name = self.controller.get_diagram_name_from_id(diagram_id)
-            system_id = title_data_dict['system_id']
-            system_name = self.controller.get_system_name_from_id(system_id)
-
-            # Calculate column and row based on self.title_column_break
-            if dwgno % self.title_column_break == 0:
-                in_column = dwgno // self.title_column_break -1
-                in_row = self.title_column_break
-            else:
-                in_column = dwgno // self.title_column_break
-                in_row = dwgno - (in_column*self.title_column_break)
-
-            # Find max title length
-            if len(title) > self.max_title_length:
-                self.max_title_length = len(title)
+        #endregion
         
-            if int(in_row) == 1:
-                title_col_frame = create_title_col_frame(in_column)
-                self.title_col_frames_list.append(title_col_frame)
-            
-            create_title_data_frame(in_row, dwgno, title, diagram_name, system_name)
-            
+        if int(in_row) == 1:
+            print('creating a title_col_frame')
+            title_col_frame = create_title_col_frame(in_column)
+            self.title_col_frames_list.append(title_col_frame)
+        
+        create_title_data_frame(in_row, dwgno, title, diagram_name, system_name)
+        
     def create_right_toolbar_frame(self):
         def create_menu_frame():
             menu_frame = self.create_label_frame(right_toolbar_frame, 'Menu', 0, 0,
@@ -155,8 +167,19 @@ class TitleView(View):
                                         relief=self.relief)
             return scr_frame
 
-        def add_title_btn_cmd(self):
-            pass
+        def add_title_btn_cmd(): 
+            # See how many title_data_frames there are
+            new_dwgno = len(self.title_diagram_system_list)
+            print(f'new_dwgno: {new_dwgno}')
+
+            # Calculate next row and column
+            in_row, in_column = self.calc_col_row_for_pop_title_data_frame(new_dwgno+1)
+            print(f'in_row: {in_row}, in_column: {in_column}')
+
+            # Create new title_data_frame
+            self.create_n_pop_title_col_frame(in_row, in_column, new_dwgno+1, '', '', '')
+            self.center_window(self.root)
+            
 
         def move_btn_cmd(direction):
             idx, curr_title_data_obj_list, swap_title_data_obj_list = self.controller.get_data_to_be_swapped(direction)
