@@ -51,7 +51,7 @@ class TitleView(View):
             in_row = dwgno - (in_column*self.title_column_break)
 
         return in_row, in_column
-    
+
     def create_and_populate_titles_frame(self):
 
         def create_titles_frame():
@@ -60,8 +60,6 @@ class TitleView(View):
                                                     relief=self.relief)
             return self.titles_label_frame
             
-    ####### create_and_populate_titles_frame() MAIN CODE STARTS HERE ##############################  
-          
         self.titles_label_frame = create_titles_frame()
 
         all_title_data_dict_generator = self.controller.generate_all_title_data_dict()
@@ -89,14 +87,15 @@ class TitleView(View):
                                                 padx=xpad, pady=10, sticky='nsew',
                                                 relief='solid')
             return title_col_frame
-                    
+
         def create_title_header_frame(parent):
-            title_header = self.create_label(parent, 'Title', 0, 1, (0,10), (0,5), sticky='nsew')
-            title_header.config(font=self.header_font, relief=self.relief, anchor ='center')
-            diagram_header = self.create_label(parent, 'Diagram', 0, 2, (0,10), (0,5), sticky='nsew')
-            diagram_header.config(font=self.header_font, relief=self.relief, anchor ='center')
-            system_header = self.create_label(parent, 'System', 0, 3, 0, (0,5), sticky='nsew')
-            system_header.config(font=self.header_font, relief=self.relief, anchor ='center')
+            widgets = [
+                self.create_label(parent, 'Title', 0, 1, (0,10), (0,5), sticky='nsew'),
+                self.create_label(parent, 'Diagram', 0, 2, (0,10), (0,5), sticky='nsew'),
+                self.create_label(parent, 'System', 0, 3, 0, (0,5), sticky='nsew')
+            ]
+            for widget in widgets:
+                widget.config(font=self.header_font, relief=self.relief, anchor='center')
 
         def create_title_data_frame(ridx, dwgno, title, diagram_name, system_name):
 
@@ -146,7 +145,7 @@ class TitleView(View):
             system_combo = create_system_combo(title_data_frame, ridx)            
             self.title_diagram_system_list.append((title_entry, diagram_combo, system_combo, dwgno_label))
         #endregion
-        
+
         if int(in_row) == 1:
             print('creating a title_col_frame')
             title_col_frame = create_title_col_frame(in_column)
