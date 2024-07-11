@@ -3,6 +3,7 @@ from title.title_model import TitleModel, DwgTitle
 from tkinter import messagebox
 from class_collection import Controller
 from model import Project, DwgTitle, DwgTitleDiagram, System, Diagram
+import copy
 
 class TitleController(Controller):
     def __init__(self, parent=None, project_number=None) -> None:
@@ -15,21 +16,7 @@ class TitleController(Controller):
 
         self.view = TitleView(f'{self.project_number} Title Manager', self.parent, self, project_number=self.project_number)
 
-    def add_entry(self, parent):
-        """Add a new entry widget to the view."""
-        self.view.create_entry_widget_frame(parent)
-
-    def moveup_entry(self):
-        """Move the selected entry widget up."""
-        self.view.move_entry('up')
-
-    def movedown_entry(self):
-        """Move the selected entry widget down."""
-        self.view.move_entry('down')
-    
-    def on_project_combobox_selected(self):
-        """Handle project combobox selection."""
-        self.view.on_project_selected()
+#####################################################################################
 
     def get_project_id(self):
         project_obj_list = self.model.get_objs_from_column_data(Project, 'project_number', self.project_number)
@@ -104,60 +91,34 @@ class TitleController(Controller):
                                                                      system_id)
         return system_name[0]['name']
 
+    def get_data_to_be_swapped(self, direction):
 
-    def get_project_object(self, project_number):
-        """Get project object from the model."""
-        return self.model.get_project_object(project_number)
-    
-    def get_title_object(self, project_object):
-        """Get title object list from the model."""
-        return self.model.get_title_object(project_object)
-    
-    def update_new_page_title_dict(self):
-        """Update the new page title dictionary and return it along with pages to be deleted."""
-        entry_widget_list = self.view.get_all_entry_widgets(self.view.root)
-        new_titles, removed_indices = self.model._remove_end_blanks([title.get() for title in entry_widget_list])    
-        pages_to_be_deleted_from_screen = [item+1 for item in removed_indices]
-        new_page_title_dict = {idx+1: title for idx, title in enumerate(new_titles)} 
-        return new_page_title_dict, pages_to_be_deleted_from_screen
-    
-    def commit_titles(self, project_number): 
-        """Commit titles to the model."""
-        project_obj = self.get_project_object(project_number)
-        existing_title_record_objs = self.get_title_object(project_obj)        
-        new_page_title_dict, pages_to_be_deleted_from_screen = self.update_new_page_title_dict()        
-        existing_page_titleobj_dict = {idx + 1: title_obj for idx, title_obj in enumerate(existing_title_record_objs)}
-        
-        # Destroy the end title entry widgets that are blank (view)
-        if pages_to_be_deleted_from_screen != []:
-            self.view.destroy_frames_if_labels_match(pages_to_be_deleted_from_screen)
-            new_page_title_dict, pages_to_be_deleted_from_screen = self.update_new_page_title_dict()                        
-
-        # Get list of title record objects to be deleted as well as entry widgets that need to be popped
-        title_record_obj_to_delete = []
-        for existing_page_number in list(existing_page_titleobj_dict.keys()):
-            if existing_page_number not in new_page_title_dict:
-                title_record_obj_to_delete.append(existing_page_titleobj_dict[existing_page_number])
-                existing_page_titleobj_dict.pop(existing_page_number)
-        
-        # Delete records from table (model)
-        self.model.delete_record(title_record_obj_to_delete)
-        
-        # Continue to update/add new title records(model)
-        for new_page_number, new_title_name in new_page_title_dict.items():
-            if new_page_number in existing_page_titleobj_dict:
-                # This page already exist. We are just updating the existing title name only if they are different
-                if existing_page_titleobj_dict[new_page_number].title != new_title_name:
-                    existing_page_titleobj_dict[new_page_number].title = new_title_name                
+        def swap_contents(idx, direction):
+            curr_title_data_obj_list = self.view.title_diagram_system_list[idx]
+            if direction == 'up':
+                above_title_data_obj_list = self.view.title_diagram_system_list[idx-1]
+                return idx, curr_title_data_obj_list, above_title_data_obj_list
             else:
-                # This is a new page that we are adding                
-                new_title_record = DwgTitle(dwgno=new_page_number,
-                                            title = new_title_name,
-                                            project_id = project_obj.id)
-                self.model.add_record(new_title_record)
+                below_title_data_obj_list = self.view.title_diagram_system_list[idx+1]
+                return idx, curr_title_data_obj_list, below_title_data_obj_list
 
-        # Commit changes
-        self.model.commit_changes()
+        for idx, (title, diagram, system, _) in enumerate(self.view.title_diagram_system_list):
+            if self.view.active_data_widget == title or self.view.active_data_widget == diagram or self.view.active_data_widget == system:
+                if direction == 'up':
+                    if idx > 0:
+                        idx, curr_title_data_obj_list, above_title_data_obj_list = swap_contents(idx, direction)
+                        return idx, curr_title_data_obj_list, above_title_data_obj_list
+                    else:
+                        return None, None, None
+                elif direction == 'down':
+                    if idx < len(self.view.title_diagram_system_list)-1:
+                        idx, curr_title_data_obj_list, below_title_data_obj_list = swap_contents(idx, direction)
+                        return idx, curr_title_data_obj_list, below_title_data_obj_list
+                    else:
+                        return None, None, None
+                break
+
+        return None, None, None
 
 #region title SCR script generator
     def write_text_style(self, font):
