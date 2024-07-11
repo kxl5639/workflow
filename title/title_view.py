@@ -5,12 +5,14 @@ from class_collection import View, ButtonsFrame
 class TitleView(View):
     def __init__(self, title, parent, controller, project_number, is_root=False):
         super().__init__(title, parent, controller, is_root)
-        self.initiate_testing_values(0)
+        self.initiate_testing_values(1)
         self.root.resizable(width=True, height=True)
         self.project_number = project_number
         self.title_column_break = 10
         self.header_font = font.Font(family="Helvetica", size=9, weight="bold")
         self.title_col_frames_list = []
+        self.title_diagram_system_list = []
+        self.active_data_widget = None
         
         self.create_project_number_frame()
         self.create_and_populate_titles_frame()
@@ -65,6 +67,15 @@ class TitleView(View):
             system_header.config(font=self.header_font, relief=self.relief, anchor ='center')
 
         def create_title_data_frame(ridx, dwgno, title, diagram_name, system_name):
+
+            def get_active_data_widget(data_widget):
+                self.active_data_widget = data_widget
+                for lst in self.title_diagram_system_list:
+                    if data_widget in lst:
+                        lst[3].config(font=self.header_font)
+                    else:
+                        lst[3].config(font='')
+
             if ridx == 1:
                 ypad = 10
             else:
@@ -81,16 +92,21 @@ class TitleView(View):
             title_entry = self.create_entry_widget(title_data_frame, ridx, 1, (0,10), 0)
             title_entry.insert(0, title)
             title_entry.config(width = 50)
+            title_entry.bind("<FocusIn>", lambda event: get_active_data_widget(title_entry))
 
             diagram_combo = self.create_combobox(title_data_frame, ridx, 2, (0,10), 0, state='readonly')
             diagram_combo.set(diagram_name)
             diagram_combo.config(values=self.controller.diagram_options,
                                  width=max(len(option) for option in self.controller.diagram_options))
+            diagram_combo.bind("<FocusIn>", lambda event: get_active_data_widget(diagram_combo))
             
             system_combo = self.create_combobox(title_data_frame, ridx, 3, 0, 0, state='readonly')
             system_combo.set(system_name)
             system_combo.config(values=self.controller.systems_list,
                                 width=max(len('system'), max(len(option) for option in self.controller.systems_list)))
+            system_combo.bind("<FocusIn>", lambda event: get_active_data_widget(system_combo))
+            
+            self.title_diagram_system_list.append((title_entry, diagram_combo, system_combo, dwgno_label))
             
     ####### create_and_populate_titles_frame() MAIN CODE STARTS HERE ##############################  
           
@@ -100,12 +116,15 @@ class TitleView(View):
         self.max_title_length = 0
         for title_data_dict in all_title_data_dict_generator:
 
+            # Unpack data from title_data_dict
             dwgno = title_data_dict['dwgno']
             title = title_data_dict['title']
             diagram_id = title_data_dict['diagram_id']
             diagram_name = self.controller.get_diagram_name_from_id(diagram_id)
             system_id = title_data_dict['system_id']
             system_name = self.controller.get_system_name_from_id(system_id)
+
+            # Calculate column and row based on self.title_column_break
             if dwgno % self.title_column_break == 0:
                 in_column = dwgno // self.title_column_break -1
                 in_row = self.title_column_break
@@ -113,6 +132,7 @@ class TitleView(View):
                 in_column = dwgno // self.title_column_break
                 in_row = dwgno - (in_column*self.title_column_break)
 
+            # Find max title length
             if len(title) > self.max_title_length:
                 self.max_title_length = len(title)
         
@@ -122,34 +142,6 @@ class TitleView(View):
             
             create_title_data_frame(in_row, dwgno, title, diagram_name, system_name)
             
-                
-
-                
-
-        
-            
-        
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def create_right_toolbar_frame(self):
         def create_menu_frame():
             menu_frame = self.create_label_frame(right_toolbar_frame, 'Menu', 0, 0,
@@ -164,9 +156,44 @@ class TitleView(View):
             return scr_frame
 
         def add_title_btn_cmd(self):
-                pass
-        def move_btn_cmd(self, direction):
             pass
+
+        def move_btn_cmd(direction):
+            idx, curr_title_data_obj_list, swap_title_data_obj_list = self.controller.get_data_to_be_swapped(direction)
+
+            if idx is not None:
+                # Upack data to prevent overwriting during swap
+                curr_title = curr_title_data_obj_list[0].get()
+                curr_diagram = curr_title_data_obj_list[1].get()
+                curr_system = curr_title_data_obj_list[2].get()
+                swap_title = swap_title_data_obj_list[0].get()
+                swap_diagram = swap_title_data_obj_list[1].get()
+                swap_system = swap_title_data_obj_list[2].get()
+
+                # Set index depending on direction
+                if direction == 'up':
+                    idx_new = idx-1
+                else:
+                    idx_new = idx+1
+
+                # Perform swap
+                self.title_diagram_system_list[idx][0].delete(0, tk.END)
+                self.title_diagram_system_list[idx][0].insert(0, swap_title)
+                self.title_diagram_system_list[idx][1].set(swap_diagram)
+                self.title_diagram_system_list[idx][2].set(swap_system)
+
+                self.title_diagram_system_list[idx_new][0].delete(0, tk.END)
+                self.title_diagram_system_list[idx_new][0].insert(0, curr_title)
+                self.title_diagram_system_list[idx_new][1].set(curr_diagram)
+                self.title_diagram_system_list[idx_new][2].set(curr_system)
+
+                # Set above index as the active data widget
+                self.active_data_widget = self.title_diagram_system_list[idx_new][0]
+                self.active_data_widget.focus_set()
+            else:
+                self.active_data_widget.focus_set()
+
+
         def scr_btn_cmd(self):
             pass
         
