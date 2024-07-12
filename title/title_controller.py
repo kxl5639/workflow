@@ -119,6 +119,34 @@ class TitleController(Controller):
                 break
 
         return None, None, None
+    
+    def generate_update_stack(self):
+        # Compare final data with initial data and generate the update stack
+        for final_dict, initial_dict in zip(self.view.final_data_dict_list, self.view.initial_data_dict_list):
+            if final_dict['dwgno'] == initial_dict['dwgno']:
+                initial_dict_other_key = self.view.get_other_key_of_two_key_dict('dwgno', initial_dict)
+                final_dict_other_key = self.view.get_other_key_of_two_key_dict('dwgno', final_dict)
+                if final_dict_other_key == initial_dict_other_key:
+                    if final_dict[final_dict_other_key] != initial_dict[initial_dict_other_key]:
+                        self.view.update_stack_dict_list.append(final_dict)                        
+        len_final = len(self.view.final_data_dict_list)
+        len_initial = len(self.view.initial_data_dict_list)
+        if len_final > len_initial:
+            for i in range(len_initial, len_final):
+                self.view.update_stack_dict_list.append(self.view.final_data_dict_list[i])
+        
+        blank_title_dwgno_list = []
+        for update_dict in reversed(self.view.update_stack_dict_list):
+            if self.view.get_other_key_of_two_key_dict('dwgno', update_dict) == 'title':
+                if update_dict['title'] == '':
+                    blank_title_dwgno_list.append(update_dict['dwgno'])
+                else:
+                    break
+
+        update_stack_dict_list_copy = self.view.update_stack_dict_list.copy()
+        for update_dict in update_stack_dict_list_copy:
+            if update_dict['dwgno'] in blank_title_dwgno_list:
+                self.view.update_stack_dict_list.remove(update_dict)
 
 #region title SCR script generator
     def write_text_style(self, font):
