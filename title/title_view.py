@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, font
+from tkinter import ttk, font, messagebox
 from class_collection import View, ButtonsFrame
 
 class TitleView(View):
@@ -19,6 +19,10 @@ class TitleView(View):
         self.create_and_populate_titles_frame()
         self.create_right_toolbar_frame()
 
+        self.close_frame = ButtonsFrame(self.base_frame, [('Close', self.on_close)])
+        self.close_frame.button_frame.grid(row=10, column=10, padx=10, pady=10, sticky='nsew')
+        self.initial_data_dict_list = []
+        self.initial_data_dict_list = self.update_update_stack_dict_list(self.initial_data_dict_list)
         self.center_window(self.root)
 
 #####################################################################################
@@ -33,6 +37,11 @@ class TitleView(View):
 #                                      -> autocad_scr_frame]                 #
 #                                                                            # 
 ##############################################################################
+
+    
+    
+    def on_close(self):
+        self.update_update_stack_dict_list(self.to_update_stack_dict_list)
 
     def create_project_number_frame(self):
         project_number_frame = self.create_frame(self.base_frame, 0, 0,
@@ -79,59 +88,93 @@ class TitleView(View):
 
             self.create_n_pop_title_col_frame(in_row, in_column, dwgno, title, diagram_name, system_name)
 
-    def update_update_stack_dict_list_on_focusout(self,updated_widget):
-        key_mapping = {0: 'title', 1: 'diagram', 2: 'system'}
-        # From updated_widget, get the corresponding title_diagram_system_dict
-        dwgno_updated_widget_dict = {} # Returns ex: {'dwgno': 5, 'title': 'AHU CONTROL PANEL (page 1 of 2)'}
-
-        def get_dwgno_updated_widget_dict(updated_widget):
+    def update_update_stack_dict_list(self, list_to_update):
+        def loop_title_diagram_system_dwgno_list():
+            for idx in range(len(self.title_diagram_system_dwgno_list)):
+                for i in range(3):
+                    target_widget = self.title_diagram_system_dwgno_list[idx][i]
+                    yield target_widget
+        
+        def get_respective_dwgno_n_dwg_prop(widget):
             for item in self.title_diagram_system_dwgno_list:
                 for i, dwg_prop in key_mapping.items():
-                    if updated_widget == item[i]:
-                        dwgno_updated_widget_dict = {'dwgno': int(str(item[3].cget('text')).strip()),
-                                                    dwg_prop: updated_widget.get()}
-                        break
+                    if widget == item[i]:
+                        dwgno = int(str(item[3].cget('text')).strip())
+                        # print(f'dwgno: {dwgno}, dwg_prop: {dwg_prop}')
+                        return dwgno, dwg_prop
+
+        def get_dwgno_updated_widget_dict(target_widget):
+            dwgno, dwg_prop = get_respective_dwgno_n_dwg_prop(target_widget)
+            dwgno_updated_widget_dict = {'dwgno': dwgno, dwg_prop: target_widget.get()}
             return dwgno_updated_widget_dict
         
-        def get_other_key_of_two_key_dict(known_key, dictionary):
-            for key, value in dictionary.items():
-                if key != known_key:
-                    return key
+        key_mapping = {0: 'title', 1: 'diagram', 2: 'system'}
+        dwgno_updated_widget_dict = {}
+        list_to_update = []
 
         # Returns ex: {'dwgno': 5, 'title': 'AHU CONTROL PANEL (page 1 of 2)'}
-        dwgno_updated_widget_dict = get_dwgno_updated_widget_dict(updated_widget)
-        # print(f'\n\n\nNEW {dwgno_updated_widget_dict = }')
+        target_widgets = loop_title_diagram_system_dwgno_list()
+        for target_widget in target_widgets:
+            dwgno_updated_widget_dict = get_dwgno_updated_widget_dict(target_widget)
+            list_to_update.append(dwgno_updated_widget_dict)
 
-        # Check if list is empty
-        if not self.to_update_stack_dict_list:
-            # print(f'STACK LIST IS EMPTY, ADDING: {dwgno_updated_widget_dict = }')
-            self.to_update_stack_dict_list.append(dwgno_updated_widget_dict)
-            print(f'(List was empty so adding:  {self.to_update_stack_dict_list}')
-            return
+        print(f'\n{list_to_update}')
+
+    #region This code checked against existing stack entries before adding.  
+    # def update_update_stack_dict_list(self, updated_widget):     
+        # key_mapping = {0: 'title', 1: 'diagram', 2: 'system'}
+        # # From updated_widget, get the corresponding title_diagram_system_dict
+        # dwgno_updated_widget_dict = {} # Returns ex: {'dwgno': 5, 'title': 'AHU CONTROL PANEL (page 1 of 2)'}
+
+        # def get_dwgno_updated_widget_dict(updated_widget):
+        #     for item in self.title_diagram_system_dwgno_list:
+        #         for i, dwg_prop in key_mapping.items():
+        #             if updated_widget == item[i]:
+        #                 dwgno_updated_widget_dict = {'dwgno': int(str(item[3].cget('text')).strip()),
+        #                                             dwg_prop: updated_widget.get()}
+        #                 break
+        #     return dwgno_updated_widget_dict
         
-        # to_update_stack_dict_list has entries so we will check against it with dwgno
-        for widget_update_stack_dict in self.to_update_stack_dict_list:
-            if dwgno_updated_widget_dict['dwgno'] == widget_update_stack_dict['dwgno']:
-                # print(f'{dwgno_updated_widget_dict = } ANDDD {widget_update_stack_dict = }')
-                # print(f'{dwgno_updated_widget_dict["dwgno"] = } EQUALSSS {widget_update_stack_dict['dwgno'] = }')
-                updated_widget_prop_key = get_other_key_of_two_key_dict('dwgno', dwgno_updated_widget_dict)
-                stack_prop_key = get_other_key_of_two_key_dict('dwgno', widget_update_stack_dict)
-                if updated_widget_prop_key == stack_prop_key:
-                    # print(f'(matching {updated_widget_prop_key = })')
-                    if dwgno_updated_widget_dict[updated_widget_prop_key] != widget_update_stack_dict[updated_widget_prop_key]:
-                        # print(f"{dwgno_updated_widget_dict[updated_widget_prop_key] = } DOESNT MATCH {widget_update_stack_dict[updated_widget_prop_key] = }\nSO WE POP {self.to_update_stack_dict_list.index(widget_update_stack_dict) = } AND ADD 'dwgno': {dwgno_updated_widget_dict['dwgno']}, 'updated_widget_prop_key': {dwgno_updated_widget_dict[updated_widget_prop_key]}")
-                        self.to_update_stack_dict_list.pop(self.to_update_stack_dict_list.index(widget_update_stack_dict))
-                        self.to_update_stack_dict_list.append({'dwgno': dwgno_updated_widget_dict['dwgno'],
-                                                                updated_widget_prop_key: dwgno_updated_widget_dict[updated_widget_prop_key]})
-                        print(f'(There were changes made:    {self.to_update_stack_dict_list}')
-                        return
-                    else:
-                        print(f'(There were NO changes made: {self.to_update_stack_dict_list}') 
-                        # print(f"{dwgno_updated_widget_dict[updated_widget_prop_key] = } EQUALS {widget_update_stack_dict[updated_widget_prop_key] = } SO WE DO NOTHING")
-                        return
-        # print(f'New entry to stack: {dwgno_updated_widget_dict = }')
-        self.to_update_stack_dict_list.append(dwgno_updated_widget_dict)     
-        print(f'(New entry added to stack:   {self.to_update_stack_dict_list}')        
+        # def get_other_key_of_two_key_dict(known_key, dictionary):
+        #     for key, value in dictionary.items():
+        #         if key != known_key:
+        #             return key
+
+        # # Returns ex: {'dwgno': 5, 'title': 'AHU CONTROL PANEL (page 1 of 2)'}
+        # dwgno_updated_widget_dict = get_dwgno_updated_widget_dict(updated_widget)
+        # # print(f'\n\n\nNEW {dwgno_updated_widget_dict = }')
+
+        # # Check if list is empty
+        # if not self.to_update_stack_dict_list:
+        #     # print(f'STACK LIST IS EMPTY, ADDING: {dwgno_updated_widget_dict = }')
+        #     self.to_update_stack_dict_list.append(dwgno_updated_widget_dict)
+        #     # print(f'(List was empty so adding:  {self.to_update_stack_dict_list}')
+        #     return
+        
+        # # to_update_stack_dict_list has entries so we will check against it with dwgno
+        # for widget_update_stack_dict in self.to_update_stack_dict_list:
+        #     if dwgno_updated_widget_dict['dwgno'] == widget_update_stack_dict['dwgno']:
+        #         # print(f'{dwgno_updated_widget_dict = } ANDDD {widget_update_stack_dict = }')
+        #         # print(f'{dwgno_updated_widget_dict["dwgno"] = } EQUALSSS {widget_update_stack_dict['dwgno'] = }')
+        #         updated_widget_prop_key = get_other_key_of_two_key_dict('dwgno', dwgno_updated_widget_dict)
+        #         stack_prop_key = get_other_key_of_two_key_dict('dwgno', widget_update_stack_dict)
+        #         if updated_widget_prop_key == stack_prop_key:
+        #             # print(f'(matching {updated_widget_prop_key = })')
+        #             if dwgno_updated_widget_dict[updated_widget_prop_key] != widget_update_stack_dict[updated_widget_prop_key]:
+        #                 # print(f"{dwgno_updated_widget_dict[updated_widget_prop_key] = } DOESNT MATCH {widget_update_stack_dict[updated_widget_prop_key] = }\nSO WE POP {self.to_update_stack_dict_list.index(widget_update_stack_dict) = } AND ADD 'dwgno': {dwgno_updated_widget_dict['dwgno']}, 'updated_widget_prop_key': {dwgno_updated_widget_dict[updated_widget_prop_key]}")
+        #                 self.to_update_stack_dict_list.pop(self.to_update_stack_dict_list.index(widget_update_stack_dict))
+        #                 self.to_update_stack_dict_list.append({'dwgno': dwgno_updated_widget_dict['dwgno'],
+        #                                                         updated_widget_prop_key: dwgno_updated_widget_dict[updated_widget_prop_key]})
+        #                 # print(f'(There were changes made:    {self.to_update_stack_dict_list}')
+        #                 return
+        #             else:
+        #                 # print(f'(There were NO changes made: {self.to_update_stack_dict_list}') 
+        #                 # print(f"{dwgno_updated_widget_dict[updated_widget_prop_key] = } EQUALS {widget_update_stack_dict[updated_widget_prop_key] = } SO WE DO NOTHING")
+        #                 return
+        # # print(f'New entry to stack: {dwgno_updated_widget_dict = }')
+        # self.to_update_stack_dict_list.append(dwgno_updated_widget_dict)     
+        # # print(f'(New entry added to stack:   {self.to_update_stack_dict_list}')
+    #endregion       
 
     def create_n_pop_title_col_frame(self, in_row, in_column, dwgno, title, diagram_name, system_name):
         #region Functions
@@ -167,7 +210,7 @@ class TitleView(View):
                 title_entry.insert(0, title)
                 title_entry.config(width = 50)
                 title_entry.bind("<FocusIn>", lambda event: get_active_data_widget(title_entry))
-                title_entry.bind("<FocusOut>", lambda event: self.update_update_stack_dict_list_on_focusout(title_entry))
+                # title_entry.bind("<FocusOut>", lambda event: self.update_update_stack_dict_list(title_entry))
                 return title_entry
 
             def create_diagram_combo(parent, ridx):
@@ -176,7 +219,7 @@ class TitleView(View):
                 diagram_combo.config(values=self.controller.diagram_options,
                                     width=max(len(option) for option in self.controller.diagram_options))
                 diagram_combo.bind("<FocusIn>", lambda event: get_active_data_widget(diagram_combo))
-                diagram_combo.bind("<FocusOut>", lambda event: self.update_update_stack_dict_list_on_focusout(diagram_combo))
+                # diagram_combo.bind("<FocusOut>", lambda event: self.update_update_stack_dict_list(diagram_combo))
                 return diagram_combo
 
             def create_system_combo(parent, ridx):
@@ -185,7 +228,7 @@ class TitleView(View):
                 system_combo.config(values=self.controller.systems_list,
                                     width=max(len('system'), max(len(option) for option in self.controller.systems_list)))
                 system_combo.bind("<FocusIn>", lambda event: get_active_data_widget(system_combo))
-                system_combo.bind("<FocusOut>", lambda event: self.update_update_stack_dict_list_on_focusout(system_combo))
+                # system_combo.bind("<FocusOut>", lambda event: self.update_update_stack_dict_list(system_combo))
                 return system_combo
 
             if ridx == 1:
@@ -267,16 +310,17 @@ class TitleView(View):
                 self.title_diagram_system_dwgno_list[idx_new][1].set(curr_diagram)
                 self.title_diagram_system_dwgno_list[idx_new][2].set(curr_system)
 
-                # Set focus on all widgets involved to envoke update_update_stack_dict_list_on_focusout
-                for idx in [idx, idx_new]:
-                    for i in range(3):
-                        self.title_diagram_system_dwgno_list[idx][i].focus_set()
+                # # Set focus on all widgets involved to envoke update_update_stack_dict_list
+                # for idx in [idx, idx_new]:
+                #     for i in range(3):
+                #         self.title_diagram_system_dwgno_list[idx][i].focus_set()
 
                 # set focus back on active_data_widget
                 self.active_data_widget = self.title_diagram_system_dwgno_list[idx_new][0]
                 self.active_data_widget.focus_set()
             else:
-                self.active_data_widget.focus_set()
+                if self.active_data_widget:
+                    self.active_data_widget.focus_set()
 
             
 
