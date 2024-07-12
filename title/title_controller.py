@@ -28,7 +28,7 @@ class TitleController(Controller):
         def fetch_title_table_dict_list():
             '''
             Fetches a list of dictionaries from the DwgTitle table using known project_id.
-            Note: 'id' refers to id of the DwgTitle table. Also this returned list is sorted by 'dwgno'
+            Note: 'id' refers to id of the DwgTitle table. Returned list is sorted by 'dwgno'
 
             Returns:
             [
@@ -94,15 +94,15 @@ class TitleController(Controller):
     def get_data_to_be_swapped(self, direction):
 
         def swap_contents(idx, direction):
-            curr_title_data_obj_list = self.view.title_diagram_system_list[idx]
+            curr_title_data_obj_list = self.view.title_diagram_system_dwgno_list[idx]
             if direction == 'up':
-                above_title_data_obj_list = self.view.title_diagram_system_list[idx-1]
+                above_title_data_obj_list = self.view.title_diagram_system_dwgno_list[idx-1]
                 return idx, curr_title_data_obj_list, above_title_data_obj_list
             else:
-                below_title_data_obj_list = self.view.title_diagram_system_list[idx+1]
+                below_title_data_obj_list = self.view.title_diagram_system_dwgno_list[idx+1]
                 return idx, curr_title_data_obj_list, below_title_data_obj_list
 
-        for idx, (title, diagram, system, _) in enumerate(self.view.title_diagram_system_list):
+        for idx, (title, diagram, system, _) in enumerate(self.view.title_diagram_system_dwgno_list):
             if self.view.active_data_widget == title or self.view.active_data_widget == diagram or self.view.active_data_widget == system:
                 if direction == 'up':
                     if idx > 0:
@@ -111,7 +111,7 @@ class TitleController(Controller):
                     else:
                         return None, None, None
                 elif direction == 'down':
-                    if idx < len(self.view.title_diagram_system_list)-1:
+                    if idx < len(self.view.title_diagram_system_dwgno_list)-1:
                         idx, curr_title_data_obj_list, below_title_data_obj_list = swap_contents(idx, direction)
                         return idx, curr_title_data_obj_list, below_title_data_obj_list
                     else:
