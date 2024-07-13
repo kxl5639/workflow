@@ -15,6 +15,8 @@ class TitleController(Controller):
         self.systems_list = self.get_systems_list()
 
         self.view = TitleView(f'{self.project_number} Title Manager', self.parent, self, project_number=self.project_number)
+        self.view.initial_data_dict_list = self.get_all_data_from_widgets()
+
 
 #####################################################################################
 
@@ -120,33 +122,114 @@ class TitleController(Controller):
 
         return None, None, None
     
-    def generate_update_stack(self):
-        # Compare final data with initial data and generate the update stack
-        for final_dict, initial_dict in zip(self.view.final_data_dict_list, self.view.initial_data_dict_list):
-            if final_dict['dwgno'] == initial_dict['dwgno']:
-                initial_dict_other_key = self.view.get_other_key_of_two_key_dict('dwgno', initial_dict)
-                final_dict_other_key = self.view.get_other_key_of_two_key_dict('dwgno', final_dict)
-                if final_dict_other_key == initial_dict_other_key:
-                    if final_dict[final_dict_other_key] != initial_dict[initial_dict_other_key]:
-                        self.view.update_stack_dict_list.append(final_dict)                        
-        len_final = len(self.view.final_data_dict_list)
-        len_initial = len(self.view.initial_data_dict_list)
-        if len_final > len_initial:
-            for i in range(len_initial, len_final):
-                self.view.update_stack_dict_list.append(self.view.final_data_dict_list[i])
+    def get_other_key_of_two_key_dict(self, known_key, dictionary):
+        for key in dictionary.keys():
+            if key != known_key:
+                return key
+            
+    def get_all_data_from_widgets(self):
+        '''
+        Takes self.title_diagram_system_dwgno_list, which is a list of ALL entry/combobox/label widget objects,
+        and returns a list of dictionaries such as {'dwgno': 10, 'title': 'VAV FLOW DIAGRAM'}.
+        '''
+        def loop_title_diagram_system_dwgno_list():
+            for idx in range(len(self.view.title_diagram_system_dwgno_list)):
+                for i in range(3):
+                    target_widget = self.view.title_diagram_system_dwgno_list[idx][i]
+                    yield target_widget
         
-        blank_title_dwgno_list = []
-        for update_dict in reversed(self.view.update_stack_dict_list):
-            if self.view.get_other_key_of_two_key_dict('dwgno', update_dict) == 'title':
-                if update_dict['title'] == '':
-                    blank_title_dwgno_list.append(update_dict['dwgno'])
-                else:
-                    break
+        def get_respective_dwgno_n_dwg_prop(widget):
+            for item in self.view.title_diagram_system_dwgno_list:
+                for i, dwg_prop in key_mapping.items():
+                    if widget == item[i]:
+                        dwgno = int(str(item[3].cget('text')).strip())
+                        return dwgno, dwg_prop
 
-        update_stack_dict_list_copy = self.view.update_stack_dict_list.copy()
-        for update_dict in update_stack_dict_list_copy:
-            if update_dict['dwgno'] in blank_title_dwgno_list:
-                self.view.update_stack_dict_list.remove(update_dict)
+        def get_dwgno_updated_widget_dict(target_widget):
+            dwgno, dwg_prop = get_respective_dwgno_n_dwg_prop(target_widget)
+            dwgno_updated_widget_dict = {'dwgno': dwgno, dwg_prop: target_widget.get()}
+            return dwgno_updated_widget_dict
+        
+        key_mapping = {0: 'title', 1: 'diagram', 2: 'system'}
+        dwgno_updated_widget_dict = {}
+        list_to_update = []
+
+        # Returns ex: {'dwgno': 5, 'title': 'AHU CONTROL PANEL (page 1 of 2)'}
+        target_widgets = loop_title_diagram_system_dwgno_list()
+        for target_widget in target_widgets:
+            dwgno_updated_widget_dict = get_dwgno_updated_widget_dict(target_widget)
+            list_to_update.append(dwgno_updated_widget_dict)
+
+        return list_to_update
+
+    
+    def generate_update_stack(self):
+
+        def handle_items_to_be_deleted():
+            '''
+            Trims the final_data_dict_list to remove any blank titles.
+            Appends any deleted items to the commit_stack_dict_dict['delete'] list.
+            '''
+
+            def trim_final_data_dict_list(data):
+                if data['dwgno'] in blank_title_dwgno_list:
+                        final_data_dict_list_trimmed.remove(data)
+
+            def update_delete_commit_stack(data):
+                if data['dwgno'] in blank_title_dwgno_list:
+                        commit_stack_dict_dict['delete'].append(data)
+
+            blank_title_dwgno_list = []
+            for data in self.view.final_data_dict_list:
+                if self.get_other_key_of_two_key_dict('dwgno', data) == 'title':
+                    if data['title'] == '':
+                        blank_title_dwgno_list.append(data['dwgno'])
+                    else:
+                        break
+
+            final_data_dict_list_trimmed = list(self.view.final_data_dict_list)
+
+            for data in self.view.final_data_dict_list:
+                trim_final_data_dict_list(data)
+                update_delete_commit_stack(data)
+                
+            return final_data_dict_list_trimmed
+
+        def get_update_data(final_data_dict_list_trimmed):
+            for initial_dict, final_dict in zip(self.view.initial_data_dict_list, final_data_dict_list_trimmed):
+                if final_dict['dwgno'] == initial_dict['dwgno']:
+                    initial_dict_other_key = self.get_other_key_of_two_key_dict('dwgno', initial_dict)
+                    final_dict_other_key = self.get_other_key_of_two_key_dict('dwgno', final_dict)
+                    if final_dict_other_key == initial_dict_other_key:
+                        if final_dict[final_dict_other_key] != initial_dict[initial_dict_other_key]:
+                            commit_stack_dict_dict['update'].append(final_dict)                        
+            
+        def get_new_data(final_data_dict_list_trimmed):
+            len_final = len(final_data_dict_list_trimmed)
+            len_initial = len(self.view.initial_data_dict_list)
+            if len_final > len_initial:
+                for i in range(len_initial, len_final):
+                    commit_stack_dict_dict['add'].append(final_data_dict_list_trimmed[i])
+            
+        # Initialize commit_stack_dict_dict
+        commit_stack_dict_dict = {}
+        commit_stack_dict_dict['add'] = []
+        commit_stack_dict_dict['delete'] = []
+        commit_stack_dict_dict['update'] = []
+
+        final_data_dict_list_trimmed = handle_items_to_be_deleted()        
+
+        if len(final_data_dict_list_trimmed) > len(self.view.initial_data_dict_list):
+            # If final list is longer, then need to add and/or update
+            get_update_data(final_data_dict_list_trimmed)
+            get_new_data(final_data_dict_list_trimmed)
+            
+        elif len(final_data_dict_list_trimmed) < len(self.view.initial_data_dict_list) or len(final_data_dict_list_trimmed) == len(self.view.initial_data_dict_list):
+            # If final list is shorter, then only need to update since delete already happened
+            # If final list is same length as initial list, then only need to update
+            get_update_data(final_data_dict_list_trimmed)
+
+        return commit_stack_dict_dict
 
 #region title SCR script generator
     def write_text_style(self, font):
