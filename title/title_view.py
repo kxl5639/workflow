@@ -19,7 +19,6 @@ class TitleView(View):
         self.create_and_populate_titles_frame()
         self.create_right_toolbar_frame()
         self.initial_data_dict_list = []
-        # self.initial_data_dict_list = self.controller.get_all_data_from_widgets()
 
         self.close_frame = ButtonsFrame(self.base_frame, [('Close', self.on_close)])
         self.close_frame.button_frame.grid(row=10, column=10, padx=10, pady=10, sticky='nsew')
@@ -40,14 +39,9 @@ class TitleView(View):
     
     def on_close(self):
 
-        # Get data from all widgets on close
-        self.final_data_dict_list = self.controller.get_all_data_from_widgets()
+        self.controller.on_close_command()
 
-        # Generate update stack
-        self.commit_stack_dict_dict = self.controller.generate_update_stack()
-        print(self.commit_stack_dict_dict)
-
-        # self.root.destroy()
+        # self.root.destroy()   
 
     def create_project_number_frame(self):
         project_number_frame = self.create_frame(self.base_frame, 0, 0,
