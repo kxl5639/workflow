@@ -3,6 +3,7 @@ from project_detail.projectdetail_model import ProjectDetailModel
 from model import session, Project, SystemDevice, System, Device
 from class_collection import Controller
 from title.title_controller import TitleController
+from configs import testing
 
 class ProjectDetailController(Controller):
     def __init__(self, parent=None, project_number=None) -> None:
@@ -13,6 +14,9 @@ class ProjectDetailController(Controller):
         self.model = ProjectDetailModel(self.project_number, self)
         self.view = ProjectDetailWindow(f'{self.project_number} Project Detail',
                                         self.parent, self, self.project_number)
+        
+        if testing == 1:
+            self.open_title_manager()
         
 #####################################################################################    
 

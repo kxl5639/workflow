@@ -7,6 +7,9 @@ from project_detail.projectdetail_controller import ProjectDetailController
 class ProjectList(ListWindow):
     def __init__(self, title, parent, controller, is_root=False):
         super().__init__(title, parent, controller, is_root)
+
+        if testing == 1:
+            ProjectDetailController(self.parent, '2265B')
         
     def on_double_click(self):        
         item_id = self.tree_frame.tree.selection()[0]

@@ -3,6 +3,7 @@ from tkinter import ttk
 from class_collection import BaseWindow, ButtonsFrame
 from title.title_controller import TitleController
 from project_list.projectlistwindow_controller import ProjectListWindowController
+from configs import testing
 
 class MainWindow(BaseWindow):
     def __init__(self, title, parent, controller=None, is_root=False):
@@ -45,5 +46,9 @@ class MainWindow(BaseWindow):
 
         # Center the window after adding widgets
         BaseWindow.center_window(self.root)
+
+        if testing == 1:
+            ProjectListWindowController(self)
+    
 
         self.root.mainloop()
