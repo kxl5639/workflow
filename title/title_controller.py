@@ -169,7 +169,7 @@ class TitleController(Controller):
             def handle_items_to_be_deleted(final_data_dict_list):
                 '''
                 Trims the final_data_dict_list to remove any blank titles.
-                Appends any deleted items to the commit_stack_dict_dict['delete'] list.
+                Appends any deleted items to the commit_stack_dict['delete'] list.
                 '''
 
                 def trim_final_data_dict_list(data):
@@ -178,7 +178,7 @@ class TitleController(Controller):
 
                 def update_delete_commit_stack(data, ):
                     if data['dwgno'] in blank_title_dwgno_list and data['dwgno'] in [item['dwgno'] for item in self.view.initial_data_dict_list]:
-                            commit_stack_dict_dict['delete'].append(data)
+                            commit_stack_dict['delete'].append(data)
 
                 blank_title_dwgno_list = []
                 for data in reversed(final_data_dict_list):
@@ -202,21 +202,21 @@ class TitleController(Controller):
                         final_dict_other_key = self.get_other_key_of_two_key_dict('dwgno', final_dict)
                         if final_dict_other_key == initial_dict_other_key:
                             if final_dict[final_dict_other_key] != initial_dict[initial_dict_other_key]:
-                                commit_stack_dict_dict['update'].append(final_dict)                        
+                                commit_stack_dict['update'].append(final_dict)                        
                 
             def get_new_data(final_data_dict_list_trimmed):
                 len_final = len(final_data_dict_list_trimmed)
                 len_initial = len(self.view.initial_data_dict_list)
                 if len_final > len_initial:
                     for i in range(len_initial, len_final):
-                        commit_stack_dict_dict['add'].append(final_data_dict_list_trimmed[i])
+                        commit_stack_dict['add'].append(final_data_dict_list_trimmed[i])
             
 
-            # Initialize commit_stack_dict_dict
-            commit_stack_dict_dict = {}
-            commit_stack_dict_dict['add'] = []
-            commit_stack_dict_dict['delete'] = []
-            commit_stack_dict_dict['update'] = []
+            # Initialize commit_stack_dict
+            commit_stack_dict = {}
+            commit_stack_dict['add'] = []
+            commit_stack_dict['delete'] = []
+            commit_stack_dict['update'] = []
 
             final_data_dict_list_trimmed = handle_items_to_be_deleted(final_data_dict_list)    
 
@@ -230,20 +230,20 @@ class TitleController(Controller):
                 # If final list is same length as initial list, then only need to update
                 get_update_data(final_data_dict_list_trimmed)
 
-            return commit_stack_dict_dict
+            return commit_stack_dict
 
-        def validate_to_addupdate_data(commit_stack_dict_dict):
+        def validate_to_addupdate_data(commit_stack_dict):
             
             invalid_data_dict = {}
             invalid_data_dict['blank_title'] = []
             invalid_data_dict['empty_diagram'] = []
             invalid_data_dict['empty_system'] = []
-            for data in commit_stack_dict_dict['add'] + commit_stack_dict_dict['update']:
+            for data in commit_stack_dict['add'] + commit_stack_dict['update']:
                 if self.get_other_key_of_two_key_dict('dwgno', data) == 'title':
                     if data['title'] == '':
                         invalid_data_dict['blank_title'].append(f'DWG {data['dwgno']}')
                     if data['title'] != '':
-                        for diagram_system_dict in commit_stack_dict_dict['add'] + commit_stack_dict_dict['update']:
+                        for diagram_system_dict in commit_stack_dict['add'] + commit_stack_dict['update']:
                             if diagram_system_dict['dwgno'] == data['dwgno'] and self.get_other_key_of_two_key_dict('dwgno', diagram_system_dict) == 'diagram':
                                 if diagram_system_dict['diagram'] == '(None)':
                                     invalid_data_dict['empty_diagram'].append(f'DWG {data['dwgno']}')
@@ -266,10 +266,52 @@ class TitleController(Controller):
             if errors:
                 messagebox.showerror('Invalid Entry', '\n\n'.join(errors), parent=self.view.root)
 
+        def commit_to_database(commit_stack_dict):
+            # Create mapping between dwgno and dwgtitles_id
+            def get_list_dwgno():
+                dwgno_list = []
+                for commit_action_list in commit_stack_dict.values():
+                    # print(commit_action_list)
+                    for dwgno_prop_dict in commit_action_list:
+                        # print(dwgno_prop_dict)
+                        if dwgno_prop_dict['dwgno'] not in dwgno_list:
+                            dwgno_list.append(dwgno_prop_dict['dwgno'])
+                return dwgno_list
+            
+            def get_id_dwgno_dict(dwgno_list):
+                mapping_dict = {}
+                for dwgno in dwgno_list:
+                    dwgtitle_id = self.model.query_multiple_columns_with_filter(DwgTitle, ['id'], 'dwgno', dwgno)
+                    mapping_dict[dwgtitle_id[0]['id']] = dwgno
+                return mapping_dict
+            
+            def get_id_dwgtitle_obj_dict(id_dwgno_map_dict):
+                id_dwgtitle_obj_dict = {}
+                for id in dwgno_list.keys():
+                    dwgtitle_obj = self.model.get_objs_from_column_data(DwgTitle, 'id', id)
+                    id_dwgtitle_obj_dict[id] = dwgtitle_obj
+                return id_dwgtitle_obj_dict
+            
+            def commit_delete():
+                dwgno_list = []
+                for dwgno_prop_list in commit_stack_dict['delete']:
+                    dwgno = dwgno_prop_list['dwgno']
+                    if dwgno not in dwgno_list:
+                        dwgno_list.append(dwgno)
+                print(f'{dwgno_list = }')
+
+            
+            dwgno_list = get_list_dwgno()
+            id_dwgno_map_dict = get_id_dwgno_dict(dwgno_list)
+            id_dwgtitle_obj_dict = get_id_dwgtitle_obj_dict(id_dwgno_map_dict)
+            commit_delete()
+
+ 
         final_data_dict_list = self.get_all_data_from_widgets()
-        commit_stack_dict_dict = generate_update_stack(final_data_dict_list)
-        validate_to_addupdate_data(commit_stack_dict_dict)
-        print(commit_stack_dict_dict)
+        commit_stack_dict = generate_update_stack(final_data_dict_list)
+        validate_to_addupdate_data(commit_stack_dict)
+        commit_to_database(commit_stack_dict)
+        print(commit_stack_dict)
 
 #region title SCR script generator
     def write_text_style(self, font):
