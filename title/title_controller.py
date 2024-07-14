@@ -162,9 +162,9 @@ class TitleController(Controller):
 
         return list_to_update
 
-    def on_close_command(self): 
+    def on_close_command(self):
 
-        def generate_update_stack():
+        def generate_update_stack(final_data_dict_list):
 
             def handle_items_to_be_deleted(final_data_dict_list):
                 '''
@@ -212,8 +212,6 @@ class TitleController(Controller):
                         commit_stack_dict_dict['add'].append(final_data_dict_list_trimmed[i])
             
 
-            final_data_dict_list = self.get_all_data_from_widgets()
-
             # Initialize commit_stack_dict_dict
             commit_stack_dict_dict = {}
             commit_stack_dict_dict['add'] = []
@@ -234,7 +232,43 @@ class TitleController(Controller):
 
             return commit_stack_dict_dict
 
-        commit_stack_dict_dict = generate_update_stack()
+        def validate_to_addupdate_data(commit_stack_dict_dict):
+            
+            invalid_data_dict = {}
+            invalid_data_dict['blank_title'] = []
+            invalid_data_dict['empty_diagram'] = []
+            invalid_data_dict['empty_system'] = []
+            for data in commit_stack_dict_dict['add'] + commit_stack_dict_dict['update']:
+                if self.get_other_key_of_two_key_dict('dwgno', data) == 'title':
+                    if data['title'] == '':
+                        invalid_data_dict['blank_title'].append(f'DWG {data['dwgno']}')
+                    if data['title'] != '':
+                        for diagram_system_dict in commit_stack_dict_dict['add'] + commit_stack_dict_dict['update']:
+                            if diagram_system_dict['dwgno'] == data['dwgno'] and self.get_other_key_of_two_key_dict('dwgno', diagram_system_dict) == 'diagram':
+                                if diagram_system_dict['diagram'] == '(None)':
+                                    invalid_data_dict['empty_diagram'].append(f'DWG {data['dwgno']}')
+                            elif diagram_system_dict['dwgno'] == data['dwgno'] and self.get_other_key_of_two_key_dict('dwgno', diagram_system_dict) == 'system':
+                                if diagram_system_dict['system'] == '(None)':
+                                    invalid_data_dict['empty_system'].append(f'DWG {data['dwgno']}')
+                        
+            blank_title_list = '\n'.join(invalid_data_dict['blank_title'])
+            empty_diagram_list = '\n'.join(invalid_data_dict['empty_diagram'])
+            empty_system_list = '\n'.join(invalid_data_dict['empty_system'])
+
+            errors = []
+            if invalid_data_dict['blank_title']:
+                errors.append(f'\nThe following title(s) are blank:\n\n{blank_title_list}')
+            if invalid_data_dict['empty_diagram']:
+                errors.append(f'\nSelect a diagram for the following drawings:\n\n{empty_diagram_list}')
+            if invalid_data_dict['empty_system']:
+                errors.append(f'\nSelect a system for the following drawings:\n\n{empty_system_list}')
+
+            if errors:
+                messagebox.showerror('Invalid Entry', '\n\n'.join(errors), parent=self.view.root)
+
+        final_data_dict_list = self.get_all_data_from_widgets()
+        commit_stack_dict_dict = generate_update_stack(final_data_dict_list)
+        validate_to_addupdate_data(commit_stack_dict_dict)
         print(commit_stack_dict_dict)
 
 #region title SCR script generator

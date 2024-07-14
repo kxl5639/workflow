@@ -188,10 +188,9 @@ class TitleView(View):
             in_row, in_column = self.calc_col_row_for_pop_title_data_frame(new_dwgno+1)
 
             # Create new title_data_frame
-            self.create_n_pop_title_col_frame(in_row, in_column, new_dwgno+1, '', '', '')
+            self.create_n_pop_title_col_frame(in_row, in_column, new_dwgno+1, '', '(None)', '(None)')
             self.center_window(self.root)
             
-
         def move_btn_cmd(direction):
             
             idx, curr_title_data_obj_list, swap_title_data_obj_list = self.controller.get_data_to_be_swapped(direction)
