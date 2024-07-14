@@ -176,9 +176,10 @@ class TitleController(Controller):
                     if int(data['dwgno']) in blank_title_dwgno_list:
                             final_data_dict_list_trimmed.remove(data)
 
-                def update_delete_commit_stack(data, ):
+                def update_delete_commit_stack(data):
                     if data['dwgno'] in blank_title_dwgno_list and data['dwgno'] in [item['dwgno'] for item in self.view.initial_data_dict_list]:
-                            commit_stack_dict['delete'].append(data)
+                            if self.get_other_key_of_two_key_dict('dwgno', data) == 'title':
+                                commit_stack_dict['delete'].append(data)
 
                 blank_title_dwgno_list = []
                 for data in reversed(final_data_dict_list):
@@ -310,7 +311,7 @@ class TitleController(Controller):
         final_data_dict_list = self.get_all_data_from_widgets()
         commit_stack_dict = generate_update_stack(final_data_dict_list)
         validate_to_addupdate_data(commit_stack_dict)
-        commit_to_database(commit_stack_dict)
+        # commit_to_database(commit_stack_dict)
         print(commit_stack_dict)
 
 #region title SCR script generator
