@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from abc import ABC, abstractmethod
 from model import session, Base, Diagram
-from typing import List, Type
+from typing import Any, List, Dict, Optional
 
 class BaseWindow(ABC):
     def __init__(self, title, parent, controller=None, is_root=False):
@@ -144,6 +144,24 @@ class Controller:
     def __init__(self, parent=None, project_number = None) -> None:
         self.parent = parent
         self.project_number = project_number
+
+    def find_dict_with_key_value_from_list(self, key: Any, value: Any, list_of_dicts: List[Dict[Any, Any]]) -> Optional[Dict[Any, Any]]:
+        """
+        Find and return the first dictionary that contains the specified key-value pair in a list of dictionaries.
+
+        Args:
+            key (Any): The key to look for in each dictionary.
+            value (Any): The value to compare against the key in each dictionary.
+            list_of_dicts (List[Dict[Any, Any]]): The list of dictionaries to search.
+
+        Returns:
+            Optional[Dict[Any, Any]]: The first dictionary that contains the key with the specified value, or None if no such dictionary is found.
+        """
+        for dictionary in list_of_dicts:
+            for key in dictionary:
+                if key == value:
+                    return dictionary
+        return None
 
 class Model:
     def __init__(self, controller=None) -> None:
