@@ -79,12 +79,25 @@ class TitleController(Controller):
         for all_title_data_dict in self.all_title_data_dict_list:
             yield all_title_data_dict
 
+    def get_dwgtitle_id_from_dwgno(self, dwgno):
+        dwgtitle_id = self.model.get_objs_list_with_filter(DwgTitle, 
+                                                    {'project_id': self.project_id,
+                                                          'dwgno': dwgno})
+        return dwgtitle_id[0].id
+
     def get_diagram_name_from_id(self, diagram_id):
         diagram_name = self.model.query_multiple_columns_with_filter(Diagram,
                                                                      ['type'],
                                                                      'id',
                                                                      diagram_id)
         return diagram_name[0]['type']
+    
+    def get_diagram_id_from_name(self, diagram_name):
+        diagram_id = self.model.query_multiple_columns_with_filter(Diagram,
+                                                                     ['id'],
+                                                                     'type',
+                                                                     diagram_name)
+        return diagram_id[0]['id']
 
     def get_system_name_from_id(self, system_id):
         system_name = self.model.query_multiple_columns_with_filter(System,
@@ -92,6 +105,12 @@ class TitleController(Controller):
                                                                      'id',
                                                                      system_id)
         return system_name[0]['name']
+
+    def get_system_id_from_name(self, system_name):
+        system_id = self.model.get_objs_list_with_filter(System, 
+                                                         {'project_id': self.project_id,
+                                                          'name': system_name})
+        return system_id[0].id
 
     def get_data_to_be_swapped(self, direction):
 
@@ -211,7 +230,6 @@ class TitleController(Controller):
                 if len_final > len_initial:
                     for i in range(len_initial, len_final):
                         commit_stack_dict['add'].append(final_data_dict_list_trimmed[i])
-            
 
             # Initialize commit_stack_dict
             commit_stack_dict = {}
@@ -266,53 +284,65 @@ class TitleController(Controller):
 
             if errors:
                 messagebox.showerror('Invalid Entry', '\n\n'.join(errors), parent=self.view.root)
+                return False
+            else: return True
 
         def commit_to_database(commit_stack_dict):
-            # Create mapping between dwgno and dwgtitles_id
-            def get_list_dwgno():
-                dwgno_list = []
-                for commit_action_list in commit_stack_dict.values():
-                    # print(commit_action_list)
-                    for dwgno_prop_dict in commit_action_list:
-                        # print(dwgno_prop_dict)
-                        if dwgno_prop_dict['dwgno'] not in dwgno_list:
-                            dwgno_list.append(dwgno_prop_dict['dwgno'])
-                return dwgno_list
-            
-            def get_id_dwgno_dict(dwgno_list):
-                mapping_dict = {}
-                for dwgno in dwgno_list:
-                    dwgtitle_id = self.model.query_multiple_columns_with_filter(DwgTitle, ['id'], 'dwgno', dwgno)
-                    mapping_dict[dwgtitle_id[0]['id']] = dwgno
-                return mapping_dict
-            
-            def get_id_dwgtitle_obj_dict(id_dwgno_map_dict):
-                id_dwgtitle_obj_dict = {}
-                for id in dwgno_list.keys():
-                    dwgtitle_obj = self.model.get_objs_from_column_data(DwgTitle, 'id', id)
-                    id_dwgtitle_obj_dict[id] = dwgtitle_obj
-                return id_dwgtitle_obj_dict
-            
-            def commit_delete():
-                dwgno_list = []
-                for dwgno_prop_list in commit_stack_dict['delete']:
-                    dwgno = dwgno_prop_list['dwgno']
-                    if dwgno not in dwgno_list:
-                        dwgno_list.append(dwgno)
-                print(f'{dwgno_list = }')
 
-            
-            dwgno_list = get_list_dwgno()
-            id_dwgno_map_dict = get_id_dwgno_dict(dwgno_list)
-            id_dwgtitle_obj_dict = get_id_dwgtitle_obj_dict(id_dwgno_map_dict)
-            commit_delete()
+            def add_commit(commit_stack_dict):
 
+                def get_add_list(commit_stack_dict):
+                    add_data_list = [] # List of dictionaries of dwgno,title,diagram,system to be added
+                    for commit_action, data_dict_list in commit_stack_dict.items():
+                        if commit_action == 'add':
+                            for data_dict in data_dict_list:
+                                    if not any(add_dict.get('dwgno') == data_dict['dwgno'] for add_dict in add_data_list):
+                                        add_data_list.append(data_dict)
+                                    else:
+                                        for add_dict in add_data_list:
+                                            if add_dict['dwgno'] == data_dict['dwgno']:
+                                                other_data_dict_key = self.get_other_key_of_two_key_dict('dwgno', data_dict)
+                                                add_dict[other_data_dict_key] = data_dict[other_data_dict_key]
+                    return add_data_list
+
+                def get_add_dwgtitle_obj_list(add_data_list):
+                    add_dwgtitle_obj_list = []
+                    for add_dict in add_data_list:
+                        system_id = self.get_system_id_from_name(add_dict['system'])
+                        add_dwgtitle_obj_list.append(DwgTitle(title = add_dict['title'],
+                                                              dwgno = add_dict['dwgno'],
+                                                              project_id = self.project_id,
+                                                              system_id = system_id))
+                    return add_dwgtitle_obj_list
+   
+                def get_add_dwgtitlediagram_obj_list(add_data_list):
+                    add_dwgtitlediagram_obj_list = []
+                    for add_dict in add_data_list:
+                        diagram_id = self.get_diagram_id_from_name(add_dict['diagram'])
+                        dwgtitle_id = self.get_dwgtitle_id_from_dwgno(add_dict['dwgno'])
+                        add_dwgtitlediagram_obj_list.append(DwgTitleDiagram(dwgtitle_id = dwgtitle_id,
+                                                                            diagram_id = diagram_id,))
+                    return add_dwgtitlediagram_obj_list
+                
+                add_data_list = get_add_list(commit_stack_dict)
+
+                add_dwgtitle_obj_list = get_add_dwgtitle_obj_list(add_data_list)
+                for add_dwgtitle_obj in add_dwgtitle_obj_list:
+                    self.model.add_record(add_dwgtitle_obj)
+
+                add_dwgtitlediagram_obj_list = get_add_dwgtitlediagram_obj_list(add_data_list)
+                for add_dwgtitlediagram_obj in add_dwgtitlediagram_obj_list:
+                    self.model.add_record(add_dwgtitlediagram_obj)
+
+                self.model.commit_changes()
+
+            add_commit(commit_stack_dict)
  
         final_data_dict_list = self.get_all_data_from_widgets()
         commit_stack_dict = generate_update_stack(final_data_dict_list)
-        validate_to_addupdate_data(commit_stack_dict)
-        # commit_to_database(commit_stack_dict)
-        print(commit_stack_dict)
+        if validate_to_addupdate_data(commit_stack_dict):
+            commit_to_database(commit_stack_dict)
+        # print(commit_stack_dict)
 
 #region title SCR script generator
     def write_text_style(self, font):

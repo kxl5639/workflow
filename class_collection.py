@@ -201,26 +201,20 @@ class Model:
         
         return col_and_value_dict_list
     
-
-    def query_multiple_columns_with_filter2(self, model, columns: list[str], filters: dict, sort_column=None):
+    def get_objs_list_with_filter(self, model, filters: dict) -> List[Base]: 
         '''
-        Query specified columns from a SQLAlchemy model based on multiple filter conditions.
+        Query specified objects based on multiple filter conditions.
         
         Parameters:
         - model: SQLAlchemy model class.
-        - columns (list of str): A list of column names (as strings) to retrieve from the model.
         - filters (dict): A dictionary where the keys are column names and values are the values to filter the specified columns by.
-        - sort_column (str, optional): The name of the column to sort the result by. Should be one of the columns in the 'columns' list.
         
         Returns:
-        - list: A list of dictionaries, where each dictionary contains the values of the specified columns 
-                for each row that matches the filter condition.
+        - list: A list of objects.
         
         Example:
-        columns = ['name', 'age']
         filters = {'id': 2, 'city': 'New York'} # Filters based on multiple columns
-        sort_column = 'name'
-        result = query_multiple_columns_with_filter(User, columns, filters, sort_column)
+        result = get_objs_list_with_filter(DwgTitle, {'dwgno' : 1, 'project_id' : 2})
         
         Returns a list of dictionaries with the key(column) value(column_value) for record object.
         '''
@@ -230,19 +224,9 @@ class Model:
             filter_col_attr = getattr(model, filter_column)
             query = query.filter(filter_col_attr == filter_value)
             
-        record_objs_list = query.all()
+        record_objs_list = query.all()        
         
-        col_and_value_dict_list = []
-        for record_obj in record_objs_list:
-            individual_dict = {col: getattr(record_obj, col) for col in columns}
-            col_and_value_dict_list.append(individual_dict)
-        
-        if sort_column and sort_column in columns:
-            col_and_value_dict_list = sorted(col_and_value_dict_list, key=lambda x: x[sort_column])
-        
-        return col_and_value_dict_list
-
-
+        return record_objs_list
 
     
     def query_column_values(self, model, column):
