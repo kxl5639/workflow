@@ -380,8 +380,21 @@ class TitleController(Controller):
                         else:
                             update_dwgtitle_table(dwgno, other_key, data_dict)
 
+            def delete_commit(commit_stack_dict):
+                delete_obj_list = []
+                for commit_action, data_dict_list in commit_stack_dict.items():
+                    if commit_action != 'delete':
+                        continue
+                    for data_dict in data_dict_list:
+                        dwgno = int(data_dict['dwgno'])
+                        dwgtitle_id = self.get_dwgtitle_id_from_dwgno(dwgno)
+                        dwgtitle_obj = self.model.get_objs_list_with_filter(DwgTitle, {'id' : dwgtitle_id})[0]
+                        delete_obj_list.append(dwgtitle_obj)
+                    self.model.delete_record(delete_obj_list)
+
             add_commit(commit_stack_dict)
             update_commit(commit_stack_dict)
+            delete_commit(commit_stack_dict)
             self.model.commit_changes()
 
         dwgno_dwgtitleobj_dict_list = [] # Store dwgno and respective dwgtitle object here to avoid multiple queries
