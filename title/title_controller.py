@@ -79,11 +79,7 @@ class TitleController(Controller):
         for all_title_data_dict in self.all_title_data_dict_list:
             yield all_title_data_dict
 
-    def get_dwgtitle_id_from_dwgno(self, dwgno):
-        dwgtitle_id = self.model.get_objs_list_with_filter(DwgTitle, 
-                                                    {'project_id': self.project_id,
-                                                          'dwgno': dwgno})
-        return dwgtitle_id[0].id
+
 
     def get_diagram_name_from_id(self, diagram_id):
         diagram_name = self.model.query_multiple_columns_with_filter(Diagram,
@@ -92,12 +88,7 @@ class TitleController(Controller):
                                                                      diagram_id)
         return diagram_name[0]['type']
     
-    def get_diagram_id_from_name(self, diagram_name):
-        diagram_id = self.model.query_multiple_columns_with_filter(Diagram,
-                                                                     ['id'],
-                                                                     'type',
-                                                                     diagram_name)
-        return diagram_id[0]['id']
+
 
     def get_system_name_from_id(self, system_id):
         system_name = self.model.query_multiple_columns_with_filter(System,
@@ -106,11 +97,7 @@ class TitleController(Controller):
                                                                      system_id)
         return system_name[0]['name']
 
-    def get_system_id_from_name(self, system_name):
-        system_id = self.model.get_objs_list_with_filter(System, 
-                                                         {'project_id': self.project_id,
-                                                          'name': system_name})
-        return system_id[0].id
+
 
     def get_data_to_be_swapped(self, direction):
 
@@ -306,9 +293,16 @@ class TitleController(Controller):
                     return add_data_list
 
                 def get_add_dwgtitle_obj_list(add_data_list):
+
+                    def get_system_id_from_name(system_name):
+                        system_id = self.model.get_objs_list_with_filter(System, 
+                                                                        {'project_id': self.project_id,
+                                                                        'name': system_name})
+                        return system_id[0].id
+
                     add_dwgtitle_obj_list = []
                     for add_dict in add_data_list:
-                        system_id = self.get_system_id_from_name(add_dict['system'])
+                        system_id = get_system_id_from_name(add_dict['system'])
                         add_dwgtitle_obj_list.append(DwgTitle(title = add_dict['title'],
                                                               dwgno = add_dict['dwgno'],
                                                               project_id = self.project_id,
@@ -316,10 +310,25 @@ class TitleController(Controller):
                     return add_dwgtitle_obj_list
    
                 def get_add_dwgtitlediagram_obj_list(add_data_list):
+
+                    def get_dwgtitle_id_from_dwgno(dwgno):
+                        dwgtitle_id = self.model.get_objs_list_with_filter(DwgTitle, 
+                                                                    {'project_id': self.project_id,
+                                                                        'dwgno': dwgno})
+                        return dwgtitle_id[0].id
+                    
+
+                    def get_diagram_id_from_name(diagram_name):
+                        diagram_id = self.model.query_multiple_columns_with_filter(Diagram,
+                                                                                    ['id'],
+                                                                                    'type',
+                                                                                    diagram_name)
+                        return diagram_id[0]['id']
+
                     add_dwgtitlediagram_obj_list = []
                     for add_dict in add_data_list:
-                        diagram_id = self.get_diagram_id_from_name(add_dict['diagram'])
-                        dwgtitle_id = self.get_dwgtitle_id_from_dwgno(add_dict['dwgno'])
+                        diagram_id = get_diagram_id_from_name(add_dict['diagram'])
+                        dwgtitle_id = get_dwgtitle_id_from_dwgno(add_dict['dwgno'])
                         add_dwgtitlediagram_obj_list.append(DwgTitleDiagram(dwgtitle_id = dwgtitle_id,
                                                                             diagram_id = diagram_id,))
                     return add_dwgtitlediagram_obj_list
