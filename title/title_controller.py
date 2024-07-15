@@ -337,37 +337,48 @@ class TitleController(Controller):
                     self.model.add_record(add_dwgtitlediagram_obj)
 
             def update_commit(commit_stack_dict):
+
+                def update_dwgtitle_table(dwgno, other_key, data_dict):
+                    # Check list to see if dwgtitle object for that dwgno has already been queried
+                    obj_here_dict = self.find_dict_with_key_value_from_list('dwgno', dwgno, dwgno_dwgtitleobj_dict_list)
+                    if not obj_here_dict:
+                        # Query the dwgtitle object
+                        dwgtitle_obj = self.model.get_objs_list_with_filter(DwgTitle,
+                                                                            {'dwgno' : dwgno,
+                                                                                'project_id' : self.project_id})[0]   
+                        # Add it to dwgno_dwgtitleobj_dict_list
+                        dwgno_dwgtitleobj_dict_list.append({dwgno : dwgtitle_obj})
+                        obj_here_dict = self.find_dict_with_key_value_from_list('dwgno', dwgno, dwgno_dwgtitleobj_dict_list)
+                        
+                    # Update the dwgtitle object
+                    dwgtitle_obj = obj_here_dict[dwgno]
+                    if other_key == 'title':
+                        # Get the dwgtitle object and set the column of that object to the value
+                        setattr(dwgtitle_obj, other_key, data_dict[other_key])
+                    elif other_key == 'system':
+                        # Get mapped system_id and set the column of that object to the system_id
+                        system_id = get_system_id_from_name(data_dict[other_key])
+                        setattr(dwgtitle_obj, 'system_id', system_id)
+
+                def update_dwgtitlediagram_table(dwgno, other_key, data_dict):
+                    # Get associated dwgtitlediagram object and set the column of that key to the value
+                    dwgtitle_id = self.get_dwgtitle_id_from_dwgno(dwgno)
+                    dwgtitlediagram_obj = self.model.get_objs_list_with_filter(DwgTitleDiagram, {'dwgtitle_id' : dwgtitle_id})[0]
+                    diagram_id = int(get_diagram_id_from_name(data_dict[other_key]))
+                    setattr(dwgtitlediagram_obj, 'diagram_id', diagram_id)
+
                 # Loop through the update dictionary of the commit_stack_dict
                 for commit_action, data_dict_list in commit_stack_dict.items():
-                    if commit_action == 'update':
-                        for data_dict in data_dict_list:
-                            # If the other key is not 'diagram' then continue to update DwgTitle
-                            other_key = self.get_other_key_of_two_key_dict('dwgno', data_dict)
-                            if other_key != 'diagram':
-                                # Check list to see if dwgtitle object for that dwgno has already been queried
-                                obj_here_dict = self.find_dict_with_key_value_from_list('dwgno', int(data_dict['dwgno']), dwgno_dwgtitleobj_dict_list)
-                                if not obj_here_dict:
-                                    # Query the dwgtitle object
-                                    dwgtitle_obj = self.model.get_objs_list_with_filter(DwgTitle,
-                                                                                        {'dwgno' : data_dict['dwgno'],
-                                                                                         'project_id' : self.project_id})[0]   
-                                    # Add it to dwgno_dwgtitleobj_dict_list
-                                    dwgno_dwgtitleobj_dict_list.append({int(data_dict['dwgno']) : dwgtitle_obj})
-                                obj_here_dict = self.find_dict_with_key_value_from_list('dwgno', int(data_dict['dwgno']), dwgno_dwgtitleobj_dict_list)
-                                # Update the dwgtitle object
-                                if other_key == 'title':
-                                    # Get the dwgtitle object and set the column of that object to the value
-                                    setattr(obj_here_dict[data_dict['dwgno']], other_key, data_dict[other_key])
-                                elif other_key == 'system':
-                                    # Get mapped system_id and set the column of that object to the system_id
-                                    system_id = get_system_id_from_name(data_dict[other_key])
-                                    setattr(obj_here_dict[data_dict['dwgno']], 'system_id', system_id)
-                            elif other_key == 'diagram':
-                                # Get associated dwgtitlediagram object and set the column of that key to the value
-                                dwgtitle_id = self.get_dwgtitle_id_from_dwgno(data_dict['dwgno'])
-                                dwgtitlediagram_obj = self.model.get_objs_list_with_filter(DwgTitleDiagram, {'dwgtitle_id' : dwgtitle_id})[0]
-                                diagram_id = int(get_diagram_id_from_name(data_dict[other_key]))
-                                setattr(dwgtitlediagram_obj, 'diagram_id', diagram_id)
+                    if commit_action != 'update':
+                        continue
+                    for data_dict in data_dict_list:
+                        dwgno = int(data_dict['dwgno'])
+                        other_key = self.get_other_key_of_two_key_dict('dwgno', data_dict)
+
+                        if other_key == 'diagram':
+                            update_dwgtitlediagram_table(dwgno, other_key, data_dict)
+                        else:
+                            update_dwgtitle_table(dwgno, other_key, data_dict)
 
             add_commit(commit_stack_dict)
             update_commit(commit_stack_dict)
