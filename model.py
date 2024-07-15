@@ -37,7 +37,7 @@ class System(Base):
     project_id: Mapped[int] = mapped_column(ForeignKey('projects.id'), nullable=False)
     project: Mapped['Project'] = relationship(back_populates='systems')
     devices: Mapped[List['SystemDevice']] = relationship('SystemDevice', back_populates='system', cascade="all, delete-orphan")
-    dwgtitles: Mapped[List['DwgTitle']] = relationship('DwgTitle', back_populates='system')
+    dwgtitles: Mapped[List['DwgTitle']] = relationship('DwgTitle', back_populates='system', cascade="all, delete-orphan")
 
 class Device(Base):
     __tablename__ = 'devices'

@@ -1,6 +1,6 @@
 from project_detail.projectdetail_view import ProjectDetailWindow
 from project_detail.projectdetail_model import ProjectDetailModel
-from model import session, Project, SystemDevice, System, Device
+from model import session, Project, SystemDevice, System, Device, DwgTitle, DwgTitleDiagram
 from class_collection import Controller
 from title.title_controller import TitleController
 from configs import testing
@@ -12,11 +12,13 @@ class ProjectDetailController(Controller):
         self.systems_devices_data_dict = {}
         self.number_of_systems = None
         self.model = ProjectDetailModel(self.project_number, self)
+        self.project_id = self.model.get_id_from_model_column_data(Project, 'project_number', self.project_number)
         self.view = ProjectDetailWindow(f'{self.project_number} Project Detail',
                                         self.parent, self, self.project_number)
         
         if testing == 1:
             self.open_title_manager()
+            # pass
         
 #####################################################################################    
 
@@ -28,11 +30,11 @@ class ProjectDetailController(Controller):
         def get_systems_keys():
             '''Generates the key as a tuple [ex: (1, 'AHU')] for self.systems_devices_data_dict.'''
             def get_systems_ids_from_proj_num():
-                proj_id = self.model.get_id_from_model_column_data(Project, 'project_number', self.project_number)
-                systems_objs = self.model.get_objs_list_with_filter(System, {'project_id': proj_id})
+                systems_objs = self.model.get_objs_list_with_filter(System, {'project_id': self.project_id})
                 systems_ids = []
                 for system_obj in systems_objs:
-                    systems_ids.append(system_obj.id)
+                    if system_obj.name != '(None)':
+                        systems_ids.append(system_obj.id)
                 return systems_ids
             
             systems_ids = get_systems_ids_from_proj_num()
@@ -179,10 +181,52 @@ class ProjectDetailController(Controller):
                 if system_key[1] == system_name:
                     system_id = system_key[0]
                     return system_id
+
+        def get_dwgtitle_id_from_dwgno(dwgno):
+            dwgtitle_id = self.model.get_objs_list_with_filter(DwgTitle, 
+                                                        {'project_id': self.project_id,
+                                                            'dwgno': dwgno})
+            return dwgtitle_id[0].id
             
         system_id : int = get_system_id(system_name)
+
+        # Need to get all drawing numbers of the system and reproduce blank entries in the database
+        # to prevent index errors when executing calc_col_row_for_pop_title_data_frame in TitleController
+        dwgtitle_obj_list = self.model.get_objs_list_with_filter(DwgTitle, {'system_id': system_id})
+        dwgno_list = []
+        for dwgtitle_obj in dwgtitle_obj_list:
+            dwgno_list.append(dwgtitle_obj.dwgno)
+
+        # Deleting system object
         system_obj: System = self.model.get_objs_list_with_filter(System, {'id': system_id})[0]
         self.model.delete_record([system_obj])
+        self.model.commit_changes()
+
+        # Create dwgtitle objects to be added to DwgTitle after deleting the system
+        replacement_dwgtitle_obj_list = []
+        system_id = self.model.get_objs_list_with_filter(System, {'project_id': self.project_id,
+                                                                'name': '(None)'})[0].id
+        for dwgno in dwgno_list:
+            replacement_dwgtitle_obj = DwgTitle(title = f'Filler for deleted [{system_name.upper()}] system',
+                                                dwgno = dwgno,
+                                                project_id = self.project_id,
+                                                system_id = system_id)
+            replacement_dwgtitle_obj_list.append(replacement_dwgtitle_obj)
+
+        for replacement_dwgtitle_obj in replacement_dwgtitle_obj_list:
+            self.model.add_record(replacement_dwgtitle_obj)
+
+        # Also create diagram objects to be added to Diagram after deleting the system
+        replacement_dwgtitlediagram_obj_list = []
+        for dwgno in dwgno_list:
+            dwgtitle_id = get_dwgtitle_id_from_dwgno(dwgno)
+            replacement_dwgtitlediagram_obj = DwgTitleDiagram(dwgtitle_id = dwgtitle_id,
+                                                              diagram_id = 1)
+            replacement_dwgtitlediagram_obj_list.append(replacement_dwgtitlediagram_obj)
+
+        for replacement_dwgtitlediagram_obj in replacement_dwgtitlediagram_obj_list:
+            self.model.add_record(replacement_dwgtitlediagram_obj)
+
         self.model.commit_changes()
     #endregion
 

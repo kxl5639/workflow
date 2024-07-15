@@ -166,7 +166,7 @@ class Controller:
 class Model:
     def __init__(self, controller=None) -> None:
         self.controller = controller
-        self.diagram_options = self.query_column_values(Diagram, 'type')
+        self.diagram_options = self.query_column_values(Diagram, 'type', exclude_id=1)
 
     def delete_record(self, object_list):
         for obj in object_list:
@@ -243,7 +243,7 @@ class Model:
         return record_objs_list
 
     
-    def query_column_values(self, model, column):
+    def query_column_values(self, model, column, exclude_id=None):
         '''
         Query a specified column from a SQLAlchemy model.
         
@@ -262,6 +262,10 @@ class Model:
         '''
         column_attr = getattr(model, column)
         values_list = session.query(column_attr).all()
+        values_list = session.query(column_attr)
+        if exclude_id is not None:
+            values_list = values_list.filter(model.id != exclude_id).all()
+        
         
         # Flatten the list of tuples to a list of values
         values_list = [value[0] for value in values_list]

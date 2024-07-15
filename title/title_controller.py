@@ -190,7 +190,7 @@ class TitleController(Controller):
                 blank_title_dwgno_list = []
                 for data in reversed(final_data_dict_list):
                     if self.get_other_key_of_two_key_dict('dwgno', data) == 'title':
-                        if data['title'] == '':
+                        if data['title'] == '' or 'Filler for deleted' in data['title']:
                             blank_title_dwgno_list.append(data['dwgno'])
                         else:
                             break
@@ -317,7 +317,7 @@ class TitleController(Controller):
                     return add_dwgtitle_obj_list
    
                 def get_add_dwgtitlediagram_obj_list(add_data_list):
-
+                    # Add record to DwgTitleDiagram table after adding to DwgTitle table
                     add_dwgtitlediagram_obj_list = []
                     for add_dict in add_data_list:
                         diagram_id = get_diagram_id_from_name(add_dict['diagram'])
@@ -402,6 +402,9 @@ class TitleController(Controller):
         commit_stack_dict = generate_update_stack(final_data_dict_list)
         if validate_to_addupdate_data(commit_stack_dict):
             commit_to_database(commit_stack_dict)
+            return True
+        else: 
+            return False
 
 #region title SCR script generator
     def write_text_style(self, font):

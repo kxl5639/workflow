@@ -20,8 +20,7 @@ class TitleView(View):
         self.create_right_toolbar_frame()
         self.initial_data_dict_list = []
 
-        self.close_frame = ButtonsFrame(self.base_frame, [('Close', self.on_close)])
-        self.close_frame.button_frame.grid(row=10, column=10, padx=10, pady=10, sticky='nsew')
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.center_window(self.root)
 
 #####################################################################################
@@ -38,10 +37,8 @@ class TitleView(View):
 ##############################################################################
     
     def on_close(self):
-
-        self.controller.on_close_command()
-
-        # self.root.destroy()   
+        if self.controller.on_close_command():
+            self.root.destroy()   
 
     def create_project_number_frame(self):
         project_number_frame = self.create_frame(self.base_frame, 0, 0,

@@ -1,6 +1,6 @@
 from project_list.projectlistwindow_model import ProjectListWindowModel
 from project_list.projectlistwindow_view import ProjectList, ProjectAddModifyWindow
-from model import session, ProjectManager, DesignEngineer, SalesEngineer, Client, MechanicalContractor, MechanicalEngineer, Project
+from model import session, ProjectManager, DesignEngineer, SalesEngineer, Client, MechanicalContractor, MechanicalEngineer, Project, System
 from tkinter import messagebox
 from sqlalchemy.exc import IntegrityError
 from class_collection import Controller
@@ -98,7 +98,7 @@ class ProjectListWindowController(Controller):
         if not self.check_for_blanks(data, parent):
             return False
         
-        self.project_data = data['project']        
+        self.project_data = data['project']
         self.client_data = data['client']
         self.me_data = data['me']
         self.mc_data = data['mc']
@@ -116,6 +116,14 @@ class ProjectListWindowController(Controller):
         else:
             if self.check_project_unique(parent):
                 self.commit_add()
+                
+                # Add a system of "(None)" for every project, Not to be displayed in dropdown list
+                    # Get project_id
+                project_id = session.query(Project).filter_by(project_number=self.project_data['project_number']).first().id
+                    # Add system
+                system = System(project_id=project_id, name="(None)")
+                session.add(system)
+
                 parent.destroy()
                 self.view.refresh_tree()    
 
