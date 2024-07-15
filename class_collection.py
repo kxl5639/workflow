@@ -160,10 +160,6 @@ class Model:
     def commit_changes(self):
         session.commit()
 
-    def get_objs_from_column_data(self, model: Type[Base], col_name, col_val) -> List[Base]:
-        col_attr = getattr(model, col_name)
-        return session.query(model).filter(col_attr == col_val).all()
-    
     def query_multiple_columns_with_filter(self, model, columns: list[str], filter_column, filter_value, sort_column=None):
         '''
         Query specified columns from a SQLAlchemy model based on a filter condition.

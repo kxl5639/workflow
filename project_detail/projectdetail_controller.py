@@ -29,7 +29,7 @@ class ProjectDetailController(Controller):
             '''Generates the key as a tuple [ex: (1, 'AHU')] for self.systems_devices_data_dict.'''
             def get_systems_ids_from_proj_num():
                 proj_id = self.model.get_id_from_model_column_data(Project, 'project_number', self.project_number)
-                systems_objs = self.model.get_objs_from_column_data(System, 'project_id', proj_id)
+                systems_objs = self.model.get_objs_list_with_filter(System, {'project_id': proj_id})
                 systems_ids = []
                 for system_obj in systems_objs:
                     systems_ids.append(system_obj.id)
@@ -38,7 +38,7 @@ class ProjectDetailController(Controller):
             systems_ids = get_systems_ids_from_proj_num()
             systems_keys = []
             for idx, system_id in enumerate(systems_ids):
-                system_obj = self.model.get_objs_from_column_data(System,'id',system_id)
+                system_obj = self.model.get_objs_list_with_filter(System, {'id':system_id})
                 system_name = system_obj[0].name
                 systems_keys.append((system_id, system_name))
             return systems_keys
@@ -121,7 +121,7 @@ class ProjectDetailController(Controller):
 
         child_col_of_parent_id is column name in child table that refers to parent_id.
         '''
-        child_objs = self.model.get_objs_from_column_data(child_model, child_col_of_parent_id, parent_id)
+        child_objs = self.model.get_objs_list_with_filter(child_model, {child_col_of_parent_id: parent_id})
         childs_names = []        
         for child_obj in child_objs:
             childs_names.append(child_obj.name)            
@@ -135,7 +135,7 @@ class ProjectDetailController(Controller):
 
         child_col_of_parent_id is column name in child table that refers to parent_id.
         '''
-        child_objs = self.model.get_objs_from_column_data(child_model, child_col_of_parent_id, parent_id)
+        child_objs = self.model.get_objs_list_with_filter(child_model, {child_col_of_parent_id: parent_id})
         childs_ids = []
         for child_obj in child_objs:
             childs_ids.append(child_obj.id)
@@ -181,7 +181,7 @@ class ProjectDetailController(Controller):
                     return system_id
             
         system_id : int = get_system_id(system_name)
-        system_obj: System = self.model.get_objs_from_column_data(System,'id',system_id)[0]
+        system_obj: System = self.model.get_objs_list_with_filter(System, {'id': system_id})[0]
         self.model.delete_record([system_obj])
         self.model.commit_changes()
     #endregion

@@ -21,7 +21,7 @@ class TitleController(Controller):
 #####################################################################################
 
     def get_project_id(self):
-        project_obj_list = self.model.get_objs_from_column_data(Project, 'project_number', self.project_number)
+        project_obj_list = self.model.get_objs_list_with_filter(Project, {'project_number': self.project_number})
         self.project_id = project_obj_list[0].id
         return self.project_id
     
