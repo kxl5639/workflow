@@ -3,6 +3,7 @@ from tkinter import ttk
 from abc import ABC, abstractmethod
 from model import session, Base, Diagram
 from typing import Any, List, Dict, Optional
+from configs import testing
 
 class BaseWindow(ABC):
     def __init__(self, title, parent, controller=None, is_root=False):
@@ -16,7 +17,13 @@ class BaseWindow(ABC):
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
         self.base_frame = self.create_base_frame(self.root)
-    
+
+        if testing == 1:
+            self.root.bind("<Key>", lambda event: on_keypress(event))
+            def on_keypress(event):
+                if event.char == 'q':
+                    self.parent.root.destroy()
+        
     @staticmethod
     def center_window(window):
         window.update_idletasks()
