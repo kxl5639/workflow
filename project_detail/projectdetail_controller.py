@@ -21,7 +21,7 @@ class ProjectDetailController(Controller):
         if testing == 1:
             # ProjectDetailWindow(f'{self.project_number} Project Detail',
             #                             self.parent, self, self.project_number)
-            # AddDeviceController(self.parent, self.project_number)
+            AddDeviceController(self.parent, self.project_number)
             pass
         
 #####################################################################################    

@@ -105,9 +105,9 @@ class ListWindow(BaseWindow):
         self.tree_frame = TreeFrame(self.base_frame, self.controller.column_map, self.controller.table_data)
         self.tree_frame.tree_frame.grid(row=0, padx=0, pady=(0,10), sticky="nsew")
         self.tree_frame.tree.bind("<Double-1>", lambda event:self.on_double_click())
-        # Create Button Frame
-        self.button_frame = ButtonsFrame(self.base_frame, self.controller.button_info)
-        self.button_frame.button_frame.grid(row=1, column=0, pady=0, padx=0)
+        # # Create Button Frame
+        # self.button_frame = ButtonsFrame(self.base_frame, self.controller.button_info)
+        # self.button_frame.button_frame.grid(row=1, column=0, pady=0, padx=0)
         # Center Window
         BaseWindow.center_window(self.root)  
 
@@ -175,7 +175,6 @@ class Model:
     def __init__(self, controller=None) -> None:
         self.controller = controller
         self.diagram_options = self.query_column_values(Diagram, 'type', exclude_id=1)
-        print(f'\n\n{self.diagram_options = }')
 
     def delete_record(self, object_list):
         for obj in object_list:

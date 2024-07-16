@@ -7,6 +7,10 @@ from project_detail.projectdetail_controller import ProjectDetailController
 class ProjectList(ListWindow):
     def __init__(self, title, parent, controller, is_root=False):
         super().__init__(title, parent, controller, is_root)
+        
+        # Create Button Frame
+        self.button_frame = ButtonsFrame(self.base_frame, self.controller.button_info)
+        self.button_frame.button_frame.grid(row=1, column=0, pady=0, padx=0)
 
         if testing == 1:
             ProjectDetailController(self.parent, '2265B')

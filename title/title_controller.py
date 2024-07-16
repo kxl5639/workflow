@@ -21,7 +21,7 @@ class TitleController(Controller):
 #####################################################################################
 
     def get_project_id(self):
-        project_obj_list = self.model.get_objs_list_with_filter(Project, {'project_number': self.project_number})
+        project_obj_list = self.model.get_rec_objs_by_opt_filts(Project, {'project_number': self.project_number})
         self.project_id = project_obj_list[0].id
         return self.project_id
     
@@ -39,11 +39,10 @@ class TitleController(Controller):
                 {'id': 12, 'title': 'VAV CONTROL PANEL (page 2 of 2)', 'dwgno': 12, 'system_id': 2}
                 ]
             '''
-            dwgtitle_table_dict_list = self.model.query_multiple_columns_with_filter(DwgTitle,
-                                                                    ['id', 'title', 'dwgno', 'system_id'],
-                                                                    'project_id',
-                                                                    self.project_id,
-                                                                    sort_column = 'dwgno')
+            dwgtitle_table_dict_list = self.model.get_vals_from_rec_objs(DwgTitle,
+                                                                        ['id', 'title', 'dwgno', 'system_id'],
+                                                                        filters = {'project_id': self.project_id},
+                                                                        sort_by='dwgno')
             return dwgtitle_table_dict_list
         
         dwgtitle_table_dict_list = fetch_title_table_dict_list()
@@ -54,21 +53,17 @@ class TitleController(Controller):
             for key, value in dwgtitle_table_dict.items():
                 if key == 'id':
                     all_title_data_dict = dwgtitle_table_dict.copy()
-                    diagram_id_dict = self.model.query_multiple_columns_with_filter(DwgTitleDiagram,
-                                                                                   ['diagram_id'],
-                                                                                   'dwgtitle_id',
-                                                                                   value)[0]
+                    diagram_id_dict = self.model.get_vals_from_rec_objs(DwgTitleDiagram,
+                                                                       ['diagram_id'],
+                                                                       filters={'dwgtitle_id': value})[0]
                     all_title_data_dict['diagram_id'] = diagram_id_dict['diagram_id']
                     all_title_data_dict_list.append(all_title_data_dict)
         return all_title_data_dict_list
 
     def get_systems_list(self):
-        systems_dict_list = self.model.query_multiple_columns_with_filter(System,
-                                                                         ['name'],
-                                                                         'project_id',
-                                                                         self.project_id,
-                                                                         'name')
-        
+        systems_dict_list = self.model.get_vals_from_rec_objs(System, ['name'],
+                                                             filters = {'project_id': self.project_id},
+                                                             sort_by='name')
         systems_list = []
         for systems_dict in systems_dict_list:
             for values in systems_dict.values():
@@ -80,23 +75,17 @@ class TitleController(Controller):
             yield all_title_data_dict
 
     def get_diagram_name_from_id(self, diagram_id):
-        diagram_name = self.model.query_multiple_columns_with_filter(Diagram,
-                                                                     ['type'],
-                                                                     'id',
-                                                                     diagram_id)
+        diagram_name = self.model.get_vals_from_rec_objs(Diagram, ['type'], filters = {'id': diagram_id})
         return diagram_name[0]['type']
     
     def get_dwgtitle_id_from_dwgno(self, dwgno):
-        dwgtitle_id = self.model.get_objs_list_with_filter(DwgTitle, 
+        dwgtitle_id = self.model.get_rec_objs_by_opt_filts(DwgTitle, 
                                                     {'project_id': self.project_id,
                                                         'dwgno': dwgno})
         return dwgtitle_id[0].id
 
     def get_system_name_from_id(self, system_id):
-        system_name = self.model.query_multiple_columns_with_filter(System,
-                                                                     ['name'],
-                                                                     'id',
-                                                                     system_id)
+        system_name = self.model.get_vals_from_rec_objs(System, ['name'], filters = {'id': system_id})
         return system_name[0]['name']
 
     def get_data_to_be_swapped(self, direction):
@@ -277,16 +266,13 @@ class TitleController(Controller):
         def commit_to_database(commit_stack_dict):
 
             def get_system_id_from_name(system_name):
-                system_id = self.model.get_objs_list_with_filter(System, 
+                system_id = self.model.get_rec_objs_by_opt_filts(System, 
                                                                 {'project_id': self.project_id,
                                                                 'name': system_name})
                 return system_id[0].id
 
             def get_diagram_id_from_name(diagram_name):
-                diagram_id = self.model.query_multiple_columns_with_filter(Diagram,
-                                                                            ['id'],
-                                                                            'type',
-                                                                            diagram_name)
+                diagram_id = self.model.get_vals_from_rec_objs(Diagram, ['id'], filters = {'type': diagram_name})
                 return diagram_id[0]['id']
 
             def add_commit(commit_stack_dict):
@@ -343,7 +329,7 @@ class TitleController(Controller):
                     obj_here_dict = self.find_dict_with_key_value_from_list('dwgno', dwgno, dwgno_dwgtitleobj_dict_list)
                     if not obj_here_dict:
                         # Query the dwgtitle object
-                        dwgtitle_obj = self.model.get_objs_list_with_filter(DwgTitle,
+                        dwgtitle_obj = self.model.get_rec_objs_by_opt_filts(DwgTitle,
                                                                             {'dwgno' : dwgno,
                                                                                 'project_id' : self.project_id})[0]   
                         # Add it to dwgno_dwgtitleobj_dict_list
@@ -363,7 +349,7 @@ class TitleController(Controller):
                 def update_dwgtitlediagram_table(dwgno, other_key, data_dict):
                     # Get associated dwgtitlediagram object and set the column of that key to the value
                     dwgtitle_id = self.get_dwgtitle_id_from_dwgno(dwgno)
-                    dwgtitlediagram_obj = self.model.get_objs_list_with_filter(DwgTitleDiagram, {'dwgtitle_id' : dwgtitle_id})[0]
+                    dwgtitlediagram_obj = self.model.get_rec_objs_by_opt_filts(DwgTitleDiagram, {'dwgtitle_id' : dwgtitle_id})[0]
                     diagram_id = int(get_diagram_id_from_name(data_dict[other_key]))
                     setattr(dwgtitlediagram_obj, 'diagram_id', diagram_id)
 
@@ -388,7 +374,7 @@ class TitleController(Controller):
                     for data_dict in data_dict_list:
                         dwgno = int(data_dict['dwgno'])
                         dwgtitle_id = self.get_dwgtitle_id_from_dwgno(dwgno)
-                        dwgtitle_obj = self.model.get_objs_list_with_filter(DwgTitle, {'id' : dwgtitle_id})[0]
+                        dwgtitle_obj = self.model.get_rec_objs_by_opt_filts(DwgTitle, {'id' : dwgtitle_id})[0]
                         delete_obj_list.append(dwgtitle_obj)
                     self.model.delete_record(delete_obj_list)
 

@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-from class_collection import ButtonsFrame, BaseWindow
+from class_collection import ButtonsFrame, BaseWindow, ListWindow
 from tkinter import messagebox
+from devicemanager import DeviceListBaseView
 
 class AddSystemWindow(BaseWindow):
     def __init__(self, title, parent, controller=None, is_root=False):
@@ -35,3 +36,13 @@ class AddSystemWindow(BaseWindow):
             BaseWindow.center_window(self.controller.view.root)
         else:
             messagebox.showerror('Error', error_msg, parent=self.root)
+
+class AddDeviceWinow(DeviceListBaseView):
+    def __init__(self, title, parent, controller, is_root=False):
+        super().__init__(title, parent, controller, is_root)
+
+        self.center_window(self.root)
+    
+    def on_double_click(self):
+        pass
+        

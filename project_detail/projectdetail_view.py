@@ -23,7 +23,7 @@ class ProjectDetailWindow(BaseWindow):
         self.create_devices()
         self.create_left_menu_frame()
         self.create_title_manager_button()
-        
+
         BaseWindow.center_window(self.root)
 
 #####################################################################################
@@ -170,7 +170,9 @@ class ProjectDetailWindow(BaseWindow):
             return device_base_frame
         
         def create_add_device_button(parent):
-                device_add_button_frame = ButtonsFrame(parent, [('Add Device', None)])
+                def add_device_button_cmd():
+                    self.controller.add_new_device()
+                device_add_button_frame = ButtonsFrame(parent, [('Add Device', add_device_button_cmd)])
                 device_add_button_frame.button_frame.grid(row=1, column=0,
                                                           padx=10, pady=(0,10), sticky='e')         
 
