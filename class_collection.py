@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from abc import ABC, abstractmethod
+from sqlalchemy import asc, desc
 from model import session, Base, Diagram
-from typing import Any, List, Dict, Optional
+from typing import Any, List, Dict, Optional, Type
 from configs import testing
 
 class BaseWindow(ABC):
@@ -174,6 +175,7 @@ class Model:
     def __init__(self, controller=None) -> None:
         self.controller = controller
         self.diagram_options = self.query_column_values(Diagram, 'type', exclude_id=1)
+        print(f'\n\n{self.diagram_options = }')
 
     def delete_record(self, object_list):
         for obj in object_list:
@@ -185,74 +187,63 @@ class Model:
     def commit_changes(self):
         session.commit()
 
-    def query_multiple_columns_with_filter(self, model, columns: list[str], filter_column, filter_value, sort_column=None):
-        '''
-        Query specified columns from a SQLAlchemy model based on a filter condition.
-        
+    def get_rec_objs_by_opt_filts(self, model: Type[Base], filters: Dict[str, Any] = None, sort_by: Optional[str] = None, descending: bool = False) -> List[Base]:
+        """
+        Query the database for records from a specified model, applying filters and sorting if provided.
+
         Parameters:
-        - model: SQLAlchemy model class.
-        - columns (list of str): A list of column names (as strings) to retrieve from the model.
-        - filter_column (str): The name of the column to use for filtering the query.
-        - filter_value (any): The value to filter the specified filter_column by.
-        - sort_column (str, optional): The name of the column to sort the result by. Should be one of the columns in the 'columns' list.
-        
+        - model (Type[Base]): SQLAlchemy model class.
+        - filters (dict, optional): A dictionary where keys are column names and values are the values to filter the columns by.
+        - sort_by (str, optional): The column name to sort the results by.
+        - descending (bool, optional): Whether to sort in descending order. Default is False (ascending).
+
         Returns:
-        - list: A list of dictionaries, where each dictionary contains the values of the specified columns 
-                for each row that matches the filter condition.
-        
-        Example:
-        columns = ['name', 'age']
-        filter_column = 'id' # This column is your given column, along with given filter_value.
-        filter_value = 2
-        sort_column = 'name'
-        result = query_multiple_columns_with_filter(User, columns, filter_column, filter_value, sort_column)
-        
-        Returns a list of dictionaries with the key(column) value(column_value) for record object.
-        '''
-        filter_col_attr = getattr(model, filter_column)        
-        record_objs_list = session.query(model).filter(filter_col_attr == filter_value).all()
-        
-        col_and_value_dict_list = []
-        for record_obj in record_objs_list:
-            individual_dict = {col: getattr(record_obj, col) for col in columns}
-            col_and_value_dict_list.append(individual_dict)
-        
-        if sort_column and sort_column in columns:
-            col_and_value_dict_list = sorted(col_and_value_dict_list, key=lambda x: x[sort_column])
-        
-        return col_and_value_dict_list
-    
-    def get_objs_list_with_filter(self, model, filters: dict) -> List[Base]: 
-        '''
-        Query specified objects based on multiple filter conditions.
-        
-        Parameters:
-        - model: SQLAlchemy model class.
-        - filters (dict): A dictionary where the keys are column names and values are the values to filter the specified columns by.
-        
-        Returns:
-        - list: A list of objects.
-        
-        Example:
-        filters = {'id': 2, 'city': 'New York'} # Filters based on multiple columns
-        result = get_objs_list_with_filter(DwgTitle, {'dwgno' : 1, 'project_id' : 2})
-        
-        Returns a list of dictionaries with the key(column) value(column_value) for record object.
-        '''
+        - list: A list of model instances that match the filter conditions, sorted if specified, or all records if no filters are provided.
+        """
         query = session.query(model)
         
-        for filter_column, filter_value in filters.items():
-            filter_col_attr = getattr(model, filter_column)
-            query = query.filter(filter_col_attr == filter_value)
-            
-        record_objs_list = query.all()        
+        if filters:
+            for filter_column, filter_value in filters.items():
+                filter_col_attr = getattr(model, filter_column)
+                query = query.filter(filter_col_attr == filter_value)
         
-        return record_objs_list
+        if sort_by:
+            sort_col_attr = getattr(model, sort_by)
+            if descending:
+                query = query.order_by(desc(sort_col_attr))
+            else:
+                query = query.order_by(asc(sort_col_attr))
+        
+        return query.all()
+    
+    def get_vals_from_rec_objs(self, model: Type[Base], columns: List[str], filters: Dict[str, Any] = None, sort_by: Optional[str] = None, descending: bool = False) -> List[Dict[str, Any]]:
+        """
+        Filter out values for given column names from the query results, optionally sorting by a column.
 
+        Parameters:
+        - model (Type[Base]): SQLAlchemy model class.
+        - filters (dict, optional): A dictionary where keys are column names and values are the values to filter the columns by.
+        - columns (list): A list of column names to extract from each record.
+        - sort_by (str, optional): The column name to sort the results by.
+        - descending (bool, optional): Whether to sort in descending order. Default is False (ascending).
+
+        Returns:
+        - list: A list of dictionaries with specified column names and their values for each record.
+        """
+        query_results = self.get_rec_objs_by_opt_filts(model, filters, sort_by, descending)
+        filtered_results = []
+
+        for record in query_results:
+            record_dict = {}
+            for column in columns:
+                record_dict[column] = getattr(record, column)
+            filtered_results.append(record_dict)
+        
+        return filtered_results
     
     def query_column_values(self, model, column, exclude_id=None):
         '''
-        Query a specified column from a SQLAlchemy model.
+        Query values of specified column with option to exclude specific id.
         
         Parameters:
         - model: SQLAlchemy model class.
@@ -273,12 +264,10 @@ class Model:
         if exclude_id is not None:
             values_list = values_list.filter(model.id != exclude_id).all()
         
-        
         # Flatten the list of tuples to a list of values
         values_list = [value[0] for value in values_list]
         return values_list
 
-    
 class View(BaseWindow):
     def __init__(self, title, parent, controller=None, is_root=False):
         super().__init__(title, parent, controller, is_root)

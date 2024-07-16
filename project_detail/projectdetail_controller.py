@@ -1,5 +1,7 @@
 from project_detail.projectdetail_view import ProjectDetailWindow
+from project_detail.projectdetailchild_view import AddDeviceWinow
 from project_detail.projectdetail_model import ProjectDetailModel
+from devicemanager import DeviceListBaseController
 from model import session, Project, SystemDevice, System, Device, DwgTitle, DwgTitleDiagram
 from class_collection import Controller
 from title.title_controller import TitleController
@@ -17,20 +19,21 @@ class ProjectDetailController(Controller):
                                         self.parent, self, self.project_number)
         
         if testing == 1:
-            self.open_title_manager()
-            # pass
+            # ProjectDetailWindow(f'{self.project_number} Project Detail',
+            #                             self.parent, self, self.project_number)
+            # AddDeviceController(self.parent, self.project_number)
+            pass
         
 #####################################################################################    
-
-    def open_ProjectDetailWindow(self):
-        self.view = ProjectDetailWindow(f'{self.project_number} Project Detail',
-                                        self.parent, self, self.project_number)
-
+    
+    def add_new_device(self):
+        self.add_device_controller = AddDeviceController(self.parent, self.project_number)
+    
     def get_systems_devices_data(self):
         def get_systems_keys():
             '''Generates the key as a tuple [ex: (1, 'AHU')] for self.systems_devices_data_dict.'''
             def get_systems_ids_from_proj_num():
-                systems_objs = self.model.get_objs_list_with_filter(System, {'project_id': self.project_id})
+                systems_objs = self.model.get_rec_objs_by_opt_filts(System, {'project_id': self.project_id})
                 systems_ids = []
                 for system_obj in systems_objs:
                     if system_obj.name != '(None)':
@@ -40,7 +43,7 @@ class ProjectDetailController(Controller):
             systems_ids = get_systems_ids_from_proj_num()
             systems_keys = []
             for idx, system_id in enumerate(systems_ids):
-                system_obj = self.model.get_objs_list_with_filter(System, {'id':system_id})
+                system_obj = self.model.get_rec_objs_by_opt_filts(System, {'id':system_id})
                 system_name = system_obj[0].name
                 systems_keys.append((system_id, system_name))
             return systems_keys
@@ -123,7 +126,7 @@ class ProjectDetailController(Controller):
 
         child_col_of_parent_id is column name in child table that refers to parent_id.
         '''
-        child_objs = self.model.get_objs_list_with_filter(child_model, {child_col_of_parent_id: parent_id})
+        child_objs = self.model.get_rec_objs_by_opt_filts(child_model, {child_col_of_parent_id: parent_id})
         childs_names = []        
         for child_obj in child_objs:
             childs_names.append(child_obj.name)            
@@ -137,7 +140,7 @@ class ProjectDetailController(Controller):
 
         child_col_of_parent_id is column name in child table that refers to parent_id.
         '''
-        child_objs = self.model.get_objs_list_with_filter(child_model, {child_col_of_parent_id: parent_id})
+        child_objs = self.model.get_rec_objs_by_opt_filts(child_model, {child_col_of_parent_id: parent_id})
         childs_ids = []
         for child_obj in child_objs:
             childs_ids.append(child_obj.id)
@@ -183,7 +186,7 @@ class ProjectDetailController(Controller):
                     return system_id
 
         def get_dwgtitle_id_from_dwgno(dwgno):
-            dwgtitle_id = self.model.get_objs_list_with_filter(DwgTitle, 
+            dwgtitle_id = self.model.get_rec_objs_by_opt_filts(DwgTitle, 
                                                         {'project_id': self.project_id,
                                                             'dwgno': dwgno})
             return dwgtitle_id[0].id
@@ -192,19 +195,19 @@ class ProjectDetailController(Controller):
 
         # Need to get all drawing numbers of the system and reproduce blank entries in the database
         # to prevent index errors when executing calc_col_row_for_pop_title_data_frame in TitleController
-        dwgtitle_obj_list = self.model.get_objs_list_with_filter(DwgTitle, {'system_id': system_id})
+        dwgtitle_obj_list = self.model.get_rec_objs_by_opt_filts(DwgTitle, {'system_id': system_id})
         dwgno_list = []
         for dwgtitle_obj in dwgtitle_obj_list:
             dwgno_list.append(dwgtitle_obj.dwgno)
 
         # Deleting system object
-        system_obj: System = self.model.get_objs_list_with_filter(System, {'id': system_id})[0]
+        system_obj: System = self.model.get_rec_objs_by_opt_filts(System, {'id': system_id})[0]
         self.model.delete_record([system_obj])
         self.model.commit_changes()
 
         # Create dwgtitle objects to be added to DwgTitle after deleting the system
         replacement_dwgtitle_obj_list = []
-        system_id = self.model.get_objs_list_with_filter(System, {'project_id': self.project_id,
+        system_id = self.model.get_rec_objs_by_opt_filts(System, {'project_id': self.project_id,
                                                                 'name': '(None)'})[0].id
         for dwgno in dwgno_list:
             replacement_dwgtitle_obj = DwgTitle(title = f'Filler for deleted [{system_name.upper()}] system',
@@ -232,3 +235,8 @@ class ProjectDetailController(Controller):
 
     def open_title_manager(self):
         TitleController(self.view, self.project_number)
+
+class AddDeviceController(DeviceListBaseController):
+    def __init__(self, parent=None, project_number=None) -> None:
+        super().__init__(parent, project_number)
+        self.view = AddDeviceWinow('Add Device', self.parent, self)
