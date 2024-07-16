@@ -14,6 +14,13 @@ class DeviceListBaseView(ListWindow):
         super().__init__(title, parent, controller, is_root)
         self.button_frame = None
 
+########### Frame Structure ###########
+#                                     #
+#  system_base_frame [ -> tree_frame  #
+#                                     #
+#######################################
+
+
 class DeviceListBaseModel(Model):
     def __init__(self, controller=None) -> None:
         super().__init__(controller)
@@ -33,7 +40,3 @@ class DeviceListBaseModel(Model):
                 invididual_device_tuple = invididual_device_tuple + (val,)
             data_table_list.append(invididual_device_tuple)
         return data_table_list
-
-
-        
-# [(1, 'TEST', 'XX/XX/XX', 'UBS', '32nd Floor', '123 Main St', 'Rayan Zabib', 'TEST', 'TEST', 'Kevin Lee', 'David Green'), (2, '2265B', 'XX/XX/XX', 'TEST', 'TEST', 'TEST', 'TEST TEST', 'Bob Smith', 'XYZ Contractors', 'Kevin Lee', 'David Green'), (3, '2278B', 'XX/XX/XX', 'UBS', '32nd Floor', '123 Main St', 'Rayan Zabib', 'Bob Smith', 'XYZ Contractors', 'Kevin Lee', 'David Green')]

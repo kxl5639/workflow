@@ -24,7 +24,13 @@ class BaseWindow(ABC):
             def on_keypress(event):
                 if event.char == 'q':
                     self.parent.root.destroy()
-        
+ 
+############ Frame Structure #############
+#                                        #
+#  root or toplevel -> system_base_frame #
+#                                        #
+##########################################
+
     @staticmethod
     def center_window(window):
         window.update_idletasks()
@@ -95,7 +101,76 @@ class TreeFrame:
         # Sort the dictionary by the values (positions) and extract the keys (column names)
         return [col for col, pos in sorted(self.column_map.items(), key=lambda item: item[1])]
 
-class ListWindow(BaseWindow):
+class View(BaseWindow):
+    def __init__(self, title, parent, controller=None, is_root=False):
+        super().__init__(title, parent, controller, is_root)
+        if testing == 0:
+            self.relief = None
+        else:
+            self.relief = 'solid'
+
+    def create_entry_widget(self,
+                            parent,
+                            row: int,
+                            col: int,
+                            padx: int = None,
+                            pady: int = None,
+                            sticky: str = 'nsew'):
+        entry_widget = ttk.Entry(parent)
+        entry_widget.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
+        return entry_widget
+    
+    def create_label(self,
+                     parent,
+                     text: str,
+                     row: int,
+                     col: int,
+                     padx: int  = 0,
+                     pady: int = 0,
+                     sticky: str = 'nsew',
+                     relief: str = None):
+        label = ttk.Label(parent, text=text, relief=relief)
+        label.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
+        return label
+    
+    def create_frame(self,
+                     parent,
+                     row: int,
+                     col: int,
+                     padx: int  = 0,
+                     pady: int = 0,
+                     sticky: str = 'nsew',
+                     relief: str = None):
+        frame = ttk.Frame(parent, relief=relief)
+        frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
+        return frame
+    
+    def create_label_frame(self,
+                           parent,
+                           text: str,
+                           row: int,
+                           col: int,
+                           padx: int  = 0,
+                           pady: int = 0,
+                           sticky: str = 'nsew',
+                           relief: str = None):
+        frame = ttk.LabelFrame(parent, text=text, relief=relief)
+        frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
+        return frame
+    
+    def create_combobox(self,
+                        parent,
+                        row: int,
+                        col: int,
+                        padx: int  = 0,
+                        pady: int = 0,
+                        sticky: str = 'nsew',
+                        state: str = None,):
+        combobox = ttk.Combobox(parent, state=state)
+        combobox.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
+        return combobox
+    
+class ListWindow(View):
     
     def __init__(self, title, parent, controller, is_root=False):
         super().__init__(title, parent, controller, is_root)        
@@ -109,7 +184,14 @@ class ListWindow(BaseWindow):
         # self.button_frame = ButtonsFrame(self.base_frame, self.controller.button_info)
         # self.button_frame.button_frame.grid(row=1, column=0, pady=0, padx=0)
         # Center Window
+        
         BaseWindow.center_window(self.root)  
+
+######### Frame Structure ##########
+#                                  #
+#  system_base_frame -> tree_frame #
+#                                  #
+####################################
 
     @abstractmethod
     def on_double_click(self):
@@ -166,6 +248,7 @@ class Controller:
             Optional[Dict[Any, Any]]: The first dictionary that contains the key with the specified value, or None if no such dictionary is found.
         """
         for dictionary in list_of_dicts:
+
             for key in dictionary:
                 if key == value:
                     return dictionary
@@ -266,68 +349,3 @@ class Model:
         # Flatten the list of tuples to a list of values
         values_list = [value[0] for value in values_list]
         return values_list
-
-class View(BaseWindow):
-    def __init__(self, title, parent, controller=None, is_root=False):
-        super().__init__(title, parent, controller, is_root)
-
-    def create_entry_widget(self,
-                            parent,
-                            row: int,
-                            col: int,
-                            padx: int = None,
-                            pady: int = None,
-                            sticky: str = 'nsew'):
-        entry_widget = ttk.Entry(parent)
-        entry_widget.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
-        return entry_widget
-    
-    def create_label(self,
-                     parent,
-                     text: str,
-                     row: int,
-                     col: int,
-                     padx: int  = 0,
-                     pady: int = 0,
-                     sticky: str = 'nsew',
-                     relief: str = None):
-        label = ttk.Label(parent, text=text, relief=relief)
-        label.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
-        return label
-    
-    def create_frame(self,
-                     parent,
-                     row: int,
-                     col: int,
-                     padx: int  = 0,
-                     pady: int = 0,
-                     sticky: str = 'nsew',
-                     relief: str = None):
-        frame = ttk.Frame(parent, relief=relief)
-        frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
-        return frame
-    
-    def create_label_frame(self,
-                           parent,
-                           text: str,
-                           row: int,
-                           col: int,
-                           padx: int  = 0,
-                           pady: int = 0,
-                           sticky: str = 'nsew',
-                           relief: str = None):
-        frame = ttk.LabelFrame(parent, text=text, relief=relief)
-        frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
-        return frame
-    
-    def create_combobox(self,
-                        parent,
-                        row: int,
-                        col: int,
-                        padx: int  = 0,
-                        pady: int = 0,
-                        sticky: str = 'nsew',
-                        state: str = None,):
-        combobox = ttk.Combobox(parent, state=state)
-        combobox.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
-        return combobox

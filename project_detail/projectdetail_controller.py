@@ -1,6 +1,7 @@
 from project_detail.projectdetail_view import ProjectDetailWindow
-from project_detail.projectdetailchild_view import AddDeviceWinow
+from project_detail.projectdetailchild_view import AddDeviceWindow
 from project_detail.projectdetail_model import ProjectDetailModel
+from project_detail.projectdetailchild_view import AddSystemWindow
 from devicemanager import DeviceListBaseController
 from model import session, Project, SystemDevice, System, Device, DwgTitle, DwgTitleDiagram
 from class_collection import Controller
@@ -21,13 +22,10 @@ class ProjectDetailController(Controller):
         if testing == 1:
             # ProjectDetailWindow(f'{self.project_number} Project Detail',
             #                             self.parent, self, self.project_number)
-            AddDeviceController(self.parent, self.project_number)
+            self.add_new_device((2, 'AHU'))
             pass
         
 #####################################################################################    
-    
-    def add_new_device(self):
-        self.add_device_controller = AddDeviceController(self.parent, self.project_number)
     
     def get_systems_devices_data(self):
         def get_systems_keys():
@@ -233,10 +231,17 @@ class ProjectDetailController(Controller):
         self.model.commit_changes()
     #endregion
 
+    def system_add_btn_cmd(self):
+        self.add_system_window = AddSystemWindow('Add New System', self.parent, controller=self)
+
     def open_title_manager(self):
         TitleController(self.view, self.project_number)
+    
+    def add_new_device(self, system_key):
+        self.add_device_controller = AddDeviceController(system_key, self.parent, self.project_number)
 
 class AddDeviceController(DeviceListBaseController):
-    def __init__(self, parent=None, project_number=None) -> None:
+    def __init__(self, system_key, parent=None, project_number=None) -> None:
         super().__init__(parent, project_number)
-        self.view = AddDeviceWinow('Add Device', self.parent, self)
+        self.system_key = system_key
+        self.view = AddDeviceWindow('Add Device', self.parent, self)

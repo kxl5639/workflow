@@ -3,6 +3,7 @@ from tkinter import ttk
 from class_collection import ButtonsFrame, BaseWindow, ListWindow
 from tkinter import messagebox
 from devicemanager import DeviceListBaseView
+from project_detail.projectdetail_view import ProjectDetailWindow
 
 class AddSystemWindow(BaseWindow):
     def __init__(self, title, parent, controller=None, is_root=False):
@@ -37,11 +38,61 @@ class AddSystemWindow(BaseWindow):
         else:
             messagebox.showerror('Error', error_msg, parent=self.root)
 
-class AddDeviceWinow(DeviceListBaseView):
+class AddDeviceWindow(DeviceListBaseView):
     def __init__(self, title, parent, controller, is_root=False):
         super().__init__(title, parent, controller, is_root)
 
+        self.create_exist_device_list()
+
         self.center_window(self.root)
+
+######################### Frame Structure #########################
+#                                                                  #
+#  system_base_frame [ -> tree_frame                               #
+#                      -> device_list_frame [ -> system_name_frame #
+#                                             -> devices_frame     #
+#                                                                  #
+####################################################################
+
+    def create_exist_device_list(self):
+        def create_device_list_frame(self):
+            device_list_frame = self.create_frame(self.base_frame, 1, 0, 0, (0,10),
+                                                  relief=self.relief)
+            return device_list_frame
+        
+        def create_system_name_frame(self):
+
+            def create_system_name_label(system_name_frame):
+                system_name_label = self.create_label(system_name_frame, 0, 0, 0, 0, relief=self.relief)
+                system_name_label['text'] = f'SYSTEM: {self.controller.system_key[1]}'
+                return system_name_label
+            
+            system_name_frame = self.create_frame(self.device_list_frame, 0, 0, 10, 10,
+                                                  relief=self.relief)
+            create_system_name_label(system_name_frame)
+
+            return system_name_frame
+
+        def create_devices_frame(self):
+            devices_frame = self.create_frame(self.device_list_frame, 1, 0, 0, 0,
+                                                relief=self.relief)
+            return devices_frame
+        
+        def populate_devices_frame():
+            # Get device data under this system. 
+            # Call method from projectdetail_view
+            pass
+        
+        self.device_list_frame = create_device_list_frame(self)
+        self.system_name_frame = create_system_name_frame(self)
+        self.devices_frame = create_devices_frame(self)
+        populate_devices_frame()
+        # ProjectDetailWindow.create_devices(self)
+        # Attempt to refactor def iter_generate_device_frame(parent, system_key): and reuse it. Will need to 
+        # abstract out the data that is being extracted from self.controller since we are not calling it with
+        # projectdetail_controller. To be determined.
+
+
     
     def on_double_click(self):
         pass

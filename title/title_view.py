@@ -5,8 +5,6 @@ from class_collection import View, ButtonsFrame
 class TitleView(View):
     def __init__(self, title, parent, controller, project_number, is_root=False):
         super().__init__(title, parent, controller, is_root)
-        self.initiate_testing_values(0)
-        # self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.root.resizable(width=True, height=True)
         self.project_number = project_number
         self.title_column_break = 30
@@ -246,8 +244,4 @@ class TitleView(View):
         scr_button = ButtonsFrame(autocad_src_frame, [('Write SCR', lambda:scr_btn_cmd())])
         scr_button.button_frame.grid(row=0, column=0, padx=(10,10), pady=(10), sticky='nsew')
 
-    def initiate_testing_values(self, testing):
-        if testing == 0:
-            self.relief = None
-        else:
-            self.relief = 'solid'
+

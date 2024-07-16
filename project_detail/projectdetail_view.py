@@ -1,5 +1,4 @@
 from class_collection import BaseWindow, ButtonsFrame
-from project_detail.projectdetailchild_view import AddSystemWindow
 import tkinter as tk
 from tkinter import ttk, messagebox
 
@@ -62,7 +61,7 @@ class ProjectDetailWindow(BaseWindow):
 
     def create_add_system_button_frame(self):
         def add_system_button_cmd():
-            self.add_system_window = AddSystemWindow('Add New System', self, controller=self.controller)
+            self.controller.system_add_btn_cmd()
     
         system_add_button_frame = ButtonsFrame(self.system_base_frame, [('Add System', lambda: add_system_button_cmd())])
         system_add_button_frame.button_frame.grid(row=1,column=0,
@@ -169,10 +168,11 @@ class ProjectDetailWindow(BaseWindow):
             device_base_frame.grid_columnconfigure(0, weight=1)
             return device_base_frame
         
-        def create_add_device_button(parent):
+        def create_add_device_button(parent, system_key):
                 def add_device_button_cmd():
-                    self.controller.add_new_device()
-                device_add_button_frame = ButtonsFrame(parent, [('Add Device', add_device_button_cmd)])
+                    self.controller.add_new_device(system_key)
+                device_add_button_frame = ButtonsFrame(parent, [('Add Device',
+                                                                 lambda: add_device_button_cmd())])
                 device_add_button_frame.button_frame.grid(row=1, column=0,
                                                           padx=10, pady=(0,10), sticky='e')         
 
@@ -264,6 +264,6 @@ class ProjectDetailWindow(BaseWindow):
         if self.controller.number_of_systems != 0:
             for system_key, system_frame in self.system_frames_collec_dict.items():
                 device_base_frame = create_device_base_frame(system_frame[1])
-                create_add_device_button(device_base_frame)
+                create_add_device_button(device_base_frame, system_key)
                 device_data_frame = create_data_frame(device_base_frame)
                 iter_generate_device_frame(device_data_frame, system_key)
