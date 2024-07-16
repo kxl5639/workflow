@@ -9,7 +9,7 @@ class ProjectListWindowController(Controller):
     def __init__(self, parent=None, project_number=None) -> None:
         super().__init__(parent, project_number)
         self.model = ProjectListWindowModel(controller=self)
-        self.column_map = self.model.colump_map
+        self.column_map = self.model.column_map
         self.table_data = self.model.table_data
         self.button_info = [("Add", lambda: self.add_button_command()),
                     ("Modify", lambda: self.modify_button_command()),

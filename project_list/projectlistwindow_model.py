@@ -4,7 +4,7 @@ from class_collection import Model
 class ProjectListWindowModel(Model):
     def __init__(self, controller=None) -> None:
         super().__init__(controller)
-        self.colump_map = {"project_number": 1,
+        self.column_map = {"project_number": 1,
                            "submit_date": 2,
                            "client": 3,
                            "client_scope": 4,
