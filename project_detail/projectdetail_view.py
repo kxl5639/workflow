@@ -15,36 +15,36 @@ class ProjectDetailWindow(BaseWindow):
         
         self.controller.get_systems_devices_data()
         self.base_frame.columnconfigure(1, weight=1)
-        self.create_project_info_frame()
-        self.create_project_label()
+        self.project_info_frame = self.create_project_info_frame(self.base_frame)
+        self.project_label = self.create_project_label(self.project_info_frame)
         self.create_systems()
         self.create_add_system_button_frame()
         self.create_devices()
-        self.create_left_menu_frame()
-        self.create_title_manager_button()
+        self.left_menu_frame = self.create_left_menu_frame(self.root)
+        self.create_title_manager_button(self.left_menu_frame)
 
         BaseWindow.center_window(self.root)
 
 #####################################################################################
 
-    def create_project_info_frame(self):
-        self.project_info_frame = ttk.Frame(self.base_frame, relief='solid')
-        self.project_info_frame.grid(row=0, column=0, pady=(0,10), sticky='nsew')
+    def create_project_info_frame(self, parent):
+        project_info_frame = ttk.Frame(parent, relief='solid')
+        project_info_frame.grid(row=0, column=0, pady=(0,10), sticky='nsew')
+        return project_info_frame
 
-    def create_project_label(self):
-        self.project_label = ttk.Label(self.project_info_frame,
-                                       text = f'EM Number: {self.project_number}')
-        self.project_label.grid(row=0,column=0,padx=10,pady=10,sticky='w')
-        return self.project_label
+    def create_project_label(self, parent):
+        project_label = ttk.Label(parent, text = f'EM Number: {self.project_number}')
+        project_label.grid(row=0,column=0,padx=10,pady=10,sticky='w')
+        return project_label
 
-    def create_left_menu_frame(self):
-        self.left_menu_frame = ttk.Frame(self.root, relief='solid')
-        self.left_menu_frame.grid(row=0, column=0, padx=(10,0), pady=10, sticky='nsew')
+    def create_left_menu_frame(self, parent):
+        left_menu_frame = ttk.Frame(parent, relief='solid')
+        left_menu_frame.grid(row=0, column=0, padx=(10,0), pady=10, sticky='nsew')
+        return left_menu_frame
     
-    def create_title_manager_button(self):
-        def title_manager_button_cmd():
-            self.controller.open_title_manager()
-        title_manager_button = ButtonsFrame(self.left_menu_frame, [('Title Manager', lambda: title_manager_button_cmd())])
+    def create_title_manager_button(self, parent):
+        title_manager_button = ButtonsFrame(parent, [('Title Manager',
+                                                                    lambda: self.controller.open_title_manager())])
         title_manager_button.button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='n')
 
     def refresh_systems_data_view(self):
@@ -53,7 +53,7 @@ class ProjectDetailWindow(BaseWindow):
                 system_frame[0].destroy()
             self.system_frames_collec_dict = {}
             
-        self.systems_devices_data_dict, self.number_of_systems = self.controller.get_systems_devices_data()
+        self.systems_devices_data_dict, _, self.number_of_systems = self.controller.get_systems_devices_data()
         destroy_frames()
         self.iter_generate_system_frame()
         self.create_devices()
@@ -157,6 +157,7 @@ class ProjectDetailWindow(BaseWindow):
             self.system_frames_collec_dict[system_key] = [system_frame, system_device_frame]
 
         if self.controller.systems_devices_data_dict:
+            # print(f'{self.controller.systems_devices_data_dict=}')
             for idx, system_key in enumerate(self.controller.systems_devices_data_dict.keys()):
                 create_system_frame(idx, system_key)
 
