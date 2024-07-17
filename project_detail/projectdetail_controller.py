@@ -52,14 +52,6 @@ class ProjectDetailController(Controller):
         # Clear self.systems_devices_data_dict and self.number_of_systems
         self.systems_devices_data_dict = {}
         self.number_of_systems = None
-
-        # Gets all the device data (tag, desc, manf, etc...) for each system_key
-        # Also gets the max character length for each device data
-        # systems_devices_data_dict = {}
-        # max_device_data_char_dict = {}
-        # for system_key in systems_keys:
-        #     self.systems_devices_data_dict, self.max_device_data_char_dict = DeviceListBaseController.get_devices_data(self, system_key, systems_devices_data_dict, max_device_data_char_dict)
-        # self.number_of_systems = len(self.systems_devices_data_dict)
         
         self.systems_devices_data_dict, self.max_device_data_char_dict, self.number_of_systems = DeviceListBaseController.get_devices_data(self, systems_keys)
 
