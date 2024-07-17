@@ -12,7 +12,7 @@ class DeviceListBaseController(Controller):
         self.button_info = None
 
     @classmethod
-    def get_devices_data(cls, controller, systems_keys):
+    def get_devices_data(cls, controller, system_key, systems_devices_data_dict, max_device_data_char_dict):
         def get_devices_data_without_length(system_key, systems_devices_data_dict):
             system_id = system_key[0]
             systemdevices_ids_list_of_dicts = controller.model.get_vals_from_rec_objs(SystemDevice, ['id'], {'system_id':system_id})
@@ -69,12 +69,10 @@ class DeviceListBaseController(Controller):
 
             return systems_devices_data_dict
         
-        systems_devices_data_dict = {}
-        max_device_data_char_dict = {}
-        for system_key in systems_keys:
-            systems_devices_data_dict = get_devices_data_without_length(system_key, systems_devices_data_dict)
-            max_device_data_char_dict = get_max_devices_data_char(system_key, systems_devices_data_dict, max_device_data_char_dict)
-            systems_devices_data_dict = update_max_char_in_systems_devices_data_dict(system_key, systems_devices_data_dict, max_device_data_char_dict)
+
+        systems_devices_data_dict = get_devices_data_without_length(system_key, systems_devices_data_dict)
+        max_device_data_char_dict = get_max_devices_data_char(system_key, systems_devices_data_dict, max_device_data_char_dict)
+        systems_devices_data_dict = update_max_char_in_systems_devices_data_dict(system_key, systems_devices_data_dict, max_device_data_char_dict)
         number_of_systems = len(systems_devices_data_dict)
 
         return systems_devices_data_dict, max_device_data_char_dict, number_of_systems
@@ -83,8 +81,6 @@ class DeviceListBaseView(ListWindow):
     def __init__(self, title, parent, controller, is_root=False):
         super().__init__(title, parent, controller, is_root)
         self.button_frame = None
-        # self.controller.column_map = {}
-        # self.controller.table_data = {}
 
 ########### Frame Structure ###########
 #                                     #
@@ -100,7 +96,6 @@ class DeviceListBaseView(ListWindow):
             device_base_frame.grid(row=1,column=0,padx=0,pady=(5,0),sticky='nsew')
             device_base_frame.grid_columnconfigure(0, weight=1)
             return device_base_frame
-      
 
         def create_data_frame(parent):
             device_data_frame = ttk.Frame(parent)
@@ -166,7 +161,6 @@ class DeviceListBaseView(ListWindow):
                             model = model[:-1]
                         return model
                 header_list = ['Tag', 'Description', 'Manufacturer', 'Model', 'Qty', 'Dwg']
-                # header_list = ['Tag', 'Description', 'Manufacturer', 'Model', 'Qty']
                 width_dict = max_device_data_char_dict
                 width_list = []
                 for header in header_list:

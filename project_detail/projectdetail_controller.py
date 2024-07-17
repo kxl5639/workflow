@@ -52,8 +52,11 @@ class ProjectDetailController(Controller):
         # Clear self.systems_devices_data_dict and self.number_of_systems
         self.systems_devices_data_dict = {}
         self.number_of_systems = None
-        
-        self.systems_devices_data_dict, self.max_device_data_char_dict, self.number_of_systems = DeviceListBaseController.get_devices_data(self, systems_keys)
+
+        systems_devices_data_dict = {}
+        max_device_data_char_dict = {}
+        for system_key in systems_keys:
+            self.systems_devices_data_dict, self.max_device_data_char_dict, self.number_of_systems = DeviceListBaseController.get_devices_data(self, system_key, systems_devices_data_dict, max_device_data_char_dict)
 
         return self.systems_devices_data_dict, self.max_device_data_char_dict, self.number_of_systems
     
@@ -151,10 +154,17 @@ class ProjectDetailController(Controller):
         TitleController(self.view, self.project_number)
     
     def add_new_device(self, system_key):
-        self.add_device_controller = AddDeviceController(system_key, self.parent, self.project_number)
+        self.add_device_controller = AddDeviceController(self, system_key, self.parent, self.project_number)
 
 class AddDeviceController(DeviceListBaseController):
-    def __init__(self, system_key, parent=None, project_number=None) -> None:
+    def __init__(self, controller, system_key, parent=None, project_number=None) -> None:
         super().__init__(parent, project_number)
+        self.controller = controller
         self.system_key = system_key
+
+        systems_devices_data_dict = {}
+        max_device_data_char_dict = {}  
+        self.systems_devices_data_dict, self.max_device_data_char_dict, _ = self.get_devices_data(self.controller, self.system_key, systems_devices_data_dict, max_device_data_char_dict)
+
         self.view = AddDeviceWindow('Add Device', self.parent, self)
+

@@ -40,52 +40,60 @@ class AddSystemWindow(BaseWindow):
 class AddDeviceWindow(DeviceListBaseView):
     def __init__(self, title, parent, controller, is_root=False):
         super().__init__(title, parent, controller, is_root)
-
+        self.root.resizable(width=False, height=False)
         self.create_exist_device_list()
 
         self.center_window(self.root)
 
-######################### Frame Structure #########################
-#                                                                  #
-#  system_base_frame [ -> tree_frame                               #
-#                      -> device_list_frame [ -> system_name_frame #
-#                                             -> devices_frame     #
-#                                                                  #
-####################################################################
+###################### Frame Structure ######################
+#                                                           #
+#  base_frame [ -> tree_frame                               #
+#               -> device_list_frame [ -> system_name_frame #
+#                                      -> devices_frame     #
+#                                                           #
+#############################################################
 
     def create_exist_device_list(self):
         def create_device_list_frame(parent):
-            device_list_frame = self.create_frame(parent, 1, 0, 0, (0,10),
-                                                  relief=self.relief)
+            device_list_frame = self.create_frame(parent, 1, 0, 0, 0,
+                                                  relief=None)
             return device_list_frame
         
         def create_system_name_frame(parent):
-
-            def create_system_name_label(system_name_frame):
-                system_name_label = self.create_label(system_name_frame, 0, 0, 0, 0, relief=self.relief)
-                system_name_label['text'] = f'SYSTEM: {self.controller.system_key[1]}'
-                return system_name_label
             
-            system_name_frame = self.create_frame(parent, 0, 0, 10, 10,
+            system_name_frame = self.create_frame(parent, 0, 1, 0, 0,
                                                   relief=self.relief)
-            create_system_name_label(system_name_frame)
-
             return system_name_frame
+            
+        def create_system_name_label(parent):
+            system_name_label = self.create_label(parent, 0, 0, 0, 0, relief=self.relief)
+            system_name_label['text'] = f'SYSTEM: {self.controller.system_key[1]}'
+            return system_name_label
 
         def create_devices_frame(parent):
-            devices_frame = self.create_frame(parent , 1, 0, 0, 0,
+            devices_frame = self.create_frame(parent, 1, 1, 0, 0,
                                                 relief=self.relief)
             return devices_frame
-        
-        def populate_devices_frame():
-            # Get device data under this system. 
-            # Call method from projectdetail_view
-            pass
-        
+
         self.device_list_frame = create_device_list_frame(self.base_frame)
         self.system_name_frame = create_system_name_frame(self.device_list_frame)
+        create_system_name_label(self.system_name_frame)
         self.devices_frame = create_devices_frame(self.device_list_frame)
-        populate_devices_frame()
+        device_selection_frame = DeviceListBaseView.create_device_section(self.devices_frame,
+                                                 self.controller.system_key,
+                                                 self.controller.systems_devices_data_dict,
+                                                 self.controller.max_device_data_char_dict)
+        self.device_list_frame.update_idletasks()
+        device_selection_frame.update_idletasks()
+        device_list_frame_width = self.device_list_frame.winfo_width()
+        device_selection_frame_width = device_selection_frame.winfo_width()
+
+        spacer_width = (device_list_frame_width-device_selection_frame_width)/2
+        self.create_frame(self.device_list_frame, 0, 0, 0, 0).configure(width=spacer_width)
+        self.create_frame(self.device_list_frame , 0, 2, 0, 0).configure(width=spacer_width)
+        self.create_frame(self.device_list_frame, 1, 0, 0, 0).configure(width=spacer_width)
+        self.create_frame(self.device_list_frame, 1, 2, 0, 0).configure(width=spacer_width)
+
     
     def on_double_click(self):
         pass
