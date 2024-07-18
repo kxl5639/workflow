@@ -79,7 +79,7 @@ class AddDeviceWindow(DeviceListBaseView):
         self.system_name_frame = create_system_name_frame(self.device_list_frame)
         create_system_name_label(self.system_name_frame)
         self.devices_frame = create_devices_frame(self.device_list_frame)
-        device_selection_frame = DeviceListBaseView.create_device_section(self.devices_frame,
+        device_selection_frame = DeviceListBaseView.create_device_section(self.controller, self.devices_frame,
                                                  self.controller.system_key,
                                                  self.controller.systems_devices_data_dict,
                                                  self.controller.max_device_data_char_dict)

@@ -156,6 +156,9 @@ class ProjectDetailController(Controller):
     def add_new_device(self, system_key):
         self.add_device_controller = AddDeviceController(self, system_key, self.parent, self.project_number)
 
+    def delete_device_btn_cmd(self, device_model):
+        pass
+
 class AddDeviceController(DeviceListBaseController):
     def __init__(self, controller, system_key, parent=None, project_number=None) -> None:
         super().__init__(parent, project_number)
@@ -164,7 +167,10 @@ class AddDeviceController(DeviceListBaseController):
 
         systems_devices_data_dict = {}
         max_device_data_char_dict = {}  
-        self.systems_devices_data_dict, self.max_device_data_char_dict, _ = self.get_devices_data(self.controller, self.system_key, systems_devices_data_dict, max_device_data_char_dict)
+        self.systems_devices_data_dict, self.max_device_data_char_dict, _ = self.get_devices_data(self.controller,
+                                                                                                  self.system_key,
+                                                                                                  systems_devices_data_dict,
+                                                                                                  max_device_data_char_dict)
 
         self.view = AddDeviceWindow('Add Device', self.parent, self)
 
