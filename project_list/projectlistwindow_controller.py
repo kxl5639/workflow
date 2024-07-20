@@ -133,7 +133,6 @@ class ProjectListWindowController(Controller):
         self.view.tree_frame.tree.see(selected_record_iid)
 
     def update_existing_record_obj(self):
-        print('about to modify')
         proj_data_dict = self.project_data
         pm_first_name = proj_data_dict['pm_first_name']
         pm_last_name = proj_data_dict['pm_last_name']
@@ -173,10 +172,8 @@ class ProjectListWindowController(Controller):
         data = self.project_data        
         proj_num_to_add = data['project_number']
         existing_proj_nums = self.model.query_proj_nums()
-        print(existing_proj_nums)
         for existing_proj_num in existing_proj_nums:
             if proj_num_to_add in existing_proj_num:
-                print('Fond a duplicate')
                 messagebox.showwarning('Duplicate Project',
                                        f'Cannot add project. {proj_num_to_add} already exists.',
                                        parent=parent)

@@ -89,6 +89,32 @@ class DeviceListBaseController(Controller):
 
         return systems_devices_data_dict, max_device_data_char_dict, number_of_systems
 
+    def set_systems_devices_data_vars(self):       
+        systems_devices_data_dict = {}
+        max_device_data_char_dict = {}  
+        self.systems_devices_data_dict, self.max_device_data_char_dict, _ = self.get_devices_data(self.controller,
+                                                                                                    self.system_key,
+                                                                                                    systems_devices_data_dict,
+                                                                                                    max_device_data_char_dict)
+
+    def delete_device_btn_cmd(self, system_key, device_model):
+        # Get device id
+        device_id = self.model.get_vals_from_rec_objs(Device, ['id'], {'model': device_model})[0]['id']
+        # Get systemdevices_id
+        system_id = system_key[0]
+        # Get systemdevices object
+        systemdevices_obj = self.model.get_rec_objs_by_opt_filts(SystemDevice,
+                                                                 {'device_id': device_id, 'system_id': system_id})[0]
+        print(f'{systemdevices_obj = }')
+        self.model.delete_record([systemdevices_obj]) 
+        self.model.commit_changes()
+        self.refresh_devices()
+
+    def refresh_devices(self):
+        self.view.device_list_frame.destroy()
+        self.set_systems_devices_data_vars()
+        self.view.create_exist_device_list()
+
 class DeviceListBaseView(ListWindow):
     def __init__(self, title, parent, controller, is_root=False):
         super().__init__(title, parent, controller, is_root)
@@ -157,7 +183,6 @@ class DeviceListBaseView(ListWindow):
                 create_device_label(parent, row_idx, system_key, 'devices_models', 3, systems_devices_data_dict)
                 create_device_spinbox(parent, row_idx, system_key, 'devices_qtys', 4, systems_devices_data_dict)
                 create_device_combobox(parent, row_idx, system_key, 'devices_dwgs', 5, systems_devices_data_dict)
-                print(f'\nsystem_devices_data_dict: {systems_devices_data_dict}')
                 device_on_this_iteration = systems_devices_data_dict[system_key]['devices_models']['data'][row_idx]
                 delete_device_button = ButtonsFrame(parent, [('Delete',
                                                               lambda: controller.delete_device_btn_cmd(system_key,

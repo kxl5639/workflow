@@ -15,7 +15,9 @@ class ProjectDetailController(Controller):
         self.systems_devices_data_dict = {}
         self.number_of_systems = None
         self.model = ProjectDetailModel(self.project_number, self)
-        self.project_id = self.model.get_id_from_model_column_data(Project, 'project_number', self.project_number)
+        self.project_id = self.model.get_vals_from_rec_objs(Project, ['id'],
+                                                            {'project_number': self.project_number})[0]['id']
+       
         self.view = ProjectDetailWindow(f'{self.project_number} Project Detail',
                                         self.parent, self, self.project_number)
         
@@ -80,7 +82,7 @@ class ProjectDetailController(Controller):
 
         # Declare necessary objects
         new_system_name: str = entry_widget.get()
-        proj_id = self.model.get_id_from_model_column_data(Project,'project_number', self.project_number)
+        proj_id = self.model.get_vals_from_rec_objs(Project, ['id'], {'project_number': self.project_number})[0]['id']
         new_system_rec_obj = get_new_system_rec_obj(new_system_name, proj_id)
 
         ##### Need to verify that the system name doesn't already exist
@@ -155,22 +157,15 @@ class ProjectDetailController(Controller):
     
     def add_new_device(self, system_key):
         self.add_device_controller = AddDeviceController(self, system_key, self.parent, self.project_number)
-
-    def delete_device_btn_cmd(self, device_model):
-        pass
-
+    
+                
 class AddDeviceController(DeviceListBaseController):
     def __init__(self, controller, system_key, parent=None, project_number=None) -> None:
         super().__init__(parent, project_number)
         self.controller = controller
         self.system_key = system_key
-
-        systems_devices_data_dict = {}
-        max_device_data_char_dict = {}  
-        self.systems_devices_data_dict, self.max_device_data_char_dict, _ = self.get_devices_data(self.controller,
-                                                                                                  self.system_key,
-                                                                                                  systems_devices_data_dict,
-                                                                                                  max_device_data_char_dict)
-
+        self.set_systems_devices_data_vars()
         self.view = AddDeviceWindow('Add Device', self.parent, self)
+
+
 
