@@ -109,8 +109,8 @@ class View(BaseWindow):
         else:
             self.relief = 'solid'
 
-    def create_entry_widget(self,
-                            parent,
+    @staticmethod
+    def create_entry_widget(parent,
                             row: int,
                             col: int,
                             padx: int = None,

@@ -115,7 +115,7 @@ class TitleView(View):
                         lst[3].config(font='')
 
             def create_title_entry(parent, ridx):
-                title_entry = self.create_entry_widget(parent, ridx, 1, (0,10), 0)
+                title_entry = View.create_entry_widget(parent, ridx, 1, (0,10), 0)
                 title_entry.insert(0, title)
                 title_entry.config(width = 50)
                 title_entry.bind("<FocusIn>", lambda event: get_active_data_widget(title_entry))
