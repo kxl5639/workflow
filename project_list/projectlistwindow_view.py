@@ -1,4 +1,4 @@
-from class_collection import BaseWindow, ButtonsFrame, ListWindow
+from class_collection import BaseWindow, ButtonsFrame, ListWindow, View
 import tkinter as tk
 from tkinter import ttk
 from configs import testing
@@ -134,36 +134,36 @@ class ProjectAddModifyWindow(BaseWindow):
 
     def create_mc_section(self):
         self.mc_frame = self.create_section_frame("Mechanical Contractor", 0, 3)
-        self.mc_name = self.create_label_entry(self.mc_frame, "Name", 0, 0)
-        self.mc_address = self.create_label_entry(self.mc_frame, "Address", 1, 0)
-        self.mc_city = self.create_label_entry(self.mc_frame, "City", 2, 0)
-        self.mc_state = self.create_label_entry(self.mc_frame, "State", 3, 0)
-        self.mc_zip_code = self.create_label_entry(self.mc_frame, "Zip Code", 4, 0)
-        self.mc_telephone = self.create_label_entry(self.mc_frame, "Telephone", 5, 0)
+        self.mc_name = View.create_label_entry(self.mc_frame, "Name", 0, 0)
+        self.mc_address = View.create_label_entry(self.mc_frame, "Address", 1, 0)
+        self.mc_city = View.create_label_entry(self.mc_frame, "City", 2, 0)
+        self.mc_state = View.create_label_entry(self.mc_frame, "State", 3, 0)
+        self.mc_zip_code = View.create_label_entry(self.mc_frame, "Zip Code", 4, 0)
+        self.mc_telephone = View.create_label_entry(self.mc_frame, "Telephone", 5, 0)
     
     def create_me_section(self):
         self.me_frame = self.create_section_frame('Mechanical Engineer', 0, 2)
-        self.me_name = self.create_label_entry(self.me_frame, "Name", 0, 0)
-        self.me_address = self.create_label_entry(self.me_frame, "Address", 1, 0)
-        self.me_city = self.create_label_entry(self.me_frame, "City", 2, 0)
-        self.me_state = self.create_label_entry(self.me_frame, "State", 3, 0)
-        self.me_zip_code = self.create_label_entry(self.me_frame, "Zip Code", 4, 0)
+        self.me_name = View.create_label_entry(self.me_frame, "Name", 0, 0)
+        self.me_address = View.create_label_entry(self.me_frame, "Address", 1, 0)
+        self.me_city = View.create_label_entry(self.me_frame, "City", 2, 0)
+        self.me_state = View.create_label_entry(self.me_frame, "State", 3, 0)
+        self.me_zip_code = View.create_label_entry(self.me_frame, "Zip Code", 4, 0)
 
     def create_client_section(self):
         self.client_frame = self.create_section_frame('Client', 0, 1)
-        self.client_name = self.create_label_entry(self.client_frame, "Client", 0, 0)
-        self.client_scope = self.create_label_entry(self.client_frame, "Scope", 1, 0)
-        self.client_address = self.create_label_entry(self.client_frame, "Address", 2, 0)
-        self.client_city = self.create_label_entry(self.client_frame, "City", 3, 0)
-        self.client_state = self.create_label_entry(self.client_frame, "State", 4, 0)
-        self.client_zip_code = self.create_label_entry(self.client_frame, "Zip Code", 5, 0)
+        self.client_name = View.create_label_entry(self.client_frame, "Client", 0, 0)
+        self.client_scope = View.create_label_entry(self.client_frame, "Scope", 1, 0)
+        self.client_address = View.create_label_entry(self.client_frame, "Address", 2, 0)
+        self.client_city = View.create_label_entry(self.client_frame, "City", 3, 0)
+        self.client_state = View.create_label_entry(self.client_frame, "State", 4, 0)
+        self.client_zip_code = View.create_label_entry(self.client_frame, "Zip Code", 5, 0)
 
     def create_project_section(self):
         self.project_frame = self.create_section_frame('Project Info', 0, 0)
-        self.project_number_entry = self.create_label_entry(self.project_frame, 'Project Number', 0, 0)
-        self.em_type_entry = self.create_label_entry(self.project_frame, 'EM Type', 1, 0)
-        self.job_phase_entry = self.create_label_entry(self.project_frame, 'Job Phase', 2, 0)
-        self.submit_date_entry = self.create_label_entry(self.project_frame, 'Submit Date', 3, 0)
+        self.project_number_entry = View.create_label_entry(self.project_frame, 'Project Number', 0, 0)
+        self.em_type_entry = View.create_label_entry(self.project_frame, 'EM Type', 1, 0)
+        self.job_phase_entry = View.create_label_entry(self.project_frame, 'Job Phase', 2, 0)
+        self.submit_date_entry = View.create_label_entry(self.project_frame, 'Submit Date', 3, 0)
         self.pm_name = self.create_combobox(self.project_frame, 'Project Manager', 4, 0)
         self.de_name = self.create_combobox(self.project_frame, 'Design Engineer', 5, 0)
         self.se_name = self.create_combobox(self.project_frame, 'Sales Engineer', 6, 0)

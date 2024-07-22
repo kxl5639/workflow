@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from class_collection import ButtonsFrame, BaseWindow, ListWindow
+from class_collection import ButtonsFrame, BaseWindow, View
 from tkinter import messagebox
 from devicemanager import DeviceListBaseView
 from project_detail.projectdetail_view import ProjectDetailWindow
@@ -66,7 +66,7 @@ class AddDeviceWindow(DeviceListBaseView):
             return system_name_frame
             
         def create_system_name_label(parent):
-            system_name_label = self.create_label(parent, 0, 0, 0, 0, relief=self.relief)
+            system_name_label = View.create_label(parent, 0, 0, 0, 0, relief=self.relief)
             system_name_label['text'] = f'SYSTEM: {self.controller.system_key[1]}'
             return system_name_label
 
@@ -79,10 +79,11 @@ class AddDeviceWindow(DeviceListBaseView):
         self.system_name_frame = create_system_name_frame(self.device_list_frame)
         create_system_name_label(self.system_name_frame)
         self.devices_frame = create_devices_frame(self.device_list_frame)
-        device_selection_frame = DeviceListBaseView.create_device_section(self.controller, self.devices_frame,
-                                                 self.controller.system_key,
-                                                 self.controller.systems_devices_data_dict,
-                                                 self.controller.max_device_data_char_dict)
+        device_selection_frame = DeviceListBaseView.create_device_section(self.controller,
+                                                                          self.devices_frame,
+                                                                          self.controller.system_key,
+                                                                          self.controller.systems_devices_data_dict,
+                                                                          self.controller.max_device_data_char_dict)
         self.device_list_frame.update_idletasks()
         device_selection_frame.update_idletasks()
         device_list_frame_width = self.device_list_frame.winfo_width()

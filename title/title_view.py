@@ -43,7 +43,7 @@ class TitleView(View):
                                                  padx=0, pady=(0,10), sticky='nsew',
                                                  relief = self.relief)
         
-        self.create_label(project_number_frame, f'EM: {self.project_number}',
+        View.create_label(project_number_frame, f'EM: {self.project_number}',
                           0, 0, padx=0, pady=0,
                           sticky='w', relief=self.relief)
     
@@ -60,7 +60,7 @@ class TitleView(View):
     def create_and_populate_titles_frame(self):
 
         def create_titles_frame():
-            self.titles_label_frame = self.create_label_frame(self.base_frame, 'Titles', 1, 0,
+            self.titles_label_frame = View.create_label_frame(self.base_frame, 'Titles', 1, 0,
                                                     padx=(0,10),pady=0,sticky='nsew',
                                                     relief=self.relief)
             return self.titles_label_frame
@@ -97,9 +97,9 @@ class TitleView(View):
 
         def create_title_header_frame(parent):
             widgets = [
-                self.create_label(parent, 'Title', 0, 1, (0,10), (0,5), sticky='nsew'),
-                self.create_label(parent, 'Diagram', 0, 2, (0,10), (0,5), sticky='nsew'),
-                self.create_label(parent, 'System', 0, 3, 0, (0,5), sticky='nsew')
+                View.create_label(parent, 'Title', 0, 1, (0,10), (0,5), sticky='nsew'),
+                View.create_label(parent, 'Diagram', 0, 2, (0,10), (0,5), sticky='nsew'),
+                View.create_label(parent, 'System', 0, 3, 0, (0,5), sticky='nsew')
             ]
             for widget in widgets:
                 widget.config(font=self.header_font, relief=self.relief, anchor='center')
@@ -148,7 +148,7 @@ class TitleView(View):
             
             if 1 <= dwgno <= 9: clean_dwgno = f'  {dwgno}'
             else: clean_dwgno = (dwgno)
-            dwgno_label = self.create_label(title_data_frame, clean_dwgno, ridx, 0, (0,5), 0)
+            dwgno_label = View.create_label(title_data_frame, clean_dwgno, ridx, 0, (0,5), 0)
 
             title_entry = create_title_entry(title_data_frame, ridx)
             diagram_combo = create_diagram_combo(title_data_frame, ridx)
@@ -164,13 +164,13 @@ class TitleView(View):
         
     def create_right_toolbar_frame(self):
         def create_menu_frame():
-            menu_frame = self.create_label_frame(right_toolbar_frame, 'Menu', 0, 0,
+            menu_frame = View.create_label_frame(right_toolbar_frame, 'Menu', 0, 0,
                                         padx=0,pady=(0,10),sticky='nsew',
                                         relief=self.relief)
             return menu_frame
         
         def create_autocad_src_frame():
-            scr_frame = self.create_label_frame(right_toolbar_frame, 'AutoCAD SCR', 1, 0,
+            scr_frame = View.create_label_frame(right_toolbar_frame, 'AutoCAD SCR', 1, 0,
                                         padx=0,pady=0,sticky='nsew',
                                         relief=self.relief)
             return scr_frame

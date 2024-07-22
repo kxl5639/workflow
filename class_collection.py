@@ -120,8 +120,8 @@ class View(BaseWindow):
         entry_widget.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
         return entry_widget
     
-    def create_label(self,
-                     parent,
+    @staticmethod
+    def create_label(parent,
                      text: str,
                      row: int,
                      col: int,
@@ -132,6 +132,7 @@ class View(BaseWindow):
         label = ttk.Label(parent, text=text, relief=relief)
         label.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
         return label
+    
     
     def create_frame(self,
                      parent,
