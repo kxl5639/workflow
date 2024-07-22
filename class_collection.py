@@ -133,9 +133,8 @@ class View(BaseWindow):
         label.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
         return label
     
-    
-    def create_frame(self,
-                     parent,
+    @staticmethod
+    def create_frame(parent,
                      row: int,
                      col: int,
                      padx: int  = 0,

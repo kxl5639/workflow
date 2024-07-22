@@ -55,13 +55,13 @@ class AddDeviceWindow(DeviceListBaseView):
 
     def create_exist_device_list(self):
         def create_device_list_frame(parent):
-            device_list_frame = self.create_frame(parent, 1, 0, 0, 0,
+            device_list_frame = View.create_frame(parent, 1, 0, 0, 0,
                                                   relief=None)
             return device_list_frame
         
         def create_system_name_frame(parent):
             
-            system_name_frame = self.create_frame(parent, 0, 1, 0, 0,
+            system_name_frame = View.create_frame(parent, 0, 1, 0, 0,
                                                   relief=self.relief)
             return system_name_frame
             
@@ -71,7 +71,7 @@ class AddDeviceWindow(DeviceListBaseView):
             return system_name_label
 
         def create_devices_frame(parent):
-            devices_frame = self.create_frame(parent, 1, 1, 0, 0,
+            devices_frame = View.create_frame(parent, 1, 1, 0, 0,
                                                 relief=self.relief)
             return devices_frame
 
@@ -90,10 +90,10 @@ class AddDeviceWindow(DeviceListBaseView):
         device_selection_frame_width = device_selection_frame.winfo_width()
 
         spacer_width = (device_list_frame_width-device_selection_frame_width)/2
-        self.create_frame(self.device_list_frame, 0, 0, 0, 0).configure(width=spacer_width)
-        self.create_frame(self.device_list_frame , 0, 2, 0, 0).configure(width=spacer_width)
-        self.create_frame(self.device_list_frame, 1, 0, 0, 0).configure(width=spacer_width)
-        self.create_frame(self.device_list_frame, 1, 2, 0, 0).configure(width=spacer_width)
+        View.create_frame(self.device_list_frame, 0, 0, 0, 0).configure(width=spacer_width)
+        View.create_frame(self.device_list_frame , 0, 2, 0, 0).configure(width=spacer_width)
+        View.create_frame(self.device_list_frame, 1, 0, 0, 0).configure(width=spacer_width)
+        View.create_frame(self.device_list_frame, 1, 2, 0, 0).configure(width=spacer_width)
 
     
     def on_double_click(self):
