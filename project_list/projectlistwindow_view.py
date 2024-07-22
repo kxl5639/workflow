@@ -164,9 +164,9 @@ class ProjectAddModifyWindow(BaseWindow):
         self.em_type_entry = View.create_label_entry(self.project_frame, 'EM Type', 1, 0)
         self.job_phase_entry = View.create_label_entry(self.project_frame, 'Job Phase', 2, 0)
         self.submit_date_entry = View.create_label_entry(self.project_frame, 'Submit Date', 3, 0)
-        self.pm_name = self.create_combobox(self.project_frame, 'Project Manager', 4, 0)
-        self.de_name = self.create_combobox(self.project_frame, 'Design Engineer', 5, 0)
-        self.se_name = self.create_combobox(self.project_frame, 'Sales Engineer', 6, 0)
+        self.pm_name = View.create_combobox(self.project_frame, 'Project Manager', 4, 0)
+        self.de_name = View.create_combobox(self.project_frame, 'Design Engineer', 5, 0)
+        self.se_name = View.create_combobox(self.project_frame, 'Sales Engineer', 6, 0)
 
     def create_data_frame(self):
         data_frame = ttk.Frame(self.base_frame)

@@ -39,7 +39,7 @@ class TitleView(View):
             self.root.destroy()   
 
     def create_project_number_frame(self):
-        project_number_frame = self.create_frame(self.base_frame, 0, 0,
+        project_number_frame = View.create_frame(self.base_frame, 0, 0,
                                                  padx=0, pady=(0,10), sticky='nsew',
                                                  relief = self.relief)
         
@@ -90,7 +90,7 @@ class TitleView(View):
         def create_title_col_frame(cidx):
             if cidx == 0: xpad = 10
             else: xpad = (0,10)
-            title_col_frame = self.create_frame(self.titles_label_frame, 0, cidx,
+            title_col_frame = View.create_frame(self.titles_label_frame, 0, cidx,
                                                 padx=xpad, pady=10, sticky='nsew',
                                                 relief='solid')
             return title_col_frame
@@ -122,7 +122,7 @@ class TitleView(View):
                 return title_entry
 
             def create_diagram_combo(parent, ridx):
-                diagram_combo = self.create_combobox(parent, ridx, 2, (0,10), 0, state='readonly')
+                diagram_combo = View.create_combobox(parent, ridx, 2, (0,10), 0, state='readonly')
                 diagram_combo.set(diagram_name)
                 diagram_combo.config(values=self.controller.diagram_options,
                                     width=max(len(option) for option in self.controller.diagram_options))
@@ -130,7 +130,7 @@ class TitleView(View):
                 return diagram_combo
 
             def create_system_combo(parent, ridx):
-                system_combo = self.create_combobox(parent, ridx, 3, 0, 0, state='readonly')
+                system_combo = View.create_combobox(parent, ridx, 3, 0, 0, state='readonly')
                 system_combo.set(system_name)
                 system_combo.config(values=self.controller.systems_list,
                                     width=max(len('system'), max(len(option) for option in self.controller.systems_list)))
@@ -141,7 +141,7 @@ class TitleView(View):
                 ypad = 10
             else:
                 ypad = (0,10)
-            title_data_frame = self.create_frame(self.title_col_frames_list[-1],
+            title_data_frame = View.create_frame(self.title_col_frames_list[-1],
                                                  ridx, 0, 10, ypad, relief=self.relief)
             
             if ridx == 1: create_title_header_frame(title_data_frame)
@@ -225,7 +225,7 @@ class TitleView(View):
         def scr_btn_cmd(self):
             pass
         
-        right_toolbar_frame = self.create_frame(self.base_frame, 1, 1,
+        right_toolbar_frame = View.create_frame(self.base_frame, 1, 1,
                                                  padx=0,pady=0,sticky='nsew',
                                                  relief=self.relief)
         menu_frame = create_menu_frame()

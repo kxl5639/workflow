@@ -133,9 +133,8 @@ class View(BaseWindow):
         label.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
         return label
     
-    
-    def create_frame(self,
-                     parent,
+    @staticmethod
+    def create_frame(parent,
                      row: int,
                      col: int,
                      padx: int  = 0,
@@ -146,8 +145,8 @@ class View(BaseWindow):
         frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
         return frame
     
-    def create_label_frame(self,
-                           parent,
+    @staticmethod
+    def create_label_frame(parent,
                            text: str,
                            row: int,
                            col: int,
@@ -159,8 +158,8 @@ class View(BaseWindow):
         frame.grid(row=row, column=col, padx=padx, pady=pady, sticky=sticky)
         return frame
     
-    def create_combobox(self,
-                        parent,
+    @staticmethod
+    def create_combobox(parent,
                         row: int,
                         col: int,
                         padx: int  = 0,
