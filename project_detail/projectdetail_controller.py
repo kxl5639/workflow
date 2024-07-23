@@ -157,7 +157,12 @@ class ProjectDetailController(Controller):
     
     def add_new_device(self, system_key):
         self.add_device_controller = AddDeviceController(self, system_key, self.parent, self.project_number)
-    
+
+    def delete_device_btn_cmd(self, parent, system_key, device_on_this_iteration, widget_list, button_frame):
+        DeviceListBaseController.delete_device_record(self, system_key, device_on_this_iteration)
+        for widget in widget_list:
+            widget.destroy()
+        button_frame.destroy()    
                 
 class AddDeviceController(DeviceListBaseController):
     def __init__(self, controller, system_key, parent=None, project_number=None) -> None:
@@ -167,5 +172,7 @@ class AddDeviceController(DeviceListBaseController):
         self.set_systems_devices_data_vars()
         self.view = AddDeviceWindow('Add Device', self.parent, self)
 
+    def delete_device_btn_cmd(self, device_on_this_iteration):
+        print(f'{device_on_this_iteration = }')
 
 

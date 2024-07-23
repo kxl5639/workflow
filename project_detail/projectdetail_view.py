@@ -171,5 +171,9 @@ class ProjectDetailWindow(BaseWindow):
 
         if self.controller.number_of_systems != 0:
             for system_key, system_frame in self.system_frames_collec_dict.items():
-                device_base_frame = DeviceListBaseView.create_device_section(self.controller, system_frame[1], system_key, systems_devices_data_dict, max_device_data_char_dict)
+                device_base_frame = DeviceListBaseView.create_device_section(self.controller,
+                                                                             system_frame[1],
+                                                                             system_key,
+                                                                             systems_devices_data_dict,
+                                                                             max_device_data_char_dict)
                 create_add_device_button(device_base_frame, system_key)
