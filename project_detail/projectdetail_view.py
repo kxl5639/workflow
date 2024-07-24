@@ -164,6 +164,7 @@ class ProjectDetailWindow(BaseWindow):
         def create_add_device_button(parent, system_key):
                 def add_device_button_cmd():
                     self.controller.add_new_device(system_key)
+
                 device_add_button_frame = ButtonsFrame(parent, [('Add Device',
                                                                  lambda: add_device_button_cmd())])
                 device_add_button_frame.button_frame.grid(row=1, column=0,
@@ -171,7 +172,7 @@ class ProjectDetailWindow(BaseWindow):
 
         if self.controller.number_of_systems != 0:
             for system_key, system_frame in self.system_frames_collec_dict.items():
-                device_base_frame = DeviceListBaseView.create_device_section(self.controller,
+                device_base_frame, _ = DeviceListBaseView.create_device_section(self.controller,
                                                                              system_frame[1],
                                                                              system_key,
                                                                              systems_devices_data_dict,

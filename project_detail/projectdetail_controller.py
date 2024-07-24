@@ -17,9 +17,8 @@ class ProjectDetailController(Controller):
         self.model = ProjectDetailModel(self.project_number, self)
         self.project_id = self.model.get_vals_from_rec_objs(Project, ['id'],
                                                             {'project_number': self.project_number})[0]['id']
-       
-        self.view = ProjectDetailWindow(f'{self.project_number} Project Detail',
-                                        self.parent, self, self.project_number)
+
+        self.view = self.instantiate_view()
         
         if testing == 1:
             # ProjectDetailWindow(f'{self.project_number} Project Detail',
@@ -27,7 +26,11 @@ class ProjectDetailController(Controller):
             self.add_new_device((2, 'AHU'))
             pass
         
-#####################################################################################    
+#####################################################################################  
+
+    def instantiate_view(self):
+        return ProjectDetailWindow(f'{self.project_number} Project Detail',
+                                        self.parent, self, self.project_number)
     
     def get_systems_devices_data(self):
         def get_systems_keys():
@@ -170,9 +173,39 @@ class AddDeviceController(DeviceListBaseController):
         self.controller = controller
         self.system_key = system_key
         self.set_systems_devices_data_vars()
-        self.view = AddDeviceWindow('Add Device', self.parent, self)
+        self.view = self.instantiate_view()
 
-    def delete_device_btn_cmd(self, device_on_this_iteration):
-        print(f'{device_on_this_iteration = }')
+    def instantiate_view(self):
+        return AddDeviceWindow('Add Device', self.parent, self)
+
+    def delete_device_btn_cmd(self, parent, system_key, device_on_this_iteration, widget_list, button_frame):
+        DeviceListBaseController.delete_device_record(self, system_key, device_on_this_iteration)
+        for widget in widget_list:
+            widget.destroy()
+        button_frame.destroy()
+
+    def on_close(self):
+        print('Closing Add Device Window')
+        self.controller.view.root.destroy()
+        self.controller.view = self.controller.instantiate_view()
+        self.view.root.destroy()
+
+    # def select_device(self, device_model):
+    #     # Get device obj values from model
+    #     add_systemdevices_obj_list = []
+    #     device_id = DeviceListBaseController.get_device_id_from_model(self, device_model)
+    #     add_systemdevices_obj_list.append(SystemDevice(system_id = self.system_key[0],
+    #                                                    device_id = device_id,
+    #                                                    ))
+    #     add_dwgtitle_obj_list.append(DwgTitle(title = add_dict['title'],
+
+        
+    #                                             dwgno = add_dict['dwgno'],
+    #                                             project_id = self.project_id,
+    #                                             system_id = system_id))                                                                                                                                           self.system_key,
+        # print(f'{self.systems_devices_data_dict = }')
+        # print(f'{self.max_device_data_char_dict = }')       
+        # Add new device frame to gui
+        
 
 

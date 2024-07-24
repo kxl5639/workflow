@@ -42,7 +42,7 @@ class AddDeviceWindow(DeviceListBaseView):
         super().__init__(title, parent, controller, is_root)
         self.root.resizable(width=False, height=False)
         self.create_exist_device_list()
-
+        self.root.protocol("WM_DELETE_WINDOW", controller.on_close)
         self.center_window(self.root)
 
 ###################### Frame Structure ######################
@@ -79,7 +79,7 @@ class AddDeviceWindow(DeviceListBaseView):
         self.system_name_frame = create_system_name_frame(self.device_list_frame)
         create_system_name_label(self.system_name_frame)
         self.devices_frame = create_devices_frame(self.device_list_frame)
-        device_selection_frame = DeviceListBaseView.create_device_section(self.controller,
+        device_selection_frame, self.device_tag_entry_list = DeviceListBaseView.create_device_section(self.controller,
                                                                           self.devices_frame,
                                                                           self.controller.system_key,
                                                                           self.controller.systems_devices_data_dict,
@@ -97,5 +97,22 @@ class AddDeviceWindow(DeviceListBaseView):
 
     
     def on_double_click(self):
-        pass
         
+        item_id = self.tree_frame.tree.selection()[0]
+        item = self.tree_frame.tree.item(item_id)
+        device_model = item['values'][3]
+
+        spec_qty_window = BaseWindow('Specify Quantity', self, self.controller)   
+        prompt_label = self.create_label(spec_qty_window.base_frame,
+                                         f'Specify quantity of {device_model} to be added:',
+                                         0, 0, (0,0), (0,0))
+        qty_spinbox = ttk.Spinbox(spec_qty_window.base_frame, from_=0, to=9999, width=4)
+        qty_spinbox.grid(row=1, column=0, sticky='nsew')
+
+        # Make the window stay on top
+        spec_qty_window.root.attributes('-topmost', True)
+        # Disable interactions with the main window
+        self.parent.root.attributes('-disabled', True)
+        # Make other windows frozen
+        spec_qty_window.root.grab_set()
+        BaseWindow.center_window(spec_qty_window.root)

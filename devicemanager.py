@@ -96,11 +96,15 @@ class DeviceListBaseController(Controller):
                                                                                                     self.system_key,
                                                                                                     systems_devices_data_dict,
                                                                                                     max_device_data_char_dict)
+    @classmethod
+    def get_device_id_from_model(cls, controller, device_model):
+        device_id = controller.model.get_vals_from_rec_objs(Device, ['id'], {'model': device_model})[0]['id']
+        return device_id
 
     @classmethod
     def delete_device_record(cls, controller, system_key, device_model):
         # Get device id
-        device_id = controller.model.get_vals_from_rec_objs(Device, ['id'], {'model': device_model})[0]['id']
+        device_id = DeviceListBaseController.get_device_id_from_model(controller, device_model)
         # Get systemdevices_id
         system_id = system_key[0]
         # Get systemdevices object
@@ -197,6 +201,7 @@ class DeviceListBaseView(ListWindow):
                                                                                                        widget_list,
                                                                                                        delete_device_button.button_frame))])
                 delete_device_button.button_frame.grid(row=row_idx+1, column=6, padx=(5,0))
+                return device_tag_entry
 
             def create_device_header(parent, max_device_data_char_dict):
                 def extract_model_from_string(input_string):
@@ -222,20 +227,23 @@ class DeviceListBaseView(ListWindow):
                     label_tag = ttk.Label(parent, text=header, width=width_list[idx]-1, font=("Helvetica", 10, "bold"))
                     label_tag.grid(row=0,column=idx,sticky='nsew')
             #endregion
-
+            
+            device_tag_entry_list = []
             manufs_list = systems_devices_data_dict[system_key]['devices_manufs']['data']
             if manufs_list:
                 num_devices = len(manufs_list)
                 create_device_header(parent, max_device_data_char_dict)
                 for row_idx in range(num_devices):
-                    create_device_frame(parent, row_idx, system_key, systems_devices_data_dict)
+                    device_tag_entry = create_device_frame(parent, row_idx, system_key, systems_devices_data_dict)
+                    device_tag_entry_list.append(device_tag_entry)
+            return device_tag_entry_list
         #endregion
         
         device_base_frame = create_device_base_frame(parent)
         device_data_frame = create_data_frame(device_base_frame)
-        iter_generate_device_frame(device_data_frame, system_key, systems_devices_data_dict, max_device_data_char_dict)
+        device_tag_entry_list = iter_generate_device_frame(device_data_frame, system_key, systems_devices_data_dict, max_device_data_char_dict)
         
-        return device_base_frame
+        return device_base_frame, device_tag_entry_list
 
 class DeviceListBaseModel(Model):
     def __init__(self, controller=None) -> None:
