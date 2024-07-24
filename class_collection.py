@@ -209,6 +209,7 @@ class ButtonsFrame:
     def __init__(self, parent, button_info) -> None:
         self.parent = parent
         self.button_info = button_info
+        self.button_list = []
         self.button_frame = self.create_button_frame()
 
     def create_button_frame(self):
@@ -227,6 +228,7 @@ class ButtonsFrame:
                         padx=(gen_pad if index != 0 else 0,
                             gen_pad if index != len(self.button_info) - 1 else 0),
                             pady=0, sticky="nsew")
+            self.button_list.append(button)
         
         return button_frame
     

@@ -106,9 +106,18 @@ class AddDeviceWindow(DeviceListBaseView):
         prompt_label = self.create_label(spec_qty_window.base_frame,
                                          f'Specify quantity of {device_model} to be added:',
                                          0, 0, (0,0), (0,0))
-        qty_spinbox = ttk.Spinbox(spec_qty_window.base_frame, from_=0, to=9999, width=4)
-        qty_spinbox.grid(row=1, column=0, sticky='nsew')
+        qty_spinbox = ttk.Spinbox(spec_qty_window.base_frame, from_=0, to=9999, width=5)
+        qty_spinbox.grid(row=1, column=0, pady=(10,0))
 
+        add_button_frame = ButtonsFrame(spec_qty_window.base_frame,
+                                        [('Add',
+                                          lambda: self.controller.add_dev_btn_cmd(spec_qty_window.root,
+                                                                                  device_model,
+                                                                                  qty_spinbox.get()))])
+        add_button_frame.button_frame.grid(row=2,column=0, pady=(10,0), sticky='ns')
+
+        # Enter key invokes add button
+        qty_spinbox.bind('<Return>', lambda event: add_button_frame.button_list[0].invoke())
         # Make the window stay on top
         spec_qty_window.root.attributes('-topmost', True)
         # Disable interactions with the main window
