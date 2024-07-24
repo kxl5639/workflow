@@ -190,6 +190,8 @@ class AddDeviceController(DeviceListBaseController):
         self.controller.view = self.controller.instantiate_view()
         self.view.root.destroy()
 
+    def add_dev_btn_cmd(self, dev_model, qty):
+        print('Add Device Button Clicked')
     # def select_device(self, device_model):
     #     # Get device obj values from model
     #     add_systemdevices_obj_list = []
