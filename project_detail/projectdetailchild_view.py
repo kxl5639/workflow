@@ -111,11 +111,13 @@ class AddDeviceWindow(DeviceListBaseView):
 
         add_button_frame = ButtonsFrame(spec_qty_window.base_frame,
                                         [('Add',
-                                          lambda: self.controller.add_dev_btn_cmd(device_model,qty_spinbox.get()))])
+                                          lambda: self.controller.add_dev_btn_cmd(spec_qty_window.root,
+                                                                                  device_model,
+                                                                                  qty_spinbox.get()))])
         add_button_frame.button_frame.grid(row=2,column=0, pady=(10,0), sticky='ns')
 
         # Enter key invokes add button
-        self.root.bind_all('<Return>', add_button_frame.button_list[0].invoke())
+        qty_spinbox.bind('<Return>', lambda event: add_button_frame.button_list[0].invoke())
         # Make the window stay on top
         spec_qty_window.root.attributes('-topmost', True)
         # Disable interactions with the main window
